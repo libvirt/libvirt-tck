@@ -1,0 +1,56 @@
+#!/bin/sh
+# -*- shell -*-
+
+DATADIR=/usr/share/libvirt-tck
+TESTDIR=$DATADIR/tests
+CONFDIR=/etc/libvirt-tck
+
+HOSTNAME=`hostname`
+MODE=text
+#MODE=html
+
+CONFNAME=$1
+
+help () {
+  echo "syntax: $0 CONFNAME [TESTDIR]"
+}
+
+if [ -z "$CONFNAME" ]; then
+  help
+  exit 1
+fi
+
+if [ -f "$CONFNAME.cfg" ]; then
+  CONFFILE="$CONFNAME.cfg"
+else
+  if [ -f "./conf/$CONFNAME.cfg" ]; then
+    CONFFILE="./conf/$CONFNAME.cfg"
+  else
+    CONFFILE="$CONFDIR/$CONFNAME.cfg"
+    if [ ! -f "$CONFFILE" ]; then
+       echo "config file $CONFFILE does not exist"
+       exit 2
+    fi
+  fi
+fi
+ARCHIVE="libvirt-tck-$CONFNAME-$HOSTNAME.tar.gz"
+
+EXTRAARGS=
+if [ $MODE = "text" ]; then
+  OUTPUTFILE=libvirt-tck-$CONFNAME-$HOSTNAME.log
+  EXTRAARGS="-v"
+else
+  OUTPUTFILE=libvirt-tck-$CONFNAME-$HOSTNAME.html
+  EXTRAARGS="-m -Q --formatter=TAP::Formatter::HTML"
+fi
+
+
+if [ ! -z "$2" ]; then
+  TESTDIR=$2
+fi
+
+export LIBVIRT_TCK_CONFIG=$CONFFILE
+
+#exec prove -a $ARCHIVE $EXTRAARGS -r --norc $TESTDIR > $OUTPUTFILE
+exec prove -a $ARCHIVE $EXTRAARGS -r --norc $TESTDIR
+

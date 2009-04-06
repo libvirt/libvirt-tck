@@ -48,7 +48,7 @@ if (-f "$conf.cfg") {
     }
 }
 
-my @newargv = ("-r", "--norc", $testdir);
+my @newargv = ("-r", "--norc", "--merge", $testdir);
 
 if ($archive) {
     push @newargv, "-a", $archive;

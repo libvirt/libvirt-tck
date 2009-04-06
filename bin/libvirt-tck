@@ -1,56 +1,76 @@
-#!/bin/sh
-# -*- shell -*-
+#!/usr/bin/perl
+# -*- perl -*-
 
-DATADIR=/usr/share/libvirt-tck
-TESTDIR=$DATADIR/tests
-CONFDIR=/etc/libvirt-tck
+use strict;
+use warnings;
 
-HOSTNAME=`hostname`
-MODE=text
-#MODE=html
+use Getopt::Long;
+use Sys::Hostname;
+use App::Prove;
 
-CONFNAME=$1
+my $datadir = "/usr/share/libvirt-tck";
+my $confdir = "/etc/libvirt-tck";
 
-help () {
-  echo "syntax: $0 CONFNAME [TESTDIR]"
+my $host = hostname();
+
+
+use Getopt::Long;
+
+my $verbose = 0;
+my $format = "text";
+my $testdir = "$datadir/tests";
+my $archive;
+
+GetOptions("verbose" => \$verbose,
+	   "archive=s" => \$archive,
+	   "format=s" => \$format,
+           "testdir=s" => \$testdir);
+
+sub help {
+    print "syntax: $0 CONFNAME\n";
+    exit 1;
 }
 
-if [ -z "$CONFNAME" ]; then
-  help
-  exit 1
-fi
+my $conf = shift @ARGV;
 
-if [ -f "$CONFNAME.cfg" ]; then
-  CONFFILE="$CONFNAME.cfg"
-else
-  if [ -f "./conf/$CONFNAME.cfg" ]; then
-    CONFFILE="./conf/$CONFNAME.cfg"
-  else
-    CONFFILE="$CONFDIR/$CONFNAME.cfg"
-    if [ ! -f "$CONFFILE" ]; then
-       echo "config file $CONFFILE does not exist"
-       exit 2
-    fi
-  fi
-fi
-ARCHIVE="libvirt-tck-$CONFNAME-$HOSTNAME.tar.gz"
+&help unless $conf;
 
-EXTRAARGS=
-if [ $MODE = "text" ]; then
-  OUTPUTFILE=libvirt-tck-$CONFNAME-$HOSTNAME.log
-  EXTRAARGS="-v"
-else
-  OUTPUTFILE=libvirt-tck-$CONFNAME-$HOSTNAME.html
-  EXTRAARGS="-m -Q --formatter=TAP::Formatter::HTML"
-fi
+my $conffile;
+if (-f "$conf.cfg") {
+    $conffile = "$conf.cfg";
+} elsif (-f "./conf/$conf.cfg") {
+    $conffile = "./conf/$conf.cfg"
+} else {
+    $conffile = "$confdir/$conf.cfg";
+    unless (-f "$conffile") {
+	print STDERR "config file $conffile does not exist\n";
+	exit 2;
+    }
+}
+
+my @newargv = ("-r", "--norc", $testdir);
+
+if ($archive) {
+    push @newargv, "-a", $archive;
+}
+
+if ($verbose) {
+    push @newargv, "-v";
+} elsif ($format ne "text") {
+    push @newargv, "-m", "-Q";
+}
+
+if ($format eq "xml") {
+    push @newargv, "--formatter=Sys::Virt::TCK::TAP::XMLFormatter";
+}
+
+if ($format eq "html") {
+    push @newargv, "--formatter=TAP::Formatter::HTML"
+}
 
 
-if [ ! -z "$2" ]; then
-  TESTDIR=$2
-fi
+$ENV{LIBVIRT_TCK_CONFIG} = $conffile;
 
-export LIBVIRT_TCK_CONFIG=$CONFFILE
-
-#exec prove -a $ARCHIVE $EXTRAARGS -r --norc $TESTDIR > $OUTPUTFILE
-exec prove -a $ARCHIVE $EXTRAARGS -r --norc $TESTDIR
-
+my $app = App::Prove->new;
+$app->process_args(@newargv);
+exit ($app->run ? 0 : 1);

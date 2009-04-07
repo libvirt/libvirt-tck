@@ -1,4 +1,3 @@
-pm_to_blib
 .*\.old
 .*\.bak
 Sys-Virt-TCK-
@@ -11,3 +10,6 @@ blib
 .*\.orig
 data/
 results/
+^Build$
+^_build/
+^cover_db/

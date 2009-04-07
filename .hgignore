@@ -10,3 +10,7 @@ Sys-Virt-TCK-.*
 ^results/
 ^data/
 ^META.yml$
+^cover_db/
+^_build/
+^perl-Sys-Virt-TCK\.spec$
+^Build$

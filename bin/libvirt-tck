@@ -1,51 +1,155 @@
 #!/usr/bin/perl
 # -*- perl -*-
+#
+
+=head1 NAME
+
+libvirt-tck - libvirt Technology Compatability Kit
+
+=head1 SYNOPSIS
+
+ # libvirt-tck [OPTIONS]
+
+Run with default config, probing for URI to use
+
+ # libvirt-tck
+
+Run with a custom config
+
+ # libvirt-tck --config /etc/libvirt/other.cfg
+
+Run with verbose progress information
+
+ # libvirt-tck -v
+
+Generate a formal XML document of results
+
+ # libvirt-tck --format xml
+
+=head1 DESCRIPTION
+
+The C<libvirt-tck> (libvirt Technology Compatability Kit) command
+provides the primary mechanism to run the functional, integration
+test suite for libvirt drivers.
+
+=head2 WARNING
+
+There now follows a few words of warning
+
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+The test suite needs to have a completely 'clean' initial
+starting state and will do its best to make it so. Thus,
+when this command runs, all existing (running and/or inactive)
+guest domains, virtual networks, storage pools, or other libvirt
+managed objects WILL BE DELETED.
+
+To repeat: ALL YOUR EXISTING DOMAINS WILL BE DELETED
+
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+The warning is now complete, continue reading
+
+=head2 OPTIONS
+
+If invoked without any arguments the test suite will run using
+the default configuration file from C</etc/libvirt-tck/default.cfg>
+and will allow libvirt to probe for the hypervisor driver to
+run. If a reliably repeatable test result set is desired, it is
+recommended to always give an explicit libvirt connection URI
+to choose the driver. The following options are available when
+running the C<libvirt-tck> command
+
+=over 4
+
+=item -v, --verbose
+
+Display fine details of individual test progresss. Without this
+only the name of each test will be printed, along with details
+of failures.
+
+=item -q, --quiet
+
+Do not display any information about test progress, not even
+the name of each test case
+
+=item -c, --config FILE
+
+Specify the name of the configuration file to use, rather than
+the default C</etc/libvirt-tck/default.cfg>
+
+=item -f, --format text|html|xml
+
+Choose the output format for the test results. The default format
+is C<text>, producing human readable results on the console. The
+C<html> option dumps an HTML file of results to STDOUT, while the
+C<xml> option generates a formal XML document of results.
+
+=item -t, --testdir PATH
+
+Specify an alternate directory path in which to find the test
+scripts to be run. If omitted, defaults to C</usr/share/libvirt-tck/tests>
+
+=item -a, --archive FILE
+
+Generate an archive containing all the raw test results. The
+filename given should end in either C<.bz>, C<.tar.gz> or
+C<.tgz>
+
+=back
+
+=cut
+
 
 use strict;
 use warnings;
 
 use Getopt::Long;
-use Sys::Hostname;
+use File::Spec::Functions qw(rootdir catdir catfile);
+use Pod::Usage;
+# Ultimately we're just a dumb wrapper around C<prove> making
+# it less tedious to run the tests than it is when using
+# C<prove> directly'
 use App::Prove;
 
-my $datadir = "/usr/share/libvirt-tck";
-my $confdir = "/etc/libvirt-tck";
 
-my $host = hostname();
+my $datadir = catdir(rootdir(), qw(usr share libvirt-tck));
+my $confdir = catdir(rootdir(), qw(etc libvirt-tck));
 
-
-use Getopt::Long;
 
 my $verbose = 0;
-my $format = "text";
-my $testdir = "$datadir/tests";
+my $quiet = 0;
+my $help = 0;
 my $archive;
+my $config = catfile($confdir, "default.cfg");
+my $format = "text";
+my $testdir = catdir($datadir, "tests");
 
 GetOptions("verbose" => \$verbose,
+	   "quiet" => \$quiet,
+	   "help" => \$help,
 	   "archive=s" => \$archive,
+	   "config=s" => \$config,
 	   "format=s" => \$format,
            "testdir=s" => \$testdir);
 
-sub help {
-    print "syntax: $0 CONFNAME\n";
-    exit 1;
-}
-
-my $conf = shift @ARGV;
-
-&help unless $conf;
+pod2usage(-verbose => $help, -output => \*STDOUT) if $help;
 
 my $conffile;
-if (-f "$conf.cfg") {
-    $conffile = "$conf.cfg";
-} elsif (-f "./conf/$conf.cfg") {
-    $conffile = "./conf/$conf.cfg"
-} else {
-    $conffile = "$confdir/$conf.cfg";
-    unless (-f "$conffile") {
-	print STDERR "config file $conffile does not exist\n";
-	exit 2;
-    }
+unless (-e $config) {
+    print STDERR "$0: config file $config does not exist\n";
+    exit 2;
+}
+
+if ($verbose && $quiet) {
+    pod2usage(-msg => "$0: only one of --verbose and --quiet can be used\n",
+	      -exitval => 2,
+	      -output => \*STDERR);
+}
+
+unless (-e $testdir) {
+    print STDERR "$0: test directory '$testdir' does not exist\n";
+    exit 2;
 }
 
 my @newargv = ("-r", "--norc", "--merge", $testdir);
@@ -56,21 +160,56 @@ if ($archive) {
 
 if ($verbose) {
     push @newargv, "-v";
-} elsif ($format ne "text") {
-    push @newargv, "-m", "-Q";
+} elsif ($quiet || $format ne "text") {
+    push @newargv, "-Q";
 }
 
 if ($format eq "xml") {
     push @newargv, "--formatter=Sys::Virt::TCK::TAP::XMLFormatter";
-}
-
-if ($format eq "html") {
+} elsif ($format eq "html") {
     push @newargv, "--formatter=TAP::Formatter::HTML"
+} elsif ($format ne "text") {
+    pod2usage(-msg => "unknown format '$format', expecting one of 'text', 'html', or 'xml'\n",
+	      -exitval => 2,
+	      -output => \*STDERR);
 }
 
 
-$ENV{LIBVIRT_TCK_CONFIG} = $conffile;
+# This env variable is the only way to pass config into
+# the Sys::Virt::TCK module from here
+$ENV{LIBVIRT_TCK_CONFIG} = $config;
 
 my $app = App::Prove->new;
 $app->process_args(@newargv);
 exit ($app->run ? 0 : 1);
+
+=head1 AUTHORS
+
+Written by Daniel P. Berrange <berrange@redhat.com>
+
+=head1 BUGS
+
+Probably. Report any bugs found to your OS distribution's bug
+tracker or the libvirt mailing list L<http://www.redhat.com/mailman/listinfo/libvir-list>
+
+=head1 LICENSE
+
+Copyright (C) 2009 Daniel P. Berrange
+Copyright (C) 2009 Red Hat, Inc.
+
+C<libvirt-tck> is distributed under the terms of the GNU GPL v2+. This
+is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR  A  PARTICULAR
+PURPOSE.
+
+=head1 SEE ALSO
+
+C<prove>. If you need more fine grained control over running the tests,
+then set the LIBVIRT_TCK_CONFIG environment variable to point to your
+configuration file, and then run the C<prove> command passing in
+the path to the test scripts to run.
+
+C<libvirt-tck-prepare>. Before running C<libvirt-tck> this command can
+be used to prepare a suitable kernel, initrd, bootable ISO, and dummy
+chroot filesystem needed for various tests.
+

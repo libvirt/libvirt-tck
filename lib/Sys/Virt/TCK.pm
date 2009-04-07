@@ -21,8 +21,6 @@ sub new {
 
     bless $self, $class;
 
-    $self->setup;
-
     return $self;
 }
 
@@ -33,6 +31,26 @@ sub setup {
     $self->{conn} = Sys::Virt->new(address => $self->config("uri", undef));
     my $type = $self->{conn}->get_type();
     $self->{type} = lc $type;
+
+    $self->reset;
+
+    return $self->{conn};
+}
+
+sub reset {
+    my $self = shift;
+
+    my @doms = $self->{conn}->list_domains;
+    foreach my $dom (@doms) {
+	if ($dom->get_id != 0) {
+	    $dom->destroy;
+	}
+    }
+
+    @doms = $self->{conn}->list_defined_domains();
+    foreach my $dom (@doms) {
+	$dom->undefine;
+    }
 }
 
 sub cleanup {

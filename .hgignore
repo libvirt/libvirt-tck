@@ -14,3 +14,4 @@ Sys-Virt-TCK-.*
 ^_build/
 ^perl-Sys-Virt-TCK\.spec$
 ^Build$
+^Makefile.PL$

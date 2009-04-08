@@ -69,7 +69,7 @@ Two sets of preconditions
 use strict;
 use warnings;
 
-use Test::More tests => 40;
+use Test::More tests => 20;
 
 use Sys::Virt::TCK;
 
@@ -95,46 +95,31 @@ my $xml_diffname = $tck->generic_domain($name2)->uuid($uuid1)->as_xml;
 diag "Starting phase 1";
 
 diag "Defining persistent domain config";
-my $dom = $conn->define_domain($xml);
-isa_ok($dom, "Sys::Virt::Domain", "defined persistent domain");
-is($dom->get_name, $name1, "name is $name1");
+my $dom;
+ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain", $name1;
 #$dom->DESTROY;
 
 diag "Trying to create a running guest with same name, different UUID";
-eval { $conn->create_domain($xml_diffuuid); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
+ok_error { $conn->create_domain($xml_diffuuid) } "OPERATION_FAILED error raised from clashing name", 9;
 
 
 diag "Trying to create a running guest with same UUID, different name";
-eval { $conn->create_domain($xml_diffname); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
+ok_error { $conn->create_domain($xml_diffname) } "OPERATION_FAILED error raised from clashing name", 9;
 
 
 diag "Trying to define a inactive guest with same name, different UUID";
-eval { $conn->define_domain($xml_diffuuid); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
-
+ok_error { $conn->define_domain($xml_diffuuid) } "OPERATION_FAILED error raised from clashing name", 9;
 
 diag "Trying to define a inactive guest with same UUID, different name";
-$dom = $conn->define_domain($xml_diffname);
-isa_ok($dom, "Sys::Virt::Domain", "defined persistent domain");
-is($dom->get_name, $name2, "name is $name2");
+ok_domain { $dom = $conn->define_domain($xml_diffname) } "defined persistent domain", $name2;
 #$dom->DESTROY;
 
 diag "Checking that domain test1 has really gone after rename";
-eval { $conn->get_domain_by_name($name1); };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing (renamed) domain");
-is($@->code, 42, "error code is NO_DOMAIN");
-
+ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from missing (renamed) domain", 42;
 
 
 diag "Checking the guest really has got new name";
-$dom = $conn->get_domain_by_name($name2);
-isa_ok($dom, "Sys::Virt::Domain", "fetched persistent domain");
-is($dom->get_name, $name2, "name is $name2");
+ok_domain { $dom = $conn->get_domain_by_name($name2) } "fetched persistent domain", $name2;
 
 diag "Undefining persistent guest config";
 $dom->undefine;
@@ -142,14 +127,11 @@ $dom->undefine;
 
 
 diag "Checking that domain has now gone";
-eval { $conn->get_domain_by_name($name2); };
-isa_ok($@, "Sys::Virt::Error", "error raised from undefined domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name($name2) } "NO_DOMAIN error raised from undefined domain", 42;
 
 diag "Checking that original domain is still gone";
-eval { $conn->get_domain_by_name($name1); };
-isa_ok($@, "Sys::Virt::Error", "error raised from undefined domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from undefined domain", 42;
+
 
 
 
@@ -159,59 +141,40 @@ diag "Starting phase 2";
 
 
 diag "Creating transient active domain";
-$dom = $conn->create_domain($xml);
-isa_ok($dom, "Sys::Virt::Domain", "created transient domain");
-is($dom->get_name, $name1, "name is $name1");
+ok_domain { $dom = $conn->create_domain($xml) } "created transient domain", $name1;
 #$dom->DESTROY;
 
 diag "Trying to create a running guest with same name, different UUID";
-eval { $conn->create_domain($xml_diffuuid); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
+ok_error { $conn->create_domain($xml_diffuuid) } "OPERATION_FAILED error raised from clashing name", 9;
 
 
 diag "Trying to create a running guest with same UUID, different name";
-eval { $conn->create_domain($xml_diffname); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
+ok_error { $conn->create_domain($xml_diffname) } "OPERATION_FAILED error raised from clashing name", 9;
 
 
 diag "Trying to define a inactive guest with same name, different UUID";
-eval { $conn->define_domain($xml_diffuuid); };
-isa_ok($@, "Sys::Virt::Error", "error raised from clashing name");
-is($@->code, 9, "error code is OPERATION_FAILED");
+ok_error { $conn->define_domain($xml_diffuuid) } "OPERATION_FAILED error raised from clashing name", 9;
 
 
 diag "Trying to define a inactive guest with same UUID, different name";
-$dom = $conn->define_domain($xml_diffname);
-isa_ok($dom, "Sys::Virt::Domain", "defined persistent domain");
-is($dom->get_name, $name2, "name is $name2");
+ok_domain { $dom = $conn->define_domain($xml_diffname) } "defined persistent domain", $name2;
 #$dom->DESTROY;
 
 diag "Checking that domain test1 has really gone after rename";
-eval { $conn->get_domain_by_name($name1); };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing (renamed) domain");
-is($@->code, 42, "error code is NO_DOMAIN");
-
+ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from missing (renamed) domain", 42;
 
 
 diag "Checking the guest really has got new name";
-$dom = $conn->get_domain_by_name($name2);
-isa_ok($dom, "Sys::Virt::Domain", "fetched persistent domain");
-is($dom->get_name, $name2, "name is $name2");
+ok_domain { $dom = $conn->get_domain_by_name($name2) } "fetched persistent domain", $name2;
 
 diag "Stopping active guest";
 $dom->destroy;
 
 diag "Checking the guest has still got new name";
-$dom = $conn->get_domain_by_name($name2);
-isa_ok($dom, "Sys::Virt::Domain", "fetched persistent domain");
-is($dom->get_name, $name2, "name is $name2");
+ok_domain { $dom = $conn->get_domain_by_name($name2) } "fetched persistent domain", $name2;
 
 diag "Checking that original domain is still gone";
-eval { $conn->get_domain_by_name($name1); };
-isa_ok($@, "Sys::Virt::Error", "error raised from undefined domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from undefined domain", 42;
 
 
 diag "Undefining persistent guest config";
@@ -220,13 +183,9 @@ $dom->undefine;
 
 
 diag "Checking that domain has now gone";
-eval { $conn->get_domain_by_name($name2); };
-isa_ok($@, "Sys::Virt::Error", "error raised from undefined domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name($name2) } "NO_DOMAIN error raised from undefined domain", 42;
 
 diag "Checking that original domain is still gone";
-eval { $conn->get_domain_by_name($name1); };
-isa_ok($@, "Sys::Virt::Error", "error raised from undefined domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from undefined domain", 42;
 
 

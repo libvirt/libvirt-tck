@@ -8,6 +8,12 @@ use Sys::Virt;
 use Sys::Virt::TCK::DomainBuilder;
 use Config::Record;
 
+use Test::Builder;
+use Sub::Uplevel qw(uplevel);
+use base qw(Exporter);
+
+our @EXPORT = qw(ok_error ok_domain);
+
 our $VERSION = '0.0.1';
 
 sub new {
@@ -28,7 +34,8 @@ sub new {
 sub setup {
     my $self = shift;
 
-    $self->{conn} = Sys::Virt->new(address => $self->config("uri", undef));
+    my $uri = $self->config("uri", undef);
+    $self->{conn} = Sys::Virt->new(address => $uri);
     my $type = $self->{conn}->get_type();
     $self->{type} = lc $type;
 
@@ -61,8 +68,12 @@ sub cleanup {
 sub config {
     my $self = shift;
     my $key = shift;
-    my $default = shift;
-    return $self->{config}->get($key, $default);
+    if (@_) {
+	my $default = shift;
+	return $self->{config}->get($key, $default);
+    } else {
+	return $self->{config}->get($key);
+    }
 }
 
 
@@ -97,6 +108,84 @@ sub bare_domain {
     $b->boot_kernel($kernel, $initrd);
 
     return $b;
+}
+
+# Borrowed from Test::Exception
+
+sub _quiet_caller (;$) { ## no critic Prototypes
+    my $height = $_[0];
+    $height++;
+    if( wantarray and !@_ ) {
+        return (CORE::caller($height))[0..2];
+    }
+    else {
+        return CORE::caller($height);
+    }
+		   }
+
+sub _try_as_caller {
+    my $coderef = shift;
+
+    # local works here because Sub::Uplevel has already overridden caller
+    local *CORE::GLOBAL::caller;
+    { no warnings 'redefine'; *CORE::GLOBAL::caller = \&_quiet_caller; }
+
+    my $ret = eval { uplevel 3, $coderef };
+    return ($ret, $@);
+};
+
+
+my $Tester = Test::Builder->new;
+
+sub ok_domain(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    die "must pass coderef, description and (optional) expected name"
+	unless defined $description;
+
+    my ($ret, $exception) = _try_as_caller($coderef);
+
+    my $ok = "$exception" eq "" &&
+	$ret && ref($ret) && $ret->isa("Sys::Virt::Domain") &&
+	(!defined $name || ($ret->get_name() eq $name));
+
+    $Tester->ok($ok, $description);
+    unless ($ok) {
+	$Tester->diag("expected Sys::Virt::Domain object" . ($name ? " with name $name" : ""));
+	if ($exception) {
+	    $Tester->diag("found '$exception'");
+	} else {
+	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::Domain")) {
+		$Tester->diag("found Sys::Virt::Domain object with name " . $ret->get_name);
+	    } else {
+		$Tester->diag("found '$ret'");
+	    }
+	}
+    }
+}
+
+sub ok_error(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $code = shift;
+
+    die "must pass coderef, description and (optional) expected error code"
+	unless defined $description;
+
+    my ($ret, $exception) = _try_as_caller($coderef);
+
+    my $ok = ref($exception) && $exception->isa("Sys::Virt::Error") &&
+	(!defined $code || ($exception->code() == $code));
+
+    $Tester->ok($ok, $description);
+    unless ($ok) {
+	$Tester->diag("expecting Sys::Virt::Error object" . ($code ?  " with code $code" : ""));
+	$Tester->diag("found '$exception'");
+    }
+    $@ = $exception;
+    return $ok;
 }
 
 1;

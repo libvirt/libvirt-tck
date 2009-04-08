@@ -29,7 +29,7 @@ configuration enabling it to be tracked when inactive.
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 9;
 
 use Sys::Virt::TCK;
 
@@ -42,9 +42,8 @@ END { $tck->cleanup if $tck; }
 my $xml = $tck->generic_domain("test")->as_xml;
 
 diag "Defining an inactive domain config";
-my $dom = $conn->define_domain($xml);
-
-isa_ok($dom, "Sys::Virt::Domain", "defined persistent domain config");
+my $dom;
+ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain config";
 
 diag "Undefining inactive domain config";
 $dom->undefine;
@@ -52,14 +51,11 @@ $dom->DESTROY;
 $dom = undef;
 
 diag "Checking that persistent domain has gone away";
-eval { $conn->get_domain_by_name("test") };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
 
 
 diag "Defining inactive domain config again";
-$dom = $conn->define_domain($xml);
-isa_ok($dom, "Sys::Virt::Domain", "defined persistent domain config");
+ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain config";
 
 
 diag "Starting inactive domain config";
@@ -68,8 +64,8 @@ ok($dom->get_id() > 0, "running domain has an ID > 0");
 
 
 diag "Trying another domain lookup by name";
-my $dom1 = $conn->get_domain_by_name("test");
-isa_ok($dom1, "Sys::Virt::Domain", "the running domain object");
+my $dom1;
+ok_domain { $dom1 = $conn->get_domain_by_name("test") } "the running domain object";
 ok($dom1->get_id() > 0, "running domain has an ID > 0");
 
 
@@ -78,13 +74,10 @@ $dom->destroy();
 
 
 diag "Checking there is still an inactive domain config";
-$dom1 = $conn->get_domain_by_name("test");
-isa_ok($dom1, "Sys::Virt::Domain", "the inactive domain object");
+ok_domain { $dom1 = $conn->get_domain_by_name("test") } "the inactive domain object";
 is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
 
 diag "Undefining the inactive domain config";
 $dom->undefine;
 
-eval { $conn->get_domain_by_name("test") };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;

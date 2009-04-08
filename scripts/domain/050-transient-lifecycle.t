@@ -30,7 +30,7 @@ disappear.
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 2;
 
 use Sys::Virt::TCK;
 
@@ -43,16 +43,13 @@ END { $tck->cleanup if $tck; }
 my $xml = $tck->generic_domain("test")->as_xml;
 
 diag "Creating a new transient domain";
-my $dom = $conn->create_domain($xml);
-
-isa_ok($dom, "Sys::Virt::Domain", "created transient domain object");
+my $dom;
+ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
 diag "Destroying the transient doamin";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-eval { $conn->get_domain_by_name("test") };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
 
 # end

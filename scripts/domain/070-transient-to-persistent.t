@@ -29,7 +29,7 @@ file while the transient domain is running.
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 4;
 
 use Sys::Virt::TCK;
 
@@ -42,26 +42,23 @@ END { $tck->cleanup if $tck; }
 my $xml = $tck->generic_domain("test")->as_xml;
 
 diag "Creating a new transient domain";
-my $dom = $conn->create_domain($xml);
-
-isa_ok($dom, "Sys::Virt::Domain", "created transient domain");
+my $dom;
+ok_domain { $dom = $conn->create_domain($xml) } "created transient domain";
 
 my $livexml = $dom->get_xml_description();
 
 diag "Defining config for transient guest";
-my $dom1 = $conn->define_domain($livexml);
-isa_ok($dom1, "Sys::Virt::Domain", "defined transient domain");
+my $dom1;
+ok_domain { $dom1 = $conn->define_domain($livexml) } "defined transient domain";
 
 diag "Destroying active domain";
 $dom->destroy;
 
 diag "Checking that an inactive domain config still exists";
-$dom1 = $conn->get_domain_by_name("test");
-isa_ok($dom1, "Sys::Virt::Domain", "transient domain config");
+ok_domain { $dom1 = $conn->get_domain_by_name("test") } "transient domain config";
 
 diag "Removing inactive domain config";
 $dom->undefine;
 
-eval { $conn->get_domain_by_name("test") };
-isa_ok($@, "Sys::Virt::Error", "error raised from missing domain");
-is($@->code, 42, "error code is NO_DOMAIN");
+diag "Checking that inactive domain has really gone";
+ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;

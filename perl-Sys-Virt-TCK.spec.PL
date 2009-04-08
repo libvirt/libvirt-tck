@@ -46,6 +46,9 @@ Requires: perl >= %{perlversion}
 Requires: libvirt >= 0.6.1
 BuildRequires: perl(Module::Build)
 BuildRequires: perl(Test::More)
+BuildRequires: perl(Test::Builder)
+BuildRequires: perl(Sub::Uplevel)
+BuildArchitectures: noarch
 
 %description
 Sys::Virt::TCK provides an integration test suite for validating

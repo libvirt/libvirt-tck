@@ -71,6 +71,7 @@ my $b = $class->new(
     script_files => [
 	"bin/libvirt-tck",
     ],
+    create_makefile_pl  => 'passthrough',
     meta_add => {
 	resources => {
 	  license => "http://www.gnu.org/licenses/gpl.html",

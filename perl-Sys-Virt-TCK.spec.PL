@@ -67,7 +67,7 @@ technology.
 rm -rf $RPM_BUILD_ROOT
 ./Build install destdir=$RPM_BUILD_ROOT create_packlist=0 \
   --install_path conf=%{_sysconfdir}/libvirt-tck \
-  --install_path pkgdata=%{_datadir}/libvirt-tck
+  --install_path pkgdata=%{_datadir}/libvirt-tck/tests
 
 find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 

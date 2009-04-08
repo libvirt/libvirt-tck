@@ -1,0 +1,421 @@
+   libvirt TCK  : Technology Compatability Kit
+   ===========================================
+
+The libvirt TCK provides a framework for performing testing
+of the integration between libvirt drivers, the underlying virt
+hypervisor technology, related operating system services and system
+configuration. The idea (and name) is motivated by the Java TCK
+
+In particular the libvirt TCK is intended to address the following
+scenarios
+
+ - Validate that a new libvirt driver is in compliance
+   with the (possibly undocumented!) driver API semantics
+
+ - Validate that an update to an existing driver does not
+   change the API semantics in a non-compliant manner
+
+ - Validate that a new hypervisor release is still providing
+   compatability with the corresponding libvirt driver usage
+
+ - Validate that an OS distro deployment consisting of a
+   hypervisor and libvirt release is configured correctly
+
+Thus the libvirt TCK will allow developers, administrators and users
+to determine the level of compatability of their platform, and
+evaluate whether it will meet their needs, and get awareness of any
+regressions that may have occurred since a previous test run
+
+In relation to other libvirt testing, the split of responsibiity
+will be
+
+libvirt testsuite (aka $CHECKOUT/tests)
+
+ - unit testing of specific internal APIs
+ - functional testing of the libvirtd using the 'test'+'remote' drivers
+ - functional testing of the virsh command using the 'test' driver
+
+libvirt TCK
+
+ - functional/integration testing of the 'live' drivers
+
+
+
+Framework requirements
+======================
+
+The libvirt TCK is built using Perl in order to take advantage of
+the advanced, but yet very simple, testing frameworks available
+with Perl. Thus the libvirt interactions will all be done via the
+libvirt Perl bindings, Sys::Virt (or perl-Sys-Virt RPMs)
+
+The framework is thus built on the following Perl modules
+
+ - Test::More     - simple framework for writing individual tests
+ - TAP::Harness   - simple framework for running sets of tests
+ - Sys::Virt      - binding for libvirt API
+ - XML::Writer    - module for generating XML documents
+ - XML::Twig      - module for parsing XML documents & XPath
+ - Config::Record - module for parsing simple configuration files
+
+There are a handful of other modules these depend on, but these
+are the most important 'top level' modules in use.
+
+These is all currently available within Fedora 10, with exception of
+perl-accessors, perl-TAP-Formatter-HTML. A similar situation existss
+for RHEL-5 considering modules from EPEL-5
+
+These modules are all well tested, actively maintained parts of
+Perl / CPAN, so easily available for every other operating system
+in existance.
+
+As a convenience I have published repositories for Fedora 10 and
+RHEL-5 on x86_64 including these modules. Use the following YUM
+configs
+
+
+For Fedora 10:
+
+  [libvirt-tck]
+  name=libvirt TCK
+  baseurl=http://berrange.fedorapeople.org/libvirt-tck/yum-f10/x86_64/
+  gpgcheck=0
+  enabled=1
+
+For RHEL-5:
+
+  [libvirt-tck]
+  name=libvirt TCK
+  baseurl=http://berrange.fedorapeople.org/libvirt-tck/yum-rhel5/x86_64/
+  gpgcheck=0
+  enabled=1
+
+
+NB: These repos assume you have already updated to the latest 0.6.2
+libvirt RPM available for the distro in question.
+
+
+
+
+Overview of framework structure
+===============================
+
+For following discussions, it may be convenient to refer to the source
+code of the framework. This is available from
+
+   hg clone  http://libvirt.org/hg/libvirt-tck
+
+
+
+First there are a couple of Perl modules to provide assistance when
+dealing with libvirt / writing tests
+
+ - Sys::Virt::TCK  in lib/Sys/Virt/TCK.pm
+
+   The core module for connecting to libvirt, creating a clean
+   environment (ie blowing away all existing domains), and generating
+   simple XML configs for guests
+
+ - Sys::Virt::TCK::DomainBuilder in lib/Sys/Virt/TCK/DomainBuilder.pm
+
+   A helper for constructing XML configs for guest domains
+
+ - Sys::Virt::TCK::Capabilities  in lib/Sys/Virt/TCK/Capabilities.pm
+
+   A helper for parsing the libvirt capabilities XML
+
+ - Sys::Virt::TCK::TAP::XMLFormatter in lib/Sys//Virt/TCK/TAP/XMLFormatter.pm
+
+   A plugin for TAP::Harness that is able to record all test results
+   in a structured XML document.
+
+
+As mentioned before, the framework is built about Test:More and the
+TAP::Harness modules from Perl. This already comes with a simple
+command called 'prove' for running tests & reporting on results. It
+has a rather baffling array of options, so to make it simpler to run
+the libvirt TCK, there is a small program
+
+
+  - bin/libvirt-tck  (installed to /usr/bin/libvirt-tck)
+
+Given no arguments, this will connect using the default hypervisor
+URI and a previously obtained kernel+initrd and run all the tests
+currently available for the libvirt TCK, and report on failures.
+It comes witha number of options to alter the output format or
+choose different configurations. 'man 1 libvirt-tck' will produce
+details
+
+
+
+The actual tests themselves are simply short Perl scripts using the
+Test::More, Sys::Virt and Sys::Virt::TCK modules. Each test decides
+on what aspect it wants to test, and then implements that logic and
+tests results.
+
+As a demonstration, there are 4 initial scripts
+
+ - scripts/domain/050-transient-lifecycle.t
+
+   Creates a guest from XML, destroys it, and then verifies that
+   it has actually gone away.
+
+ - scripts/domain/060-persistent-lifecycle.t
+
+   Defines a guest config XML, starts it, destroys it, verifies
+   that the config still exists, and then undefines the config
+   and verifies that it has actually gone.
+
+ - scripts/domain/070-transient-to-persistent.t
+
+   Creates a guest from XML, then defines a persistent config for
+   it, destroys the running guest, and then verifies the config
+   is still present.
+
+ - scripts/domain/080-unique-identifiers.t
+
+   Defines a guest, and then tries to define / create more guests
+   with clashing name or UUID, and verifies that suitable errors
+   are raised by libvirt.
+
+
+
+Even these 4 simple proof of concept scripts have highlighted
+some horrible problems
+
+ - The QEMU driver 'define domain' method doesn't check for name
+   or UUID uniqueness correctly (well, at all)
+
+ - After starting an inactive domain, the remote driver does not
+   update the 'ID' field in the virDomainPtr
+
+ - After destroying a active domain, the remote driver does not
+   update the 'ID' field in the virDomainPtr
+
+ - When defining a persistent config for an already running domain
+   the Xen XM driver blows away the current 'ID' field for the
+   running domain, replacing it with -1.
+
+ - QEMU refuses to boot kernel+initrd unless at least one disk
+   image is provided
+
+
+In looking at some other things to test I specifically noticed
+that there terrible inconsistency in the virErrorPtr error codes
+used for reporting problems. For each API there needs to be a
+formal core set of error codes that will always be used for a
+certain set of conditions.
+
+eg, when looking up a domain by name, if no such domain exists
+the driver *must* always return VIR_ERR_NO_DOMAIN
+
+
+
+Output information
+==================
+
+The libvirt-tck tool outputs results in a number of formats. The
+default format is a simple plain test summary listing each test
+case, and the pass/fail state, and details of each check failure
+
+A more verbose text format otputs the full Perl TAP (Test Anything
+Protocol) format results as described in 'man 3 TAP' or
+'man 3 Test::Harness::TAP'.
+
+For producing pretty web pages, it is possible to request an HTML
+output format.
+
+Ultimately though it will be desirable to do automated analysis,
+and comparison of results across releases, OS, drivers, etc. To
+assist in creating tools todo this, an XML format is also provided
+
+
+There are some examples of these formats, when run against RHEL-5
+Xen,  Fedora 10 QEMU (libvirt 0.6.2), and Fedora 10 QEMU (libvirt
+0.6.2 plus a bunch of code fixes to make it pass)
+
+In pretty HTML format:
+
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.html
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.html
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.html
+
+In full plain text format:
+
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.txt
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.txt
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.txt
+
+In formal XML format
+
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.xml
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.xml
+  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.xml
+
+
+
+Running the test suite
+======================
+
+For those feeling brave it is possible to try out the current test suite.
+The best bet is to install the perl-Sys-Virt-TCK RPM from the YUM repos
+listed above.
+
+Then create a config file
+
+  # cat > /home/fred/qemu.cfg <<EOF
+  uri = "qemu:///session"
+  kernel=/home/fred/vmlinuz
+  initrd=/home/fred/initrd.img
+  disk=/home/fred/empty.img
+  EOF
+
+For current tests, it is sufficient to have a kernel + initrd that is
+able to boot and just sit there being bored. The Fedora 10 PXEboot
+install kernels suit this job perfectly
+
+
+ # wget http://download.fedora.redhat.com/pub/fedora/linux/releases/10/Fedora/x86_64/os/images/pxeboot/initrd.img
+ # wget http://download.fedora.redhat.com/pub/fedora/linux/releases/10/Fedora/x86_64/os/images/pxeboot/vmlinuz
+
+A empty disk image is need to keep QEMU happy - it won't boot a kernel/initrd
+without a disk image, so just create a 10 MB image
+
+ # dd if=/dev/zero of=empty.img bs=1M count=10
+
+
+Next, start an unprivileged instance of libvirtd, eg as your normal
+user account
+
+   # /usr/sbin/libvirtd
+
+Now it should be possible to run
+
+  # libvirt-tck -c /home/fred/qemu.cfg
+
+It will no doubt show many failures. To get more information add the -v
+flag
+
+  # libvirt-tck -c /home/fred/qemu.cfg -v
+
+Or to get XML format
+
+  # libvirt-tck -c /home/fred/qemu.cfg --format xml
+
+
+What's still todo
+=================
+
+The code as it stands is the bare minimum to get a proof of concept working
+for testing of domain APIs for Xen and QEMU drivers. The test suite though
+is intended to be independant of any driver, and also allow for coverage of
+all the libvirt APIs.
+
+Of the top of my head, some important things that need doing
+
+ - libvirt-tck-prepare
+
+   For now it was sufficient to just grab the kernel+initrd from Fedora 10
+   pxeboot location, but not every kind of virtualization can boot off a
+   kernel + initrd. Older Xen HVM cannot do this. VMWare cannot do this.
+   OpenVZ / LXC have no concept of separate kernels, etc.
+
+   The libvirt-tck-prepare command would automate the process of setting
+   up some pre-requisite pieces. Specifically it would
+
+     - Download  kernel+initrd.img from a suitable location
+     - Build an bootable ISO image using the kernel+initrd
+     - Create a virtual root filesystem, populated with
+       busybox commands (for LXC/OpenVZ)
+     - Create an empty disk image
+
+
+ - Be more intelligent about building domain XML configs. In
+   particular look at the capabilities XML to decide whether
+   to create a config that boots off kernel+initrd vs ISO
+   vs a virtual root filesystem for containers
+
+ - Add helpers for building network, storage and inteface XML
+   configs
+
+ - Expand on configuration to allow admin to indicate some
+   resources that can be safely used during tests
+
+     - A friendly NFS server & some of its exports
+     - A spare disk (eg /dev/sdb) that can be played with
+       and trashed
+     - A spare network interface (or two) that can be played
+       with
+     - A spare PCI device that can be detached from host
+     - A spare USB device that can be detached from host
+     - A path with X GB of free space to play with for
+       storage pool usage
+     - A friendly iSCSI server & some of its targets
+
+  If any of those resources were not available, the test cases
+  needing them would simply be skipped. This is very easy to
+  cope with in the Test::More framework
+
+      plan skip_all "no iscsi server available" unless
+            $tck->has_config("iscsi-server");
+
+ - Fix up all the horribly broken areas of libvirt that this
+   uncovers. This will entail deciding that the semantics for
+   various edge cases are with each API. Deciding what errors
+   codes need to be formally defined for each API. Figuring
+   out how to implement/fix the neccessary semantics in the
+   drivers.
+
+ - A way to record specific test failures as 'known broken' for
+   a particular driver  / platform combination.
+
+ - A tool to take an XML report from the TCK, mask out all tests
+   that are 'known broken', and then report on the remaining
+   problems which need fixing.
+
+ - A tool to compare two XML reports and show interesting
+   differences in functionality, and / or bugs
+
+
+How this might be used
+======================
+
+The original motivating goal for this is obviously to improve
+the overall quality control of libvirt and things it interacts
+with. There are a number of scenarios in which I see this being
+used:
+
+ - Fedora rawhide updates to a  release of QEMU
+      => Run the TCK to  make sure it didn't break
+         anything (new) in libvirt
+
+ - Declaring feature freeze for a libvirt release
+      => Run the TCK to determine what state of each
+         driver is. Decide what problems should be
+         release blockers. It is expected that some
+         drivers may have long term failures, due to
+         features that will not be implemented
+
+ - Released new libvirt
+      => Provide online 'reference' reports for the
+         new libvirt release against various platforms.
+         Allows OS distributors to determine whether
+         their changes cause regressions, or if it
+         is a known-broken item.
+
+ - App developer looking to understand feature support
+      => Look at the TCK reports for the driver and
+         decide if it implements enough of the functionality
+         to be worth supporting.
+
+
+The key factor I think is that it is unreasonable to expect that
+the TCK will complete without failures for every libvirt driver,
+let alone every OS. Some features will simply be impossible to
+implement for certain platforms. Thus the key is in tracking
+what areas are known to be broken, to make it possible to identify
+regressions in areas that are expected to work. The known broken
+areas may also provide motivation for new feature development in
+associated tools.
+
+

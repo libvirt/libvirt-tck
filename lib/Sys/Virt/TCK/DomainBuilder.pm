@@ -21,10 +21,18 @@ sub new {
     } else {
 	$domtype = "xen";
     }
+    # Some older Xen can't boot kernel+initrd, so default to PV
+    my $ostype;
+    if ($type eq "Xen") {
+	$ostype = "xen";
+    } else {
+	$ostype = "hvm";
+    }
 
     my $self = {
 	name => $params{name} ? $params{name} : "test" ,
 	type => $domtype,
+	ostype => $ostype,
 	boot => { type => "disk" },
 	lifecycle => {},
 	features => {},
@@ -210,7 +218,7 @@ sub as_xml {
     }
 
     $w->startTag("os");
-    $w->dataElement("type", "hvm");
+    $w->dataElement("type", $self->{ostype});
 
     if ($self->{boot}->{type} eq "disk") {
 	$w->emptyTag("boot", dev => "hd");

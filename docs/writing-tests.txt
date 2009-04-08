@@ -1,0 +1,418 @@
+  libvirt TCK: An introduction to writing tests
+  =============================================
+
+The libvirt TCK provides a framework for testing the correct
+operation of libvirt drivers and their integration with the
+host operating system virtualization services.
+
+Since the focus is on functional integration testing, the tests
+and driven from the public libvirt API, closely replicating the
+kind of usage expected from applications using libvirt. The
+tests are written in Perl, primarily using the libvirt Perl
+language bindings (Sys::Virt / perl-Sys-Virt), and the common
+Test::More framework.  The libvirt TCK also provides a number
+of helper modules to simplify the process of creating interesting
+tests
+
+Output format for a test case
+=============================
+
+To enable automated reporting and analysis of test results, there
+is a well defined output format that tests must follow. A single
+test case consists of a sequence of checks each with a pass/fail
+status, the aggregate status giving the pass/fail state of the test
+as a whole. This information is presented in a simple, line oriented
+text format
+
+The general format can be summarized as
+
+         1..N
+         ok 1 Description # Directive
+         # Diagnostic
+         not ok 2 Description
+         ....
+         ok N Description
+
+The first line here defines the plan, giving the expected number
+of checks that will be run in the test case. This enables the
+test harness to determine if a test case crashed / exited earlier
+than expected without running all checks. Each line starts with
+a word 'ok' or 'not ok' to indicate state of the check, followed
+by the check number (assigned incremnetally), and a description
+of the check performed. Diagnostic comments can be output using
+a leading '#' to assist in debugging / interpreting the results.
+
+A more real example would be
+
+         1..4
+         ok 1 - Input file opened
+         not ok 2 - First line of the input valid
+         ok 3 - Read the rest of the file
+         not ok 4 - Summarized correctly # TODO Not written yet
+
+
+This is more or less all that it is neccessary to know about the
+output format, though far far more details can be found by reading
+the Perl documentation for 'TAP' (aka Test Anything Protocol)
+available either in 'man 3 TAP' or 'man 3 Test::Harness::TAP'
+depending on the Perl version.
+
+
+Writing tests with a compliant output format
+============================================
+
+As if that output format were not simple enough to understand and
+generate, there are helper modules to make this even easier to
+deal with. The Perl Test::More  module provides a set of useful
+functions can be invoked to perform checks.
+
+The first step is to declare how many checks are intended to be
+run. This is typically done at time Test::More is imported into
+the script
+
+    use Test::More tests => 15;
+
+
+The rest of the test case should be a Perl script that implements
+the logic you wish to test. At key points throughout the script,
+checks can be inserted to validate the state. Depending on the
+type of check desired, there are a number of helper functions
+available
+
+For a simple boolean condition, the 'ok' function can be used
+
+   ok($boolean, $description);
+
+ eg
+
+   my $id = $dom->get_id;
+   ok($id >= 0, "virtual domain ID is greater than or equal to 0");
+
+
+To compare two pieces of data for equality (or inequality), the
+'is'/'isnt' functions are preferred:
+
+   is($expect, $actual, $description);
+   isnt($expect, $actual, $description);
+
+ eg
+
+   my $name = $dom->get_name;
+   is($name, "apache", "virtual domain has name 'apache'");
+
+
+To compare a list or hash table, then a deep comparison is
+required. NB, if comparing lists, it will also often be desirable
+to sort their elements
+
+   my @domains = sort { $a cmp $b } $conn->list_domains;
+   is_deeply(\@domains, ['apache', 'dns'], $description);
+
+
+Finally to output a diagnostic message, the 'diag' command is
+suitable
+
+   diag("Checking that the running guest has an ID > -1");
+
+
+There are quite a few other variations on these functions, and
+extensive documentation can be found in the 'Test::More' manual
+page.
+
+
+Helpers for writing libvirt TCK test checks
+===========================================
+
+
+While the above functions are useful for testing simple properties
+and conditions, they can be a little tedious to use when having to
+deal with exceptions and objects.
+
+The libvirt TCK thus provides a couple of helper functions.
+
+
+The first thing when writing a test is to get a connection to libvirt
+and make sure the test environment is clean. ie there are no existing
+guests lieing around. If anything goes wrong here, we need to bail out
+and not bother with rest of the test. We also want to ensure cleanup
+when the test case finishes. For this there is a simple boilerplate
+piece of code that can be included
+
+
+    use Sys::Virt::TCK;
+
+    my $tck = Sys::Virt::TCK->new();
+    my $conn = eval { $tck->setup(); };
+    BAIL_OUT "failed to setup test harness: $@" if $@;
+    END { $tck->cleanup if $tck; }
+
+Going line by line, this first imports the 'Sys::Virt::TCK' package
+and its functions. Then it creates an instance of the 'Sys::Virt::TCK'
+object. Then it runs the 'setup' method to obtain a libvirt
+connection, catching any error that may be thrown. The fourth line
+willl abort the entire test if an error occurred during setup. The
+final line registers a 'END' block which will perform cleanup when
+Perl exits.
+
+
+When testing APIs, it will often be neccessary to create / define real
+guest domains with a config. Much of the time the test won't care about
+the exact config, just wanting a minimal generic domain config that is
+highly likely to work without error. For such cases, a nice simple
+API is provided:
+
+   my $xml = $tck->generic_domain("test")->as_xml;
+
+This creates an XML document for a guest that is of the correct OS and
+domain type to be able to run on the current hypervisor, with a name
+of 'test', and a single disk. It is possible to set further parameters
+if required. For example, to set an explicit UUID, give 3 virtual CPUs
+and turn on ACPI:
+
+  my $xml = $tck->generic_domain("test")->vcpus(3)
+             ->uuid("11111111-1111-2222-3333-444444444444")
+             ->with_acpi()->as_xml()
+
+Notice how it allows for chaining the method calls together to build
+the domain config, turning it into XML at the last step
+
+
+If testing a method that is expected to return a virtual domain
+object (ie an instance of Sys::Virt::Domain), the 'ok_domain'
+helper should be used. This takes 2 or 3 parameters. The first
+is the code block to be checks, the second is a description and
+the optional third parameter is the expected name of the guest
+domain.
+
+ eg to test domain creation from an XML doc
+
+
+  my $dom;
+  ok_domain { $dom = $conn->create_domain($xml) } \
+         "created a running domain", "test";
+
+This creates a new running guest from '$xml', and checks that it
+succeeeded and returns a domain object with an expected name of
+'test'. If an exception was thrown during guest creation this
+will be reported as an error. If the guest has the incorrect name,
+that will also be reported as an error.
+
+
+
+If testing a method that is expected to thrown an exception and
+thus not return a value, the 'ok_error' helper should be used.
+This takes 2 or 3 parameters. The first is the code block to be
+checked, the second is a description and the optional third
+parameter is the expected error code.
+
+
+ eg to ensure that the guest named 'test' does not exists,
+    and that an error is raised when attempting to do a
+    lookup for it.
+
+
+    ok_error { $conn->lookup_domain_by_name("test") } \
+           "no such domain error raised", \
+            Sys::Virt::Error:ERR_NO_DOMAIN;
+
+This code block attempts to lookup a domain based on its name.
+For success, it requires that the domain does not exist and that
+libvirt throws an exception with a code VIR_ERR_NO_DOMAIN. If
+that does not happen, then a failure will be reported.
+
+
+
+A real test case example walkthrough
+====================================
+
+This example will illustrate how to test operation of persistent
+virtual domains. Our plan for the test is to run the following
+sequence of operations
+
+ - Define a new inactive guest from XML
+ - Start the guest config
+ - Stop the running guest
+ - Undefine the now inactive guest config
+
+There will be certain sanity checks at various stages. For example,
+after starting the guest, it will check that the guest ID is greater
+than zero. After stopping the guest, it will check the ID is -1.
+After undefining the guest, it will check that another lookup fails,
+to validate that it really went away.
+
+
+The first step is to write the core algorithm in Perl code using the
+Sys::Virt APIs. Very simplified it looks like this
+
+    my $conn = ...get a libvirt connection...
+    my $xml = "....the xml config...";
+    my $dom;
+
+    $dom = $conn->define_domain($xml);
+    $dom->create;
+    $dom->destroy;
+    $dom->undefine;
+
+
+Now it is time to start putting in sanity checks. When defining the
+domain, it is neccessary to check that returned a real domain object,
+and that no exception is thrown. The 'ok_domain' method can be used
+for that. It is also wise to print a diagnostic method before doing
+anything interesting
+
+So the define_domain line turns into
+
+     diag "Defining inactive domain config again";
+     ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain config";
+
+
+After then starting the domain, the test will check that it has a
+proper unique ID number. So the 'create' line turns into
+
+
+     diag "Starting inactive domain config";
+     $dom->create;
+     ok($dom->get_id() > 0, "running domain has an ID > 0");
+
+
+Since this is testing persistent domains, after stopping the running
+guest, it should still be possible to look it up. Thus the line that
+stops the guest, gains a check for its ID number, followed by another
+check that the guest is still present
+
+
+    diag "Destroying the running domain";
+    $dom->destroy();
+    is($dom->get_id(), -1 , "inactive domain has an ID == -1");
+
+    diag "Checking there is still an inactive domain config";
+    ok_domain { $dom1 = $conn->get_domain_by_name("test") } "the inactive domain object";
+
+
+Finally, after undefining the guest it is neccessary to validate that
+it really has gone away, by trying to look it up based on name, and
+checking that an error is raised
+
+
+    diag "Undefining the inactive domain config";
+    $dom->undefine;
+
+    ok_error { $conn->get_domain_by_name("test") } \
+        "NO_DOMAIN error raised from missing domain", \
+        Sys::Virt::Error::ERR_NO_DOMAIN;
+
+
+
+The completed example test script
+=================================
+
+It is good practice to include a short documentation comment in test
+scripts to outline what the script intends to validate. The Perl
+POD format is useful for this (see 'man perlpod') for more info.
+
+Taking this into account, the complete example script looks like
+
+    # -*- perl -*-
+    #
+    # Copyright (C) 2009 A N Other
+
+    =pod
+
+    =head1 NAME
+
+    example-persistent-domain.t - Persistent domain lifecycle
+
+    =head1 DESCRIPTION
+
+    The test case validates the core lifecycle operations on
+    persistent domains. A persistent domain is one with a
+    configuration enabling it to be tracked when inactive.
+
+    =cut
+
+    use strict;
+    use warnings;
+
+    use Test::More tests => 5;
+
+    use Sys::Virt::TCK;
+
+    my $tck = Sys::Virt::TCK->new();
+    my $conn = eval { $tck->setup(); };
+    BAIL_OUT "failed to setup test harness: $@" if $@;
+    END { $tck->cleanup if $tck; }
+
+
+    my $xml = $tck->generic_domain("test")->as_xml;
+
+    my $dom;
+    diag "Defining inactive domain config again";
+    ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain config";
+
+
+    diag "Starting inactive domain config";
+    $dom->create;
+    ok($dom->get_id() > 0, "running domain has an ID > 0");
+
+
+    diag "Destroying the running domain";
+    $dom->destroy();
+    is($dom->get_id(), -1 , "inactive domain has an ID == -1");
+
+    diag "Checking there is still an inactive domain config";
+    my $dom1;
+    ok_domain { $dom1 = $conn->get_domain_by_name("test") } "the inactive domain object";
+
+    diag "Undefining the inactive domain config";
+    $dom->undefine;
+
+    ok_error { $conn->get_domain_by_name("test") } \
+        "NO_DOMAIN error raised from missing domain", \
+        Sys::Virt::Error::ERR_NO_DOMAIN;
+
+
+
+Running the test script
+=======================
+
+
+Having created the test script it can be run directly using Perl, simply by
+setting an environment variable pointing to the config file
+
+
+   # export LIBVIRT_TCK_CONFIG=/etc/libvirt-tck/xen.cfg
+   # perl example-persistent-domain.t
+
+If the libvirt driver being tested were bug-free it would result in the
+following output
+
+   1..5
+   # Defining inactive domain config again
+   ok 1 - defined persistent domain config
+   # Starting inactive domain config
+   ok 2 - running domain has an ID > 0
+   # Destroying the running domain
+   ok 3 - inactive domain has an ID == -1
+   # Checking there is still an inactive domain config
+   ok 4 - the inactive domain object
+   # Undefining the inactive domain config
+   ok 5 - NO_DOMAIN error raised from missing domain
+
+If something went wrong, it might look like
+
+   1..5
+   # Defining inactive domain config again
+   ok 1 - defined persistent domain config
+   # Starting inactive domain config
+   not ok 2 - running domain has an ID > 0
+   #   Failed test 'running domain has an ID > 0'
+   #   at /home/berrange/ex line 39.
+   # Destroying the running domain
+   libvirt error code: 7, message: invalid domain pointer in no domain with matching id -1
+   # Looks like you planned 5 tests but only ran 2.
+   # Looks like you failed 1 test of 2 run.
+   # Looks like your test died just after 2.
+
+Notice that since the tst script declared upfront that it intended
+to run 5 checks, Perl was able to detect that it aborted earlier
+than expected.

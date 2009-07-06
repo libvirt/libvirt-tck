@@ -1,5 +1,6 @@
-  libvirt TCK: An introduction to writing tests
-  =============================================
+=pod
+
+=head1 libvirt TCK: An introduction to writing tests
 
 The libvirt TCK provides a framework for testing the correct
 operation of libvirt drivers and their integration with the
@@ -14,8 +15,7 @@ Test::More framework.  The libvirt TCK also provides a number
 of helper modules to simplify the process of creating interesting
 tests
 
-Output format for a test case
-=============================
+=head2 Output format for a test case
 
 To enable automated reporting and analysis of test results, there
 is a well defined output format that tests must follow. A single
@@ -58,8 +58,7 @@ available either in 'man 3 TAP' or 'man 3 Test::Harness::TAP'
 depending on the Perl version.
 
 
-Writing tests with a compliant output format
-============================================
+=head2 Writing tests with a compliant output format
 
 As if that output format were not simple enough to understand and
 generate, there are helper modules to make this even easier to
@@ -120,8 +119,7 @@ extensive documentation can be found in the 'Test::More' manual
 page.
 
 
-Helpers for writing libvirt TCK test checks
-===========================================
+=head2 Helpers for writing libvirt TCK test checks
 
 
 While the above functions are useful for testing simple properties
@@ -222,17 +220,32 @@ that does not happen, then a failure will be reported.
 
 
 
-A real test case example walkthrough
-====================================
+=head2 A real test case example walkthrough
 
 This example will illustrate how to test operation of persistent
 virtual domains. Our plan for the test is to run the following
 sequence of operations
 
- - Define a new inactive guest from XML
- - Start the guest config
- - Stop the running guest
- - Undefine the now inactive guest config
+=over 4
+
+=item *
+
+Define a new inactive guest from XML
+
+=item *
+
+Start the guest config
+
+=item *
+
+Stop the running guest
+
+=item *
+
+Undefine the now inactive guest config
+
+=back
+
 
 There will be certain sanity checks at various stages. For example,
 after starting the guest, it will check that the guest ID is greater
@@ -303,8 +316,7 @@ checking that an error is raised
 
 
 
-The completed example test script
-=================================
+=head2 The completed example test script
 
 It is good practice to include a short documentation comment in test
 scripts to outline what the script intends to validate. The Perl
@@ -372,8 +384,7 @@ Taking this into account, the complete example script looks like
 
 
 
-Running the test script
-=======================
+=head2 Running the test script
 
 
 Having created the test script it can be run directly using Perl, simply by

@@ -36,17 +36,16 @@ test suite for libvirt drivers.
 
 There now follows a few words of warning
 
-WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-
 The test suite needs to have a completely 'clean' initial
-starting state and will do its best to make it so. Thus,
-when this command runs, all existing (running and/or inactive)
-guest domains, virtual networks, storage pools, or other libvirt
-managed objects WILL BE DELETED.
+starting state. If your host already has virtual machines
+defined and/or running this will cause problems. The test
+suite will detect this and refuse to run, allowing you to
+remove any preexisting guests. Alternatively you can pass
+the --force option and libvirt will DELETE EVERYTHING it
+finds.
 
-To repeat: ALL YOUR EXISTING DOMAINS WILL BE DELETED
-
-WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+To repeat: ALL YOUR EXISTING DOMAINS, NETWORKS, STORAGE POOLS
+WILL BE DELETED IF YOU USE THE --force OPTION.
 
 The warning is now complete, continue reading
 
@@ -221,8 +220,4 @@ C<prove>. If you need more fine grained control over running the tests,
 then set the LIBVIRT_TCK_CONFIG environment variable to point to your
 configuration file, and then run the C<prove> command passing in
 the path to the test scripts to run.
-
-C<libvirt-tck-prepare>. Before running C<libvirt-tck> this command can
-be used to prepare a suitable kernel, initrd, bootable ISO, and dummy
-chroot filesystem needed for various tests.
 

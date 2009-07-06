@@ -12,4 +12,6 @@ data/
 results/
 ^Build$
 ^_build/
+^\.git/
 ^cover_db/
+^libvirt-tck/

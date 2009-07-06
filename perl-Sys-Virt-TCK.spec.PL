@@ -44,10 +44,25 @@ Source: %{appname}-%{version}.tar.gz
 BuildRoot: /var/tmp/%{appname}-%{version}-root
 Requires: perl >= %{perlversion}
 Requires: libvirt >= 0.6.1
+BuildRequires: perl(accessors)
+BuildRequires: perl(App::Prove)
+BuildRequires: perl(Config::Record)
+BuildRequires: perl(Cwd)
+BuildRequires: perl(File::Spec::Functions)
+BuildRequires: perl(File::Copy)
+BuildRequires: perl(File::Path)
+BuildRequires: perl(LWP::UserAgent)
+BuildRequires: perl(IO::String)
 BuildRequires: perl(Module::Build)
-BuildRequires: perl(Test::More)
+BuildRequires: perl(TAP::Formatter::HTML)
+BuildRequires: perl(TAP::Harness)
+BuildRequires: perl(TAP::Harness::Archive)
 BuildRequires: perl(Test::Builder)
+BuildRequires: perl(Test::More)
 BuildRequires: perl(Sub::Uplevel)
+BuildRequires: perl(Sys::Virt)
+BuildRequires: perl(XML::Twig)
+BuildRequires: perl(XML::Writer)
 BuildArchitectures: noarch
 
 %description
@@ -73,6 +88,8 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
+%__install -m 0644 -d $RPM_BUILD_ROOT%{_localstatedir}/cache/libvirt-tck
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -92,6 +109,7 @@ rm -rf $RPM_BUILD_ROOT
 #%{perlvendorman3}/*
 %{perlvendorlib}/Sys/Virt/TCK.pm
 %{perlvendorlib}/Sys/Virt/TCK/
+%dir %{_localstatedir}/cache/libvirt-tck
 
 %changelog
 * Fri Mar 24 2006  <berrange@redhat.com> - 0.0.1-1

@@ -25,6 +25,9 @@ sub new {
     $self->{config} = $params{config} ? $params{config} :
 	Config::Record->new(file => ($ENV{LIBVIRT_TCK_CONFIG} || "/etc/tck.conf"));
 
+    $self->{autoclean} = $params{autoclean} ? $params{autoclean} :
+	($ENV{LIBVIRT_TCK_AUTOCLEAN} || 0);
+
     bless $self, $class;
 
     return $self;
@@ -39,9 +42,26 @@ sub setup {
     my $type = $self->{conn}->get_type();
     $self->{type} = lc $type;
 
-    $self->reset;
+    $self->reset if $self->{autoclean};
+
+    $self->sanity_check;
 
     return $self->{conn};
+}
+
+
+sub sanity_check {
+    my $self = shift;
+
+    my @doms = $self->{conn}->list_domains;
+    if (@doms) {
+	die "there is/are " . int(@doms) . " pre-existing active domain(s) in this driver";
+    }
+
+    @doms = $self->{conn}->list_defined_domains;
+    if (@doms) {
+	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
+    }
 }
 
 sub reset {

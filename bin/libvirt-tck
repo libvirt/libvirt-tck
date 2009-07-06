@@ -78,12 +78,22 @@ the name of each test case
 Specify the name of the configuration file to use, rather than
 the default C</etc/libvirt-tck/default.cfg>
 
-=item -f, --format text|html|xml
+=item --format text|html|xml
 
 Choose the output format for the test results. The default format
 is C<text>, producing human readable results on the console. The
 C<html> option dumps an HTML file of results to STDOUT, while the
 C<xml> option generates a formal XML document of results.
+
+=item --force
+
+Forcably remove all running guest domains and all persistent guest
+domain configuration files before running any tests. The test suite
+requires a pristine install, so all existing managed objects must
+be removed before running. This switch will instruct libvirt-tck
+to automatically remove all guest domains. YOU WILL NOT GET YOUR
+EXISTING GUEST DOMAINS BACK IF THIS HAPPENS. THEY WILL BE GONE
+FOREVER. USE AT YOUR OWN RISK.
 
 =item -t, --testdir PATH
 
@@ -120,6 +130,7 @@ my $confdir = catdir(rootdir(), qw(etc libvirt-tck));
 my $verbose = 0;
 my $quiet = 0;
 my $help = 0;
+my $force = 0;
 my $archive;
 my $config = catfile($confdir, "default.cfg");
 my $format = "text";
@@ -130,6 +141,7 @@ GetOptions("verbose" => \$verbose,
 	   "help" => \$help,
 	   "archive=s" => \$archive,
 	   "config=s" => \$config,
+	   "force" => \$force,
 	   "format=s" => \$format,
            "testdir=s" => \$testdir);
 
@@ -178,6 +190,7 @@ if ($format eq "xml") {
 # This env variable is the only way to pass config into
 # the Sys::Virt::TCK module from here
 $ENV{LIBVIRT_TCK_CONFIG} = $config;
+$ENV{LIBVIRT_TCK_AUTOCLEAN} = $force;
 
 my $app = App::Prove->new;
 $app->process_args(@newargv);

@@ -48,7 +48,7 @@ my $dom;
 ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
 
-my $path = $tck->get_disk("extra.img", 100);
+my $path = $tck->create_sparse_disk("200-disk-hotplug", "extra.img", 100);
 
 my $dev = "vdb";
 my $bus = "virtio";

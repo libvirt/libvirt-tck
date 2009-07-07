@@ -12,6 +12,8 @@ use File::Path qw(mkpath);
 use File::Spec::Functions qw(catfile catdir rootdir);
 use Cwd qw(cwd);
 use LWP::UserAgent;
+use IO::Uncompress::Gunzip qw(gunzip);
+use IO::Uncompress::Bunzip2 qw(bunzip2);
 
 use Test::Builder;
 use Sub::Uplevel qw(uplevel);
@@ -123,25 +125,39 @@ sub scratch_dir {
     return $scratch;
 }
 
-sub get_scratch {
+sub bucket_dir {
+    my $self = shift;
+    my $name = shift;
+
+    my $scratch = $self->scratch_dir;
+
+    my $bucket = catdir($scratch, $name);
+    mkpath($bucket) unless -e $bucket;
+
+    return $bucket;
+}
+
+sub get_scratch_resource {
     my $self = shift;
     my $source = shift;
     my $bucket = shift;
     my $name = shift;
 
-    my $scratch = $self->scratch_dir;
-
-    my $dir = catdir($scratch, $bucket);
-    mkpath($dir) unless -e $dir;
-
+    my $dir = $self->bucket_dir($bucket);
     my $target = catfile($dir, $name);
 
     return $target if -e $target;
 
+    my $uncompress = undef;
+    if (ref($source)) {
+	$uncompress = $source->{uncompress};
+	$source = $source->{source};
+    }
+
     if ($source =~ m,^/,) {
-	$self->copy_scratch($source, $target);
+	$self->copy_scratch($source, $target, $uncompress);
     } else {
-	$self->download_scratch($source, $target);
+	$self->download_scratch($source, $target, $uncompress);
     }
 
     return $target;
@@ -152,6 +168,7 @@ sub download_scratch {
     my $self = shift;
     my $source = shift;
     my $target = shift;
+    my $uncompress = shift;
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
@@ -161,7 +178,19 @@ sub download_scratch {
 
     if ($response->is_success) {
 	open TGT, ">$target" or die "cannot create $target: $!";
-	print TGT $response->content or die "cannot write $target: $!";
+	if (defined $uncompress) {
+	warn "uncomp $uncompress $source $target\n";
+	    my $data = $response->content;
+	    if ($uncompress eq "gzip") {
+		gunzip \$data => \*TGT;
+	    } elsif ($uncompress eq "bzip2") {
+		bunzip2 \$data => \*TGT;
+	    } else {
+		die "unknown compression method '$uncompress'";
+	    }
+	} else {
+	    print TGT $response->content or die "cannot write $target: $!";
+	}
 	#print TGT $response->decoded_content or die "cannot write $target: $!";
 	close TGT or die "cannot save $target: $!";
     } else {
@@ -174,8 +203,40 @@ sub copy_scratch {
     my $self = shift;
     my $source = shift;
     my $target = shift;
+    my $uncompress = shift;
 
-    copy ($source, $target) or die "cannot copy $source to $target: $!";
+    if (defined $uncompress) {
+	warn "uncomp $uncompress $source $target\n";
+	if ($uncompress eq "gzip") {
+	    gunzip $source => $target;
+	} elsif ($uncompress eq "bzip2") {
+	    bunzip2 $source => $target;
+	} else {
+	    die "unknown compression method '$uncompress'";
+	}
+    } else {
+	copy ($source, $target) or die "cannot copy $source to $target: $!";
+    }
+}
+
+
+sub create_sparse_disk {
+    my $self = shift;
+    my $bucket = shift;
+    my $name = shift;
+    my $size = shift;
+
+    my $dir = $self->bucket_dir($bucket);
+
+    my $target = catfile($dir, $name);
+
+    open DISK, ">$target" or die "cannot create $target: $1";
+
+    truncate DISK, ($size * 1024 * 1024);
+
+    close DISK or die "cannot save $target: $!";
+
+    return $target;
 }
 
 
@@ -192,64 +253,45 @@ sub get_kernel {
 
 	my $kernel = $entry->{kernel};
 	my $initrd = $entry->{initrd};
+	my $disk = $entry->{disk};
 
-	my $kfile = $self->get_scratch($kernel, "kernel", "$arch-$ostype-vmlinuz");
-	my $ifile = $self->get_scratch($initrd, "kernel", "$arch-$ostype-initrd");
+	my $bucket = "os-$arch-$ostype";
 
-	return ($kfile, $ifile);
+	my $kfile = $self->get_scratch_resource($kernel, $bucket, "vmlinuz");
+	my $ifile = $initrd ? $self->get_scratch_resource($initrd, $bucket, "initrd") : undef;
+	my $dfile = $disk ? $self->get_scratch_resource($disk, $bucket, "disk.img") : undef;
+
+	unless (defined $dfile) {
+	    $dfile = $self->create_sparse_disk($bucket, "disk.img", 100);
+	}
+
+	return ($kfile, $ifile, $dfile);
     }
 
     die "cannot find a kernel with arch '$arch' and ostype '$ostype'";
 }
 
-sub get_disk {
-    my $self = shift;
-    my $name = shift;
-    my $size = shift;
-
-    my $scratch = $self->scratch_dir;
-
-    my $bucket = catdir($scratch, "disks");
-    mkpath($bucket) unless -e $bucket;
-
-    my $target = catfile($bucket, $name);
-
-    open DISK, ">$target" or die "cannot create $target: $1";
-
-    truncate DISK, ($size * 1024 * 1024);
-
-    close DISK or die "cannot save $target: $!";
-
-    return $target;
-}
 
 
 sub generic_domain {
     my $self = shift;
-
-    my $b = $self->bare_domain(@_);
-
-    my $disk = $self->get_disk("generic.img", 100);
-    $b->disk(src =>$disk, dst => "hda", type => "file");
-
-    return $b;
-}
-
-
-sub bare_domain {
-    my $self = shift;
     my $name = @_ ? shift : "test";
+
+    # XXX fix arch/type basedon capabilities
+    my ($kernel, $initrd, $root) = $self->get_kernel("i686", "hvm");
 
     my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
 					       name => $name);
     $b->memory(64 * 1024);
 
-    # XXX fix arch/type basedon capabilities
-    my ($kernel, $initrd) = $self->get_kernel("i686", "hvm");
+    # XXX boot CDROM or vroot for other HVs
     $b->boot_kernel($kernel, $initrd);
+    # XXX non-IDE
+    $b->disk(src =>$root, dst => "hda", type => "file");
 
     return $b;
 }
+
 
 # Borrowed from Test::Exception
 

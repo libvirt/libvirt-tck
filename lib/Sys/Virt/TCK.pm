@@ -87,6 +87,9 @@ sub reset {
 
 sub cleanup {
     my $self = shift;
+
+    $self->reset();
+
     delete $self->{conn};
 }
 

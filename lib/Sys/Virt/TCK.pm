@@ -6,6 +6,8 @@ use warnings;
 
 use Sys::Virt;
 use Sys::Virt::TCK::DomainBuilder;
+use Sys::Virt::TCK::Capabilities;
+
 use Config::Record;
 use File::Copy qw(copy);
 use File::Path qw(mkpath);
@@ -179,7 +181,6 @@ sub download_scratch {
     if ($response->is_success) {
 	open TGT, ">$target" or die "cannot create $target: $!";
 	if (defined $uncompress) {
-	warn "uncomp $uncompress $source $target\n";
 	    my $data = $response->content;
 	    if ($uncompress eq "gzip") {
 		gunzip \$data => \*TGT;
@@ -191,7 +192,6 @@ sub download_scratch {
 	} else {
 	    print TGT $response->content or die "cannot write $target: $!";
 	}
-	#print TGT $response->decoded_content or die "cannot write $target: $!";
 	close TGT or die "cannot save $target: $!";
     } else {
 	die "cannot download $source: " . $response->status_line;
@@ -206,7 +206,6 @@ sub copy_scratch {
     my $uncompress = shift;
 
     if (defined $uncompress) {
-	warn "uncomp $uncompress $source $target\n";
 	if ($uncompress eq "gzip") {
 	    gunzip $source => $target;
 	} elsif ($uncompress eq "bzip2") {
@@ -240,35 +239,108 @@ sub create_sparse_disk {
 }
 
 
-sub get_kernel {
+sub match_kernel {
     my $self = shift;
+    my $caps = shift;
     my $arch = shift;
     my $ostype = shift;
 
-    my $kernels = $self->config("kernels", []);
+    for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
+	if ($caps->guest_os_type($i) eq $ostype &&
+	    $caps->guest_arch_name($i) eq $arch) {
 
-    foreach my $entry (@$kernels) {
-	next unless $arch eq $entry->{arch};
-	next unless grep { $_ eq $ostype } @{$entry->{ostype}};
+	    my @domains = $caps->guest_domain_types($i);
+	    next unless int(@domains);
 
-	my $kernel = $entry->{kernel};
-	my $initrd = $entry->{initrd};
-	my $disk = $entry->{disk};
-
-	my $bucket = "os-$arch-$ostype";
-
-	my $kfile = $self->get_scratch_resource($kernel, $bucket, "vmlinuz");
-	my $ifile = $initrd ? $self->get_scratch_resource($initrd, $bucket, "initrd") : undef;
-	my $dfile = $disk ? $self->get_scratch_resource($disk, $bucket, "disk.img") : undef;
-
-	unless (defined $dfile) {
-	    $dfile = $self->create_sparse_disk($bucket, "disk.img", 100);
+	    return ($domains[0],
+		    $caps->guest_domain_emulator($i, $domains[0]),
+		    $caps->guest_domain_loader($i, $domains[0]));
 	}
-
-	return ($kfile, $ifile, $dfile);
     }
 
-    die "cannot find a kernel with arch '$arch' and ostype '$ostype'";
+    return ();
+}
+
+
+sub best_kernel {
+    my $self = shift;
+
+    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
+
+    my $kernels = $self->config("kernels", []);
+
+    for (my $i = 0 ; $i <= $#{$kernels} ; $i++) {
+	my $arch = $kernels->[$i]->{arch};
+	my $ostype = $kernels->[$i]->{ostype};
+	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+
+	foreach $ostype (@ostype) {
+	    my ($domain, $emulator, $loader) =
+		$self->match_kernel($caps, $arch, $ostype);
+
+	    if (defined $domain) {
+		return ($i, $domain, $arch, $ostype, $emulator, $loader)
+	    }
+	}
+    }
+
+    return ();
+}
+
+sub get_kernel {
+    my $self = shift;
+
+    my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
+	$self->best_kernel();
+
+    if (!defined $cfgindex) {
+	die "cannot find any supported kernel configuration";
+    }
+
+    my $kernels = $self->config("kernels", []);
+
+    my $kernel = $kernels->[$cfgindex]->{kernel};
+    my $initrd = $kernels->[$cfgindex]->{initrd};
+    my $disk = $kernels->[$cfgindex]->{disk};
+
+    my $bucket = "os-$arch-$ostype";
+
+    my $kfile = $self->get_scratch_resource($kernel, $bucket, "vmlinuz");
+    my $ifile = $initrd ? $self->get_scratch_resource($initrd, $bucket, "initrd") : undef;
+    my $dfile = $disk ? $self->get_scratch_resource($disk, $bucket, "disk.img") : undef;
+
+    unless (defined $dfile) {
+	$dfile = $self->create_sparse_disk($bucket, "disk.img", 100);
+    }
+
+    chmod 0755, $kfile;
+
+    my $dev;
+    if ($ostype eq "xen") {
+	$dev = "xvda";
+    } elsif ($ostype eq "uml") {
+	$dev = "ubda";
+    } elsif ($ostype eq "hvm") {
+	if ($domain eq "kvm" ||
+	    $domain eq "qemu" ||
+	    $domain eq "kqemu") {
+	    $dev = "vda";
+	} else {
+	    $dev = "hda";
+	}
+    }
+
+    return (
+	domain => $domain,
+	arch => $arch,
+	ostype => $ostype,
+	emulator => $emulator,
+	loader => $loader,
+	kernel => $kfile,
+	initrd => $ifile,
+	root => $dfile,
+	dev => $dev,
+    );
 }
 
 
@@ -277,17 +349,20 @@ sub generic_domain {
     my $self = shift;
     my $name = @_ ? shift : "test";
 
-    # XXX fix arch/type basedon capabilities
-    my ($kernel, $initrd, $root) = $self->get_kernel("i686", "hvm");
+    my %config = $self->get_kernel();
 
     my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
-					       name => $name);
+					       name => $name,
+					       domain => $config{domain},
+					       ostype => $config{ostype});
     $b->memory(64 * 1024);
 
     # XXX boot CDROM or vroot for other HVs
-    $b->boot_kernel($kernel, $initrd);
-    # XXX non-IDE
-    $b->disk(src =>$root, dst => "hda", type => "file");
+    $b->boot_kernel($config{kernel}, $config{initrd});
+
+    $b->disk(src => $config{root},
+	     dst => $config{dev},
+	     type => "file");
 
     return $b;
 }

@@ -32,7 +32,7 @@ chomp $xml;
 
 my $conn = Sys::Virt->new(address => "test:///default");
 
-my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn)
+my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn, domain => "xen", ostype => 'hvm')
     ->with_acpi->memory(500*1025)->vcpu(3)
     ->disk(type => 'block', src => "/dev/hda1", dst => "/dev/xvda", bus => "xen")
     ->as_xml;

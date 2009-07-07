@@ -14,26 +14,15 @@ sub new {
 
     my $conn = $params{conn} ? $params{conn} : die "conn parameter is required";
 
-    my $type = $conn->get_type();
-    my $domtype;
-    if ($type eq "QEMU") {
-	$domtype = "qemu";
-    } else {
-	$domtype = "xen";
-    }
-    # Some older Xen can't boot kernel+initrd, so default to PV
-    my $ostype;
-    if ($type eq "Xen") {
-	$ostype = "xen";
-    } else {
-	$ostype = "hvm";
-    }
+    my $domain = $params{domain} ? $params{domain} : die "domain parameter is required";
+    my $ostype = $params{ostype} ? $params{ostype} : die "ostype parameter is required";
 
     my $self = {
 	name => $params{name} ? $params{name} : "test" ,
-	type => $domtype,
+	type => $domain,
 	ostype => $ostype,
 	boot => { type => "disk" },
+	emulator => undef,
 	lifecycle => {},
 	features => {},
 	disks => [],
@@ -190,6 +179,23 @@ sub with_apic {
     $self->{features}->{apic} = 1;
 }
 
+sub emulator {
+    my $self = shift;
+
+    $self->{emulator} = shift;
+
+    return $self;
+}
+
+sub loader {
+    my $self = shift;
+
+    $self->{boot}->{loader} = shift;
+
+    return $self;
+}
+
+
 sub disk {
     my $self = shift;
     my %params = @_;
@@ -233,6 +239,11 @@ sub as_xml {
 	    $w->dataElement($_, $self->{boot}->{$_}) if $self->{boot}->{$_};
 	}
     }
+
+    if (exists $self->{boot}->{loader}) {
+	$w->dataElement("loader" => $self->{boot}->{loader});
+    }
+
     $w->endTag("os");
 
     if ($self->{boot}->{type} eq "bootloader") {
@@ -252,6 +263,9 @@ sub as_xml {
     }
 
     $w->startTag("devices");
+    if ($self->{emulator}) {
+	$w->dataElement("emulator" => $self->{emulator});
+    }
     foreach my $disk (@{$self->{disks}}) {
 	$w->startTag("disk",
 		     type => $disk->{type},
@@ -269,6 +283,7 @@ sub as_xml {
 		     $disk->{bus} ? (bus => $disk->{bus}) : ());
 	$w->endTag("disk");
     }
+    $w->emptyTag("console", type => "pty");
     $w->endTag("devices");
     $w->endTag("domain");
 

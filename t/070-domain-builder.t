@@ -25,6 +25,7 @@ my $xml = <<EOF;
       <source dev="/dev/hda1" />
       <target dev="/dev/xvda" bus="xen" />
     </disk>
+    <console type="pty" />
   </devices>
 </domain>
 EOF

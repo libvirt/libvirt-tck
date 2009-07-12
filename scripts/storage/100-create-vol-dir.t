@@ -28,7 +28,7 @@ with a filesystem pool.
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 33;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -77,6 +77,9 @@ is($st->size, 1024*1024*50, "size is 50M");
 # overhead for a sparse file
 ok($st->blocks < 10, "not many blocks allocated");
 
+lives_ok { $vol->delete(0) } "deleted volume";
+
+
 
 
 ok_volume { $vol = $pool->create_volume($volallocxml) } "create fully allocated raw volume";
@@ -92,6 +95,9 @@ is($st->size, 1024*1024*50, "size is 50M");
 # overhead for a file
 ok($st->blocks > (1024*1024*50/512), "alot of blocks allocated");
 
+lives_ok { $vol->delete(0) } "deleted volume";
+
+
 
 
 ok_volume { $vol = $pool->create_volume($volcowxml) } "create cow volume";
@@ -104,6 +110,9 @@ ok($st, "path $path exists");
 # Don't know exactly how large a cow empty file is, but it
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic cow header is allocated");
+
+lives_ok { $vol->delete(0) } "deleted volume";
+
 
 
 
@@ -118,6 +127,9 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic qcow1 header is allocated");
 
+lives_ok { $vol->delete(0) } "deleted volume";
+
+
 
 
 ok_volume { $vol = $pool->create_volume($volqcow2xml) } "create qcow volume";
@@ -130,6 +142,9 @@ ok($st, "path $path exists");
 # Don't know exactly how large a qcow2 empty file is, but it
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic qcow2 header is allocated");
+
+lives_ok { $vol->delete(0) } "deleted volume";
+
 
 
 
@@ -144,6 +159,9 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vmdk header is allocated");
 
+lives_ok { $vol->delete(0) } "deleted volume";
+
+
 
 
 ok_volume { $vol = $pool->create_volume($volvpcxml) } "create qcow volume";
@@ -156,4 +174,6 @@ ok($st, "path $path exists");
 # Don't know exactly how large a vpc empty file is, but it
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vpc header is allocated");
+
+lives_ok { $vol->delete(0) } "deleted volume";
 

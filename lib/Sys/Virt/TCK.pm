@@ -6,6 +6,9 @@ use warnings;
 
 use Sys::Virt;
 use Sys::Virt::TCK::DomainBuilder;
+use Sys::Virt::TCK::NetworkBuilder;
+use Sys::Virt::TCK::StoragePoolBuilder;
+use Sys::Virt::TCK::StorageVolBuilder;
 use Sys::Virt::TCK::Capabilities;
 
 use Config::Record;

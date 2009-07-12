@@ -57,6 +57,8 @@ my $b = $class->new(
 	'App::Prove' => '3.11',
 	'Config::Record' => '1.0.0',
 	'Cwd' => 0,
+	'Digest' => 0,
+	'Digest::MD5' => 0,
 	'File::Copy' => 0,
 	'File::Path' => 0,
 	'File::Spec::Functions' => 0,
@@ -73,6 +75,7 @@ my $b = $class->new(
 	'Sys::Virt' => '0.2.0',
 	'XML::Twig' => 0,
 	'XML::Writer' => 0,
+	'XML::XPath' => 0,
     },
     build_requires => {
 	'Test::Pod' => '0',

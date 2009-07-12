@@ -28,7 +28,7 @@ with a filesystem pool.
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 26;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -56,7 +56,11 @@ lives_ok { $pool->create } "started storage pool";
 
 my $volsparsexml = $tck->generic_volume("test1", "raw", 1024*1024*50)->allocation(0)->as_xml;
 my $volallocxml = $tck->generic_volume("test2", "raw", 1024*1024*50)->allocation(1024*1024*50)->as_xml;
-my $volqcowxml = $tck->generic_volume("test3", "qcow2", 1024*1024*50)->as_xml;
+my $volcowxml = $tck->generic_volume("test3", "cow", 1024*1024*50)->as_xml;
+my $volqcow1xml = $tck->generic_volume("test4", "qcow", 1024*1024*50)->as_xml;
+my $volqcow2xml = $tck->generic_volume("test5", "qcow2", 1024*1024*50)->as_xml;
+my $volvmdkxml = $tck->generic_volume("test6", "vmdk", 1024*1024*50)->as_xml;
+my $volvpcxml = $tck->generic_volume("test7", "vpc", 1024*1024*50)->as_xml;
 
 my ($vol, $path, $st);
 
@@ -90,7 +94,33 @@ ok($st->blocks > (1024*1024*50/512), "alot of blocks allocated");
 
 
 
-ok_volume { $vol = $pool->create_volume($volqcowxml) } "create qcow volume";
+ok_volume { $vol = $pool->create_volume($volcowxml) } "create cow volume";
+
+$path = xpath($vol, "string(/volume/target/path)");
+$st = stat($path);
+
+ok($st, "path $path exists");
+
+# Don't know exactly how large a cow empty file is, but it
+# should be quite small :-)
+ok($st->size < 1024*1024, "basic cow header is allocated");
+
+
+
+ok_volume { $vol = $pool->create_volume($volqcow1xml) } "create qcow volume";
+
+$path = xpath($vol, "string(/volume/target/path)");
+$st = stat($path);
+
+ok($st, "path $path exists");
+
+# Don't know exactly how large a qcow1 empty file is, but it
+# should be quite small :-)
+ok($st->size < 1024*1024, "basic qcow1 header is allocated");
+
+
+
+ok_volume { $vol = $pool->create_volume($volqcow2xml) } "create qcow volume";
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -99,5 +129,31 @@ ok($st, "path $path exists");
 
 # Don't know exactly how large a qcow2 empty file is, but it
 # should be quite small :-)
-ok($st->size < 1024*1024, "basic qcow header is allocated");
+ok($st->size < 1024*1024, "basic qcow2 header is allocated");
+
+
+
+ok_volume { $vol = $pool->create_volume($volvmdkxml) } "create qcow volume";
+
+$path = xpath($vol, "string(/volume/target/path)");
+$st = stat($path);
+
+ok($st, "path $path exists");
+
+# Don't know exactly how large a vmdk empty file is, but it
+# should be quite small :-)
+ok($st->size < 1024*1024, "basic vmdk header is allocated");
+
+
+
+ok_volume { $vol = $pool->create_volume($volvpcxml) } "create qcow volume";
+
+$path = xpath($vol, "string(/volume/target/path)");
+$st = stat($path);
+
+ok($st, "path $path exists");
+
+# Don't know exactly how large a vpc empty file is, but it
+# should be quite small :-)
+ok($st->size < 1024*1024, "basic vpc header is allocated");
 

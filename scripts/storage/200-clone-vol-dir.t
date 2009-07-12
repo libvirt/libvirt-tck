@@ -31,7 +31,7 @@ checksummed and validated
 use strict;
 use warnings;
 
-use Test::More tests => 60;
+use Test::More tests => 61;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -72,7 +72,7 @@ open FILE, ">$path";
 for (my $i = 0 ; $i < 50 ; $i++) {
     for (my $j = 0 ; $j < 1024 ; $j++) {
 	# 64 bytes
-	my $str = join('', ('a'..'z', 'A'..'Z', '0'..'9', '.',','));
+	my $str = join('', ('a'..'z', 'A'..'Z', '0'..'9', '.',"\n"));
         # 1 kb
 	my $data = join('', $str, $str, $str, $str,
 			$str, $str, $str, $str,
@@ -93,10 +93,11 @@ my $srcdigest = &digest($path);
 diag "Now testing cloning of various formats";
 
 my @formats = qw(raw cow qcow qcow2 vmdk vpc);
-#@formats = qw(qcow2);
-@formats = qw(vpc);
 
 foreach my $format (@formats) {
+  TODO: {
+      local $TODO = "bug in QEMU vpc handling adds trailing nulls" if $format eq "vpc";
+
     diag "Cloning source volume to $format format";
     my $volclonexml = $tck->generic_volume("test$format", $format, 1024*1024*50)->as_xml;
 
@@ -116,8 +117,10 @@ foreach my $format (@formats) {
 
 
     $path = xpath($result, "string(/volume/target/path)");
+
     $st = stat($path);
     ok($st, "path $path exists");
+
     is($st->size, 1024*1024*50, "size is 50M");
 
     diag "Comparing data between source & result volume";
@@ -125,10 +128,15 @@ foreach my $format (@formats) {
     my $dstdigest = &digest($path);
 
     is($srcdigest, $dstdigest, "digests match");
-    sleep 30;
+
     lives_ok { $clone->delete } "deleted clone volume";
     lives_ok { $result->delete } "deleted result volume";
+    }
 }
+
+
+lives_ok { $vol->delete } "deleted source vol";
+
 
 
 sub digest {

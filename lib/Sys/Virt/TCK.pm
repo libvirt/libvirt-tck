@@ -19,12 +19,13 @@ use Cwd qw(cwd);
 use LWP::UserAgent;
 use IO::Uncompress::Gunzip qw(gunzip);
 use IO::Uncompress::Bunzip2 qw(bunzip2);
+use XML::XPath;
 
 use Test::Builder;
 use Sub::Uplevel qw(uplevel);
 use base qw(Exporter);
 
-our @EXPORT = qw(ok_error ok_domain);
+our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume xpath);
 
 our $VERSION = '0.0.1';
 
@@ -74,6 +75,16 @@ sub sanity_check {
     if (@doms) {
 	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
     }
+
+    my @pools = $self->{conn}->list_storage_pools;
+    if (@pools) {
+	die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
+    }
+
+    @pools = $self->{conn}->list_defined_storage_pools;
+    if (@pools) {
+	die "there is/are " . int(@pools) . " pre-existing inactive storage_pool(s) in this driver";
+    }
 }
 
 sub reset {
@@ -89,6 +100,23 @@ sub reset {
     @doms = $self->{conn}->list_defined_domains();
     foreach my $dom (@doms) {
 	$dom->undefine;
+    }
+
+    my @pools = $self->{conn}->list_storage_pools;
+    foreach my $pool (@pools) {
+	my @vols = $pool->list_volumes;
+	foreach my $vol (@vols) {
+	    eval { $vol->delete(0) };
+	}
+	$pool->destroy;
+    }
+
+    @pools = $self->{conn}->list_defined_storage_pools();
+    foreach my $pool (@pools) {
+	eval {
+	    $pool->delete(0);
+	};
+	$pool->undefine;
     }
 }
 
@@ -371,6 +399,35 @@ sub generic_domain {
 }
 
 
+sub generic_pool {
+    my $self = shift;
+    my $type = shift;
+    my $name = @_ ? shift : "test";
+
+    my $bucket = $self->bucket_dir("storage-fs");
+
+    my $b = Sys::Virt::TCK::StoragePoolBuilder->new(name => $name,
+						    type => $type);
+
+    $b->target(catdir($bucket, $name));
+
+    return $b;
+}
+
+
+sub generic_volume {
+    my $self = shift;
+    my $name = @_ ? shift : "test";
+    my $format = @_ ? shift :undef;
+    my $capacity = @_ ? shift : 1024*1024*50;
+
+    my $b = Sys::Virt::TCK::StorageVolBuilder->new(name => $name);
+    $b->format($format) if $format;
+    $b->capacity($capacity);
+
+    return $b;
+}
+
 # Borrowed from Test::Exception
 
 sub _quiet_caller (;$) { ## no critic Prototypes
@@ -427,6 +484,64 @@ sub ok_domain(&$;$) {
     }
 }
 
+sub ok_pool(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    die "must pass coderef, description and (optional) expected name"
+	unless defined $description;
+
+    my ($ret, $exception) = _try_as_caller($coderef);
+
+    my $ok = "$exception" eq "" &&
+	$ret && ref($ret) && $ret->isa("Sys::Virt::StoragePool") &&
+	(!defined $name || ($ret->get_name() eq $name));
+
+    $Tester->ok($ok, $description);
+    unless ($ok) {
+	$Tester->diag("expected Sys::Virt::StoragePool object" . ($name ? " with name $name" : ""));
+	if ($exception) {
+	    $Tester->diag("found '$exception'");
+	} else {
+	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::StoragePool")) {
+		$Tester->diag("found Sys::Virt::StoragePool object with name " . $ret->get_name);
+	    } else {
+		$Tester->diag("found '$ret'");
+	    }
+	}
+    }
+}
+
+sub ok_volume(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    die "must pass coderef, description and (optional) expected name"
+	unless defined $description;
+
+    my ($ret, $exception) = _try_as_caller($coderef);
+
+    my $ok = "$exception" eq "" &&
+	$ret && ref($ret) && $ret->isa("Sys::Virt::StorageVol") &&
+	(!defined $name || ($ret->get_name() eq $name));
+
+    $Tester->ok($ok, $description);
+    unless ($ok) {
+	$Tester->diag("expected Sys::Virt::StorageVol object" . ($name ? " with name $name" : ""));
+	if ($exception) {
+	    $Tester->diag("found '$exception'");
+	} else {
+	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::StorageVol")) {
+		$Tester->diag("found Sys::Virt::StorageVol object with name " . $ret->get_name);
+	    } else {
+		$Tester->diag("found '$ret'");
+	    }
+	}
+    }
+}
+
 sub ok_error(&$;$) {
     my $coderef = shift;
     my $description = shift;
@@ -447,6 +562,18 @@ sub ok_error(&$;$) {
     }
     $@ = $exception;
     return $ok;
+}
+
+
+sub xpath {
+    my $object = shift;
+    my $path = shift;
+
+    my $xml = $object->get_xml_description;
+
+    my $xp = XML::XPath->new(xml => $xml);
+
+    return $xp->find($path);
 }
 
 1;

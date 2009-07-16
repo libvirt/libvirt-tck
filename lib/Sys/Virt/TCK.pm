@@ -387,6 +387,8 @@ sub generic_domain {
 					       domain => $config{domain},
 					       ostype => $config{ostype});
     $b->memory(64 * 1024);
+    $b->with_acpi();
+    $b->with_apic();
 
     # XXX boot CDROM or vroot for other HVs
     $b->boot_kernel($config{kernel}, $config{initrd});

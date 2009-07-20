@@ -30,7 +30,7 @@ etc on an inactive domain.
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 11;
 
 use Sys::Virt::TCK;
 
@@ -51,7 +51,7 @@ ok_error { $dom->core_dump("core.img", 0) }  "core_dump of inactive domain not a
 ok_error { $dom->destroy }  "destroy of inactive domain not allowed";
 ok_error { $dom->interface_stats("eth0") }  "interface_stats of inactive domain not allowed";
 ok_error { $dom->memory_peek(0, 100, 0) }  "memory_peek of inactive domain not allowed";
-ok_error { $dom->migrate($conn, undef, undef, undef, 0) }  "migrate of inactive domain not allowed";
+#ok_error { $dom->migrate($conn, undef, undef, undef, 0) }  "migrate of inactive domain not allowed";
 ok_error { $dom->pin_vcpu(1, 1) }  "pin_vcpu of inactive domain not allowed";
 ok_error { $dom->reboot(0) }  "reboot of inactive domain not allowed";
 ok_error { $dom->save("save.img") }  "save of inactive domain not allowed";

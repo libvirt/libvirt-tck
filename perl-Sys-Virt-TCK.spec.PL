@@ -40,10 +40,11 @@ Version: @VERSION@
 Release: 1%{_extra_release}
 License: GPLv2
 Group: Development/Tools
-Source: %{appname}-%{version}.tar.gz
-BuildRoot: /var/tmp/%{appname}-%{version}-root
+Source: http://libvirt.org/sources/tck/%{appname}-%{version}.tar.gz
+Url: http://libvirt.org/
+BuildRoot: %{_tmppath}/%{appname}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: perl >= %{perlversion}
-Requires: libvirt >= 0.6.1
+Requires: libvirt >= 0.6.2
 BuildRequires: perl(accessors)
 BuildRequires: perl(App::Prove)
 BuildRequires: perl(Config::Record)
@@ -62,7 +63,7 @@ BuildRequires: perl(TAP::Harness::Archive)
 BuildRequires: perl(Test::Builder)
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Sub::Uplevel)
-BuildRequires: perl(Sys::Virt)
+BuildRequires: perl(Sys::Virt) >= 0.2.0
 BuildRequires: perl(XML::Twig)
 BuildRequires: perl(XML::Writer)
 BuildArchitectures: noarch
@@ -90,7 +91,7 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 
 %{_fixperms} $RPM_BUILD_ROOT/*
 
-%__install -m 0644 -d $RPM_BUILD_ROOT%{_localstatedir}/cache/libvirt-tck
+%__install -m 0755 -d $RPM_BUILD_ROOT%{_localstatedir}/cache/libvirt-tck
 
 %clean
 rm -rf $RPM_BUILD_ROOT

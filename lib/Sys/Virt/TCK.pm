@@ -27,7 +27,7 @@ use base qw(Exporter);
 
 our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume xpath);
 
-our $VERSION = '0.0.1';
+our $VERSION = '0.1.0';
 
 sub new {
     my $proto = shift;

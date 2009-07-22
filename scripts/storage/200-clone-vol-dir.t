@@ -129,13 +129,13 @@ foreach my $format (@formats) {
 
     is($srcdigest, $dstdigest, "digests match");
 
-    lives_ok { $clone->delete } "deleted clone volume";
-    lives_ok { $result->delete } "deleted result volume";
+    lives_ok { $clone->delete(0) } "deleted clone volume";
+    lives_ok { $result->delete(0) } "deleted result volume";
     }
 }
 
 
-lives_ok { $vol->delete } "deleted source vol";
+lives_ok { $vol->delete(0) } "deleted source vol";
 
 
 

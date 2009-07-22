@@ -114,48 +114,18 @@ module for parsing simple configuration files
 There are a handful of other modules these depend on, but these
 are the most important 'top level' modules in use.
 
-These is all currently available within Fedora 10, with exception of
-perl-accessors, perl-TAP-Formatter-HTML. A similar situation existss
-for RHEL-5 considering modules from EPEL-5
+These are all currently available within Fedora 11, and later
 
 These modules are all well tested, actively maintained parts of
 Perl / CPAN, so easily available for every other operating system
 in existance.
-
-As a convenience I have published repositories for Fedora 10 and
-RHEL-5 on x86_64 including these modules. Use the following YUM
-configs
-
-
-For Fedora 10:
-
-  [libvirt-tck]
-  name=libvirt TCK
-  baseurl=http://berrange.fedorapeople.org/libvirt-tck/yum-f10/x86_64/
-  gpgcheck=0
-  enabled=1
-
-For RHEL-5:
-
-  [libvirt-tck]
-  name=libvirt TCK
-  baseurl=http://berrange.fedorapeople.org/libvirt-tck/yum-rhel5/x86_64/
-  gpgcheck=0
-  enabled=1
-
-
-NB: These repos assume you have already updated to the latest 0.6.2
-libvirt RPM available for the distro in question.
-
-
-
 
 =head2 Overview of framework structure
 
 For following discussions, it may be convenient to refer to the source
 code of the framework. This is available from
 
-   hg clone  http://libvirt.org/hg/libvirt-tck
+   git clone  git://libvirt.org/libvirt-tck.git
 
 First there are a couple of Perl modules to provide assistance when
 dealing with libvirt / writing tests
@@ -238,49 +208,38 @@ are raised by libvirt.
 =back
 
 
-Even these 4 simple proof of concept scripts have highlighted
-some horrible problems
+At the time this was written, even these 4 simple proof of concept
+scripts highlighted a couple of problems in the libvirt code
 
 =over 4
 
 =item *
 
-The QEMU driver 'define domain' method doesn't check for name
+The QEMU driver 'define domain' method didn't check for name
 or UUID uniqueness correctly (well, at all)
 
 =item *
 
-After starting an inactive domain, the remote driver does not
+After starting an inactive domain, the remote driver did not
 update the 'ID' field in the virDomainPtr
 
 =item *
 
-After destroying a active domain, the remote driver does not
+After destroying a active domain, the remote driver did not
 update the 'ID' field in the virDomainPtr
 
 =item *
 
 When defining a persistent config for an already running domain
-the Xen XM driver blows away the current 'ID' field for the
+the Xen XM driver blew away the current 'ID' field for the
 running domain, replacing it with -1.
 
 =item *
 
-QEMU refuses to boot kernel+initrd unless at least one disk
+QEMU refuseed to boot kernel+initrd unless at least one disk
 image is provided
 
 =back
-
-
-In looking at some other things to test I specifically noticed
-that there terrible inconsistency in the virErrorPtr error codes
-used for reporting problems. For each API there needs to be a
-formal core set of error codes that will always be used for a
-certain set of conditions.
-
-eg, when looking up a domain by name, if no such domain exists
-the driver *must* always return VIR_ERR_NO_DOMAIN
-
 
 
 =head2 Output information
@@ -301,77 +260,28 @@ and comparison of results across releases, OS, drivers, etc. To
 assist in creating tools todo this, an XML format is also provided
 
 
-There are some examples of these formats, when run against RHEL-5
-Xen,  Fedora 10 QEMU (libvirt 0.6.2), and Fedora 10 QEMU (libvirt
-0.6.2 plus a bunch of code fixes to make it pass)
-
-In pretty HTML format:
-
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.html
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.html
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.html
-
-In full plain text format:
-
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.txt
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.txt
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.txt
-
-In formal XML format
-
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-rhel-5.xml
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-broken.xml
-  http://berrange.fedorapeople.org/libvirt-tck/results/libvirt-tck-f10-fixed.xml
-
-
-
 =head2 Running the test suite
 
 
 For those feeling brave it is possible to try out the current test suite.
-The best bet is to install the perl-Sys-Virt-TCK RPM from the YUM repos
-listed above.
+It has only really been tested with the QEMU driver, and a little with
+the Xen driver. Most other drivers will not yet work/pass with it.
 
-Then create a config file
+The only thing that needs to be changed before running the test
+script is to set a URI in the config file /etc/libvirt-tck/default.cfg
 
-  # cat > /home/fred/qemu.cfg <<EOF
-  uri = "qemu:///session"
-  kernel=/home/fred/vmlinuz
-  initrd=/home/fred/initrd.img
-  disk=/home/fred/empty.img
-  EOF
-
-For current tests, it is sufficient to have a kernel + initrd that is
-able to boot and just sit there being bored. The Fedora 10 PXEboot
-install kernels suit this job perfectly
-
-
-  # wget http://download.fedora.redhat.com/pub/fedora/linux/releases/10/Fedora/x86_64/os/images/pxeboot/initrd.img
-  # wget http://download.fedora.redhat.com/pub/fedora/linux/releases/10/Fedora/x86_64/os/images/pxeboot/vmlinuz
-
-A empty disk image is need to keep QEMU happy - it won't boot a kernel/initrd
-without a disk image, so just create a 10 MB image
-
-  # dd if=/dev/zero of=empty.img bs=1M count=10
-
-
-Next, start an unprivileged instance of libvirtd, eg as your normal
-user account
-
-  # /usr/sbin/libvirtd
+The test suite will automatically download kernels, initrds and
+root filesystems needed to run the tests. The configuration file
+can be used to override this though.
 
 Now it should be possible to run
 
-  # libvirt-tck -c /home/fred/qemu.cfg
+  # libvirt-tck
 
-It will no doubt show many failures. To get more information add the -v
+It may well show some failures. To get more information add the -v
 flag
 
-  # libvirt-tck -c /home/fred/qemu.cfg -v
-
-Or to get XML format
-
-  # libvirt-tck -c /home/fred/qemu.cfg --format xml
+  # libvirt-tck -v
 
 
 =head2 What's still todo
@@ -399,20 +309,12 @@ up some pre-requisite pieces. Specifically it would
 
 =item *
 
-Download  kernel+initrd.img from a suitable location
-
-=item *
-
 Build an bootable ISO image using the kernel+initrd
 
 =item *
 
 Create a virtual root filesystem, populated with
 busybox commands (for LXC/OpenVZ)
-
-=item *
-
-Create an empty disk image
 
 =back
 

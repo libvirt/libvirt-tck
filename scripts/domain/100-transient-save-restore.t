@@ -28,7 +28,7 @@ transient domains to/from a file.
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -49,14 +49,18 @@ my $dom;
 ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
 unlink "test.img" if -f "test.img";
-$dom->save("test.img");
+eval { $dom->save("test.img"); };
+SKIP: {
+    skip "save/restore not implemented", 4 if $@ && err_not_implemented($@);
+    ok(!$@, "domain saved");
 
-diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+    diag "Checking that transient domain has gone away";
+    ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
 
-lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
+    lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
 
-ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
+    ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
+}
 
 diag "Destroying the transient domain";
 $dom->destroy;

@@ -25,7 +25,7 @@ use Test::Builder;
 use Sub::Uplevel qw(uplevel);
 use base qw(Exporter);
 
-our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume xpath);
+our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume xpath err_not_implemented);
 
 our $VERSION = '0.1.0';
 
@@ -733,6 +733,18 @@ sub ok_error(&$;$) {
     return $ok;
 }
 
+
+sub err_not_implemented {
+    my $exception = shift;
+
+    if ($exception &&
+	ref($exception) &&
+	$exception->isa("Sys::Virt::Error") &&
+	$exception->code() == 3) {
+	return 1;
+    }
+    return 0;
+}
 
 sub xpath {
     my $object = shift;

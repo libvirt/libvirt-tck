@@ -28,7 +28,7 @@ persistent domains to/from a file.
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -56,20 +56,24 @@ $dom->create;
 
 ok($dom->get_id > 0, "running domain with ID > 0");
 
-$dom->save("test.img");
+eval { $dom->save("test.img"); };
+SKIP: {
+    skip "save/restore not implemented", 7 if $@ && err_not_implemented($@);
+    ok(!$@, "domain saved");
 
-diag "Checking that persistent domain is stopped";
-ok_domain { $conn->get_domain_by_name("test") } "persistent domain is still there", "test";
-is($dom->get_id, -1, "running domain with ID == -1");
+    diag "Checking that persistent domain is stopped";
+    ok_domain { $conn->get_domain_by_name("test") } "persistent domain is still there", "test";
+    is($dom->get_id, -1, "running domain with ID == -1");
 
-diag "Restoring domain from file";
-lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
+    diag "Restoring domain from file";
+    lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
 
-ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
-ok($dom->get_id > 0, "running domain with ID > 0");
+    ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
+    ok($dom->get_id > 0, "running domain with ID > 0");
 
-diag "Trying another restore while running";
-ok_error { $conn->restore_domain("test.img") } "cannot restore to a running domain";
+    diag "Trying another restore while running";
+    ok_error { $conn->restore_domain("test.img") } "cannot restore to a running domain";
+}
 
 diag "Destroying the persistent domain";
 $dom->destroy;

@@ -270,6 +270,114 @@ sub create_sparse_disk {
 }
 
 
+sub create_minimal_vroot {
+    my $self = shift;
+    my $bucket = shift;
+    my $name = shift;
+
+    my $dir = $self->bucket_dir($bucket);
+    my $target = catdir($dir, $name);
+
+    mkpath($target) unless -e $target;
+
+    my $busybox = $self->config("busybox", "/sbin/busybox");
+
+    die "$busybox does not exist" unless $busybox;
+
+    my $type = `file $busybox 2>&1`;
+
+    die "$busybox is not statically linked" unless $type =~ /statically/;
+
+    my @dirs = qw(sbin bin dev proc sys tmp);
+
+    foreach my $dir (@dirs) {
+	my $fulldir = catdir($target, $dir);
+	next if -e $fulldir;
+	mkpath($fulldir);
+    }
+
+    my $dst = catfile($target, "sbin", "busybox");
+    copy ($busybox, $dst) or die "cannot copy $busybox to $dst: $!";
+    chmod 0755, $dst or die "cannot make $dst executable: $!";
+
+    my @links = qw(
+            ed           kill        ping6              svlogd
+            egrep        killall     pipe_progress      swapoff
+addgroup    eject        killall5    pivot_root         swapon
+adduser     env          klogd       pkill              switch_root
+adjtimex    envdir       last        poweroff           sync
+ar          envuidgid    length      printenv           sysctl
+arp         expand       less        printf             syslogd
+arping      expr         linux32     ps                 tail
+ash         fakeidentd   linux64     pscan              tar
+awk         false        linuxrc     pwd                tcpsvd
+basename    fbset        ln          raidautorun        tee
+bunzip2     fdformat     loadfont    rdate              telnet
+busybox     fdisk        loadkmap    readahead          telnetd
+bzcat       fgrep        logger      readlink           test
+bzip2       find         login       readprofile        tftp
+cal         fold         logname     realpath           time
+cat         free         logread     reboot             top
+catv        freeramdisk  losetup     renice             touch
+chattr      fsck         ls          reset              tr
+chgrp       fsck.minix   lsattr      resize             traceroute
+chmod       ftpget       lsmod       rm                 true
+chown       ftpput       lzmacat     rmdir              tty
+chpasswd    fuser        makedevs    rmmod              ttysize
+chpst       getopt       md5sum      route              udhcpc
+chroot      getty        mdev        rpm                udhcpd
+chrt        grep         mesg        rpm2cpio           udpsvd
+chvt        gunzip       microcom    runlevel           umount
+cksum       gzip         mkdir       run-parts          uname
+clear       halt         mkfifo      runsv              uncompress
+cmp         hdparm       mkfs.minix  runsvdir           unexpand
+comm        head         mknod       rx                 uniq
+cp          hexdump      mkswap      sed                unix2dos
+cpio        hostid       mktemp      seq                unlzma
+crond       hostname     modprobe    setarch            unzip
+crontab     httpd        more        setconsole         uptime
+cryptpw     hwclock      mount       setkeycodes        usleep
+cut         id           mountpoint  setlogcons         uudecode
+date        ifconfig     msh         setsid             uuencode
+dc          ifdown       mt          setuidgid          vconfig
+dd          ifup         mv          sh                 vi
+deallocvt   inetd        nameif      sha1sum            vlock
+delgroup    init         nc          slattach           watch
+deluser     insmod       netstat     sleep              watchdog
+df          install      nice        softlimit          wc
+dhcprelay   ip           nmeter      sort               wget
+diff        ipaddr       nohup       split              which
+dirname     ipcalc       nslookup    start-stop-daemon  who
+dmesg       ipcrm        od          stat               whoami
+dnsd        ipcs         openvt      strings            xargs
+dos2unix    iplink       passwd      stty               yes
+du          iproute      patch       su                 zcat
+dumpkmap    iprule       pgrep       sulogin            zcip
+dumpleases  iptunnel     pidof       sum
+echo        kbd_mode     ping        sv);
+
+    foreach my $file (@links) {
+	my $fullfile = catfile($target, "bin", $file);
+	next if -e $fullfile;
+	symlink "../sbin/busybox", $fullfile
+	    or die "cannot symlink $fullfile to ../sbin/busybox: $!";
+    }
+
+    my $init = catfile($target, "sbin", "init");
+    open INIT, ">$init" or die "cannot create $init: $!";
+
+    print INIT <<EOF;
+#!/sbin/busybox
+
+sh
+EOF
+
+    close INIT or die "cannot save $init: $!";
+    chmod 0755, $init or die "cannot make $init executable: $!";
+
+    return ($target, catfile(rootdir, "sbin", "init"));
+}
+
 sub match_kernel {
     my $self = shift;
     my $caps = shift;
@@ -295,8 +403,7 @@ sub match_kernel {
 
 sub best_kernel {
     my $self = shift;
-
-    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
+    my $caps = shift;
 
     my $kernels = $self->config("kernels", []);
 
@@ -320,9 +427,10 @@ sub best_kernel {
 
 sub get_kernel {
     my $self = shift;
+    my $caps = shift;
 
     my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
-	$self->best_kernel();
+	$self->best_kernel($caps);
 
     if (!defined $cfgindex) {
 	die "cannot find any supported kernel configuration";
@@ -376,11 +484,12 @@ sub get_kernel {
 
 
 
-sub generic_domain {
+sub generic_machine_domain {
     my $self = shift;
-    my $name = @_ ? shift : "test";
+    my $name = shift;
+    my $caps = shift;
 
-    my %config = $self->get_kernel();
+    my %config = $self->get_kernel($caps);
 
     my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
 					       name => $name,
@@ -400,6 +509,64 @@ sub generic_domain {
     return $b;
 }
 
+
+sub best_container_domain {
+    my $self = shift;
+    my $caps = shift;
+
+    for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
+	if ($caps->guest_os_type($i) eq "exe") {
+	    my @domains = $caps->guest_domain_types($i);
+	    next unless int(@domains);
+
+	    return $domains[0];
+	}
+    }
+
+    return undef;
+
+}
+
+sub generic_container_domain {
+    my $self = shift;
+    my $name = shift;
+    my $caps = shift;
+    my $domain = shift;
+
+    my $bucket = "os-exe";
+
+    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
+					       name => $name,
+					       domain => $domain,
+					       ostype => "exe");
+    $b->memory(64 * 1024);
+
+    my ($root, $init) = $self->create_minimal_vroot($bucket, $name);
+
+    $b->boot_init($init);
+
+    $b->filesystem(src => $root,
+		   dst => "/",
+		   type => "mount");
+
+    return $b;
+}
+
+
+sub generic_domain {
+    my $self = shift;
+    my $name = @_ ? shift : "test";
+
+    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
+
+    my $container = $self->best_container_domain($caps);
+
+    if ($container) {
+	return $self->generic_container_domain($name, $caps, $container);
+    } else {
+	return $self->generic_machine_domain($name, $caps);
+    }
+}
 
 sub generic_pool {
     my $self = shift;

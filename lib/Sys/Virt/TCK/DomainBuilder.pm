@@ -26,6 +26,7 @@ sub new {
 	lifecycle => {},
 	features => {},
 	disks => [],
+	filesystems => [],
 	interfaces => [],
 	serials => [],
 	parallels => [],
@@ -146,6 +147,18 @@ sub boot_bootloader {
 }
 
 
+sub boot_init {
+    my $self = shift;
+    my $path = shift;
+
+    $self->{boot} = {
+	type => "init",
+	init => $path
+    };
+
+    return $self;
+}
+
 
 sub on_reboot {
     my $self = shift;
@@ -209,6 +222,20 @@ sub disk {
     return $self;
 }
 
+
+sub filesystem {
+    my $self = shift;
+    my %params = @_;
+
+    die "src parameter is required" unless $params{src};
+    die "dst parameter is required" unless $params{dst};
+    die "type parameter is required" unless $params{type};
+
+    push @{$self->{filesytems}}, \%params;
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -238,6 +265,8 @@ sub as_xml {
 	foreach (qw(kernel initrd cmdline)) {
 	    $w->dataElement($_, $self->{boot}->{$_}) if $self->{boot}->{$_};
 	}
+    } elsif ($self->{boot}->{type} eq "init") {
+	$w->dataElement("init", $self->{boot}->{init});
     }
 
     if (exists $self->{boot}->{loader}) {
@@ -282,6 +311,16 @@ sub as_xml {
 		     dev => $disk->{dst},
 		     $disk->{bus} ? (bus => $disk->{bus}) : ());
 	$w->endTag("disk");
+    }
+    foreach my $fs (@{$self->{filesystems}}) {
+	$w->startTag("filesystem",
+		     type => $fs->{type});
+
+	$w->emptyTag("source",
+		     dir => $fs->{src});
+	$w->emptyTag("target",
+		     dir => $fs->{dst});
+	$w->endTag("filesystem");
     }
     $w->emptyTag("console", type => "pty");
     $w->endTag("devices");

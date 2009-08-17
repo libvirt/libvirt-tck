@@ -38,7 +38,7 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 
-my $cfg = $tck->generic_domain("test")->uuid("11111111-1111-1111-1111-111111111111");
+my $cfg = $tck->generic_domain("tck")->uuid("11111111-1111-1111-1111-111111111111");
 $cfg->on_reboot("restart");
 my $xml1 = $cfg->as_xml;
 $cfg->on_reboot("destroy");
@@ -58,7 +58,7 @@ $dom->DESTROY;
 $dom = undef;
 
 diag "Checking that persistent domain has gone away";
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
 
 diag "Defining inactive domain config again";
@@ -79,10 +79,10 @@ $dom->destroy();
 
 my $dom1;
 diag "Checking there is still an inactive domain config";
-ok_domain { $dom1 = $conn->get_domain_by_name("test") } "the inactive domain object";
+ok_domain { $dom1 = $conn->get_domain_by_name("tck") } "the inactive domain object";
 is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
 
 diag "Undefining the inactive domain config";
 $dom->undefine;
 
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;

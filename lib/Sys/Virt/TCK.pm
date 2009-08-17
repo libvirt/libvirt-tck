@@ -66,22 +66,22 @@ sub setup {
 sub sanity_check {
     my $self = shift;
 
-    my @doms = $self->{conn}->list_domains;
+    my @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_domains;
     if (@doms) {
 	die "there is/are " . int(@doms) . " pre-existing active domain(s) in this driver";
     }
 
-    @doms = $self->{conn}->list_defined_domains;
+    @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_domains;
     if (@doms) {
 	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
     }
 
-    my @pools = $self->{conn}->list_storage_pools;
+    my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
     if (@pools) {
 	die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
     }
 
-    @pools = $self->{conn}->list_defined_storage_pools;
+    @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_storage_pools;
     if (@pools) {
 	die "there is/are " . int(@pools) . " pre-existing inactive storage_pool(s) in this driver";
     }
@@ -90,19 +90,19 @@ sub sanity_check {
 sub reset {
     my $self = shift;
 
-    my @doms = $self->{conn}->list_domains;
+    my @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_domains;
     foreach my $dom (@doms) {
 	if ($dom->get_id != 0) {
 	    $dom->destroy;
 	}
     }
 
-    @doms = $self->{conn}->list_defined_domains();
+    @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_domains();
     foreach my $dom (@doms) {
 	$dom->undefine;
     }
 
-    my @pools = $self->{conn}->list_storage_pools;
+    my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
     foreach my $pool (@pools) {
 	my @vols = $pool->list_volumes;
 	foreach my $vol (@vols) {
@@ -111,7 +111,7 @@ sub reset {
 	$pool->destroy;
     }
 
-    @pools = $self->{conn}->list_defined_storage_pools();
+    @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_storage_pools();
     foreach my $pool (@pools) {
 	eval {
 	    $pool->delete(0);
@@ -260,7 +260,7 @@ sub create_sparse_disk {
 
     my $target = catfile($dir, $name);
 
-    open DISK, ">$target" or die "cannot create $target: $1";
+    open DISK, ">$target" or die "cannot create $target: $!";
 
     truncate DISK, ($size * 1024 * 1024);
 
@@ -555,7 +555,7 @@ sub generic_container_domain {
 
 sub generic_domain {
     my $self = shift;
-    my $name = @_ ? shift : "test";
+    my $name = @_ ? shift : "tck";
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
@@ -571,7 +571,7 @@ sub generic_domain {
 sub generic_pool {
     my $self = shift;
     my $type = shift;
-    my $name = @_ ? shift : "test";
+    my $name = @_ ? shift : "tck";
 
     my $bucket = $self->bucket_dir("storage-fs");
 
@@ -586,7 +586,7 @@ sub generic_pool {
 
 sub generic_volume {
     my $self = shift;
-    my $name = @_ ? shift : "test";
+    my $name = @_ ? shift : "tck";
     my $format = @_ ? shift :undef;
     my $capacity = @_ ? shift : 1024*1024*50;
 

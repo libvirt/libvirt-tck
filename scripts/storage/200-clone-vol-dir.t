@@ -59,7 +59,7 @@ lives_ok { $pool->create } "started storage pool";
 
 
 diag "Preparing initial source volume with some special data";
-my $volsrcxml = $tck->generic_volume("testsrc", "raw", 1024*1024*50)->as_xml;
+my $volsrcxml = $tck->generic_volume("tcksrc", "raw", 1024*1024*50)->as_xml;
 
 my ($vol, $path, $st);
 
@@ -67,7 +67,8 @@ ok_volume { $vol = $pool->create_volume($volsrcxml) } "create source raw volume"
 
 $path = xpath($vol, "string(/volume/target/path)");
 
-open FILE, ">$path";
+open FILE, ">$path"
+    or die "cannot create $path: $!";
 
 for (my $i = 0 ; $i < 50 ; $i++) {
     for (my $j = 0 ; $j < 1024 ; $j++) {
@@ -81,7 +82,7 @@ for (my $i = 0 ; $i < 50 ; $i++) {
 	print FILE $data;
     }
 }
-close FILE;
+close FILE or die "cannot save $path: $!";
 $st = stat($path);
 
 ok($st, "path $path exists");
@@ -99,10 +100,10 @@ foreach my $format (@formats) {
       local $TODO = "bug in QEMU vpc handling adds trailing nulls" if $format eq "vpc";
 
     diag "Cloning source volume to $format format";
-    my $volclonexml = $tck->generic_volume("test$format", $format, 1024*1024*50)->as_xml;
+    my $volclonexml = $tck->generic_volume("tck$format", $format, 1024*1024*50)->as_xml;
 
     my $clone;
-    ok_volume { $clone = $pool->create_volume($volclonexml, $vol) } "clone to $format volume";
+    ok_volume { $clone = $pool->clone_volume($volclonexml, $vol) } "clone to $format volume";
 
     $path = xpath($clone, "string(/volume/target/path)");
     $st = stat($path);
@@ -111,9 +112,9 @@ foreach my $format (@formats) {
 
 
     diag "Cloning cloned volume back to raw format";
-    my $voldstxml = $tck->generic_volume("testdst", "raw", 1024*1024*50)->as_xml;
+    my $voldstxml = $tck->generic_volume("tckdst", "raw", 1024*1024*50)->as_xml;
     my $result;
-    ok_volume { $result = $pool->create_volume($voldstxml, $clone) } "clone back to raw volume";
+    ok_volume { $result = $pool->clone_volume($voldstxml, $clone) } "clone back to raw volume";
 
 
     $path = xpath($result, "string(/volume/target/path)");

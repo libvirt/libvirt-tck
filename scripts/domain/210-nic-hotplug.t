@@ -47,31 +47,27 @@ diag "Creating a new transient domain";
 my $dom;
 ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
+my $mac = "00:11:22:33:44:55";
+my $model = "virtio";
 
-my $path = $tck->create_sparse_disk("200-disk-hotplug", "extra.img", 100);
-
-my $dev = "vdb";
-my $bus = "virtio";
-
-my $diskxml = <<EOF;
-<disk type='file' device='disk'>
-  <source file='$path'/>
-  <target dev='$dev' bus='$bus'/>
-</disk>
+my $netxml = <<EOF;
+<interface type='user'>
+  <mac address='$mac'/>
+  <model type='$model'/>
+</interface>
 EOF
-
 
 my $initialxml = $dom->get_xml_description;
 
-diag "Attaching the new disk $path";
-lives_ok { $dom->attach_device($diskxml); } "disk has been attached";
+diag "Attaching the new interface $mac";
+lives_ok { $dom->attach_device($netxml); } "interface has been attached";
 
 my $newxml = $dom->get_xml_description;
 
-ok($newxml =~ m|$path|, "new XML has extra disk present");
+ok($newxml =~ m|$mac|, "new XML has extra NIC present");
 
-diag "Detaching the new disk $path";
-lives_ok { $dom->detach_device($diskxml); } "disk has been detached";
+diag "Detaching the new interface $mac";
+lives_ok { $dom->detach_device($netxml); } "interface has been detached";
 
 
 my $finalxml = $dom->get_xml_description;

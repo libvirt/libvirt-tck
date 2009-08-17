@@ -54,13 +54,13 @@ lives_ok { $pool->build(0) } "built storage pool";
 lives_ok { $pool->create } "started storage pool";
 
 
-my $volsparsexml = $tck->generic_volume("test1", "raw", 1024*1024*50)->allocation(0)->as_xml;
-my $volallocxml = $tck->generic_volume("test2", "raw", 1024*1024*50)->allocation(1024*1024*50)->as_xml;
-my $volcowxml = $tck->generic_volume("test3", "cow", 1024*1024*50)->as_xml;
-my $volqcow1xml = $tck->generic_volume("test4", "qcow", 1024*1024*50)->as_xml;
-my $volqcow2xml = $tck->generic_volume("test5", "qcow2", 1024*1024*50)->as_xml;
-my $volvmdkxml = $tck->generic_volume("test6", "vmdk", 1024*1024*50)->as_xml;
-my $volvpcxml = $tck->generic_volume("test7", "vpc", 1024*1024*50)->as_xml;
+my $volsparsexml = $tck->generic_volume("tck1", "raw", 1024*1024*50)->allocation(0)->as_xml;
+my $volallocxml = $tck->generic_volume("tck2", "raw", 1024*1024*50)->allocation(1024*1024*50)->as_xml;
+my $volcowxml = $tck->generic_volume("tck3", "cow", 1024*1024*50)->as_xml;
+my $volqcow1xml = $tck->generic_volume("tck4", "qcow", 1024*1024*50)->as_xml;
+my $volqcow2xml = $tck->generic_volume("tck5", "qcow2", 1024*1024*50)->as_xml;
+my $volvmdkxml = $tck->generic_volume("tck6", "vmdk", 1024*1024*50)->as_xml;
+my $volvpcxml = $tck->generic_volume("tck7", "vpc", 1024*1024*50)->as_xml;
 
 my ($vol, $path, $st);
 

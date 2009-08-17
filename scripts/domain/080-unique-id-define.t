@@ -48,8 +48,8 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
-my $name1 = "test1";
-my $name2 = "test2";
+my $name1 = "tck1";
+my $name2 = "tck2";
 my $uuid1 = "11111111-1111-1111-1111-111111111111";
 my $uuid2 = "22222222-1111-1111-1111-111111111111";
 

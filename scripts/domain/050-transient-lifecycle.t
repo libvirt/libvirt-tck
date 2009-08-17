@@ -40,16 +40,16 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 
-my $xml = $tck->generic_domain("test")->as_xml;
+my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
 ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
-diag "Destroying the transient doamin";
+diag "Destroying the transient domain";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
 # end

@@ -38,34 +38,34 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END {
     $tck->cleanup if $tck;
-    unlink "test.img" if -f "test.img";
+    unlink "tck.img" if -f "tck.img";
 }
 
 
-my $xml = $tck->generic_domain("test")->as_xml;
+my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
 ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
 
-unlink "test.img" if -f "test.img";
-eval { $dom->save("test.img"); };
+unlink "tck.img" if -f "tck.img";
+eval { $dom->save("tck.img"); };
 SKIP: {
     skip "save/restore not implemented", 4 if $@ && err_not_implemented($@);
     ok(!$@, "domain saved");
 
     diag "Checking that transient domain has gone away";
-    ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+    ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
-    lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
+    lives_ok { $conn->restore_domain("tck.img") } "domain has been restored";
 
-    ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
+    ok_domain { $dom = $conn->get_domain_by_name("tck") } "restored domain is still there", "tck";
 }
 
 diag "Destroying the transient domain";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
 # end

@@ -38,41 +38,41 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END {
     $tck->cleanup if $tck;
-    unlink "test.img" if -f "test.img";
+    unlink "tck.img" if -f "tck.img";
 }
 
 
-my $xml = $tck->generic_domain("test")->as_xml;
+my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
 ok_domain { $dom = $conn->define_domain($xml) } "created persistent domain object";
 
-unlink "test.img" if -f "test.img";
-ok_error { $dom->save("test.img") } "canot save a inactive domain";
+unlink "tck.img" if -f "tck.img";
+ok_error { $dom->save("tck.img") } "canot save a inactive domain";
 
 diag "Starting inactive domain";
 $dom->create;
 
 ok($dom->get_id > 0, "running domain with ID > 0");
 
-eval { $dom->save("test.img"); };
+eval { $dom->save("tck.img"); };
 SKIP: {
     skip "save/restore not implemented", 7 if $@ && err_not_implemented($@);
     ok(!$@, "domain saved");
 
     diag "Checking that persistent domain is stopped";
-    ok_domain { $conn->get_domain_by_name("test") } "persistent domain is still there", "test";
+    ok_domain { $conn->get_domain_by_name("tck") } "persistent domain is still there", "tck";
     is($dom->get_id, -1, "running domain with ID == -1");
 
     diag "Restoring domain from file";
-    lives_ok { $conn->restore_domain("test.img") } "domain has been restored";
+    lives_ok { $conn->restore_domain("tck.img") } "domain has been restored";
 
-    ok_domain { $dom = $conn->get_domain_by_name("test") } "restored domain is still there", "test";
+    ok_domain { $dom = $conn->get_domain_by_name("tck") } "restored domain is still there", "tck";
     ok($dom->get_id > 0, "running domain with ID > 0");
 
     diag "Trying another restore while running";
-    ok_error { $conn->restore_domain("test.img") } "cannot restore to a running domain";
+    ok_error { $conn->restore_domain("tck.img") } "cannot restore to a running domain";
 }
 
 diag "Destroying the persistent domain";
@@ -80,6 +80,6 @@ $dom->destroy;
 $dom->undefine;
 
 diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("test") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
 # end

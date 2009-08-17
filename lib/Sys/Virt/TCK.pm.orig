@@ -63,13 +63,7 @@ sub setup {
 
     $self->reset if $self->{autoclean};
 
-    eval {
-	$self->sanity_check;
-    };
-    if ($@) {
-	$self->{conn} = undef;
-	die $@;
-    }
+    $self->sanity_check;
 
     return $self->{conn};
 }

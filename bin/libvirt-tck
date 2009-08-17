@@ -121,6 +121,7 @@ use Pod::Usage;
 # C<prove> directly'
 use App::Prove;
 
+use Carp qw(confess cluck);
 
 my $datadir = catdir(rootdir(), qw(usr share libvirt-tck));
 my $confdir = catdir(rootdir(), qw(etc libvirt-tck));
@@ -130,12 +131,14 @@ my $verbose = 0;
 my $quiet = 0;
 my $help = 0;
 my $force = 0;
+my $debug = 0;
 my $archive;
 my $config = catfile($confdir, "default.cfg");
 my $format = "text";
 my $testdir = catdir($datadir, "tests");
 
 if (!GetOptions("verbose" => \$verbose,
+		"debug" => \$debug,
 		"quiet" => \$quiet,
 		"help" => \$help,
 		"archive=s" => \$archive,
@@ -146,6 +149,13 @@ if (!GetOptions("verbose" => \$verbose,
     pod2usage(-verbose => $help,
 	      -output => $help ? \*STDOUT : \*STDERR,
 	      -exitval => $help ? 0 : 1);
+}
+
+if ($debug) {
+    warn "do debug";
+    $SIG{__WARN__} = sub { Carp::cluck $_[0] };
+    $SIG{__DIE__} = sub { Carp::confess $_[0] };
+    $ENV{LIBVIRT_TCK_DEBUG} = 1;
 }
 
 my $conffile;

@@ -20,6 +20,7 @@ use LWP::UserAgent;
 use IO::Uncompress::Gunzip qw(gunzip);
 use IO::Uncompress::Bunzip2 qw(bunzip2);
 use XML::XPath;
+use Carp qw(cluck carp);
 
 use Test::Builder;
 use Sub::Uplevel qw(uplevel);
@@ -40,6 +41,11 @@ sub new {
 
     $self->{autoclean} = $params{autoclean} ? $params{autoclean} :
 	($ENV{LIBVIRT_TCK_AUTOCLEAN} || 0);
+
+    if ($ENV{LIBVIRT_TCK_DEBUG}) {
+	$SIG{__WARN__} = sub { Carp::cluck $_[0]; };
+	$SIG{__DIE__} = sub { Carp::confess $_[0]; };
+    }
 
     bless $self, $class;
 

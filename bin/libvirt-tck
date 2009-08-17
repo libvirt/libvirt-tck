@@ -135,16 +135,18 @@ my $config = catfile($confdir, "default.cfg");
 my $format = "text";
 my $testdir = catdir($datadir, "tests");
 
-GetOptions("verbose" => \$verbose,
-	   "quiet" => \$quiet,
-	   "help" => \$help,
-	   "archive=s" => \$archive,
-	   "config=s" => \$config,
-	   "force" => \$force,
-	   "format=s" => \$format,
-           "testdir=s" => \$testdir);
-
-pod2usage(-verbose => $help, -output => \*STDOUT) if $help;
+if (!GetOptions("verbose" => \$verbose,
+		"quiet" => \$quiet,
+		"help" => \$help,
+		"archive=s" => \$archive,
+		"config=s" => \$config,
+		"force" => \$force,
+		"format=s" => \$format,
+		"testdir=s" => \$testdir) || $help) {
+    pod2usage(-verbose => $help,
+	      -output => $help ? \*STDOUT : \*STDERR,
+	      -exitval => $help ? 0 : 1);
+}
 
 my $conffile;
 unless (-e $config) {

@@ -80,6 +80,16 @@ for (my $i = 0 ; $i < 50 ; $i++) {
 			$str, $str, $str, $str,
 			$str, $str, $str, $str);
 	print FILE $data;
+
+	# Hack for VPC, add an extra 4k of data to round
+	# out 50 MB size upto a size that is mappable to
+	# VPC's CHS geometry without needing rounding
+	if ($i == 0 && $j == 0) {
+	    print FILE $data;
+	    print FILE $data;
+	    print FILE $data;
+	    print FILE $data;
+	}
     }
 }
 close FILE or die "cannot save $path: $!";
@@ -87,7 +97,7 @@ $st = stat($path);
 
 ok($st, "path $path exists");
 
-is($st->size, 1024*1024*50, "size is 50M");
+is($st->size, ((1024*1024*50)+4096), "size is 50M");
 
 my $srcdigest = &digest($path);
 
@@ -96,11 +106,8 @@ diag "Now testing cloning of various formats";
 my @formats = qw(raw cow qcow qcow2 vmdk vpc);
 
 foreach my $format (@formats) {
-  TODO: {
-      local $TODO = "bug in QEMU vpc handling adds trailing nulls" if $format eq "vpc";
-
     diag "Cloning source volume to $format format";
-    my $volclonexml = $tck->generic_volume("tck$format", $format, 1024*1024*50)->as_xml;
+    my $volclonexml = $tck->generic_volume("tck$format", $format, ((1024*1024*50)+4096))->as_xml;
 
     my $clone;
     ok_volume { $clone = $pool->clone_volume($volclonexml, $vol) } "clone to $format volume";
@@ -108,11 +115,11 @@ foreach my $format (@formats) {
     $path = xpath($clone, "string(/volume/target/path)");
     $st = stat($path);
     ok($st, "path $path exists");
-    ok($st->size >= 1024*1024*50, "size is at least 50M");
+    ok($st->size >= ((1024*1024*50)+4096), "size is at least 50M");
 
 
     diag "Cloning cloned volume back to raw format";
-    my $voldstxml = $tck->generic_volume("tckdst", "raw", 1024*1024*50)->as_xml;
+    my $voldstxml = $tck->generic_volume("tckdst", "raw", ((1024*1024*50)+4096))->as_xml;
     my $result;
     ok_volume { $result = $pool->clone_volume($voldstxml, $clone) } "clone back to raw volume";
 
@@ -122,7 +129,7 @@ foreach my $format (@formats) {
     $st = stat($path);
     ok($st, "path $path exists");
 
-    is($st->size, 1024*1024*50, "size is 50M");
+    is($st->size, ((1024*1024*50)+4096), "size is 50M");
 
     diag "Comparing data between source & result volume";
 
@@ -132,7 +139,6 @@ foreach my $format (@formats) {
 
     lives_ok { $clone->delete(0) } "deleted clone volume";
     lives_ok { $result->delete(0) } "deleted result volume";
-    }
 }
 
 

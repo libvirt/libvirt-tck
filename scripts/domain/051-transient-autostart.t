@@ -42,18 +42,18 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 my $auto = $dom->get_autostart();
 
 ok(!$auto, "autostart is disabled for transient VMs");
 
-ok_error { $dom->set_autostart(1) } "Set autostart not supported on transient VMs", Sys::Virt::Error::ERR_INTERNAL_ERROR;
+ok_error(sub { $dom->set_autostart(1) }, "Set autostart not supported on transient VMs", Sys::Virt::Error::ERR_INTERNAL_ERROR);
 
 diag "Destroying the transient domain";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 
 # end

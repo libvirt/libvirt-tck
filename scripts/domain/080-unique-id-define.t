@@ -65,20 +65,20 @@ my $xml_diffboth = $tck->generic_domain($name2)->uuid($uuid2)->as_xml;
 
 diag "Defining persistent domain config";
 my ($dom, $dom1);
-ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain", $name1;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined persistent domain", $name1);
 #$dom->DESTROY;
 
 diag "Trying to define a inactive guest with same name, same UUID";
-ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain again", $name1;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined persistent domain again", $name1);
 
 diag "Trying to define a inactive guest with same UUID, different name";
-ok_error { $conn->define_domain($xml_diffname) } "error raised from duplicate domain";
+ok_error(sub { $conn->define_domain($xml_diffname) }, "error raised from duplicate domain");
 
 diag "Trying to define a inactive guest with different UUID, same name";
-ok_error { $conn->define_domain($xml_diffuuid) } "error raised from duplicate domain";
+ok_error(sub { $conn->define_domain($xml_diffuuid) }, "error raised from duplicate domain");
 
 diag "Trying to define a inactive guest with different UUID, different name";
-ok_domain { $dom1 = $conn->define_domain($xml_diffboth) } "defined persistent domain", $name2;
+ok_domain(sub { $dom1 = $conn->define_domain($xml_diffboth) }, "defined persistent domain", $name2);
 
 diag "Undefining persistent guest config";
 $dom1->undefine;
@@ -86,7 +86,7 @@ $dom1->undefine;
 
 
 diag "Checking that domain has now gone";
-ok_error { $conn->get_domain_by_name($name2) } "NO_DOMAIN error raised from undefined domain", 42;
+ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain", 42);
 
 
 diag "Starting persistent domain config";
@@ -94,16 +94,16 @@ $dom->create();
 #$dom->DESTROY;
 
 diag "Trying to define a inactive guest with same name, same UUID";
-ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain again", $name1;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined persistent domain again", $name1);
 
 diag "Trying to define a inactive guest with same UUID, different name";
-ok_error { $dom = $conn->define_domain($xml_diffname) } "error raised from duplicate domain";
+ok_error(sub { $dom = $conn->define_domain($xml_diffname) }, "error raised from duplicate domain");
 
 diag "Trying to define a inactive guest with different UUID, same name";
-ok_error { $dom = $conn->define_domain($xml_diffuuid) } "error raised from duplicate domain";
+ok_error(sub { $dom = $conn->define_domain($xml_diffuuid) }, "error raised from duplicate domain");
 
 diag "Trying to define a inactive guest with different UUID, different name";
-ok_domain { $dom1 = $conn->define_domain($xml_diffboth) } "defined persistent domain", $name2;
+ok_domain(sub { $dom1 = $conn->define_domain($xml_diffboth) }, "defined persistent domain", $name2);
 
 diag "Undefining persistent guest config";
 $dom1->undefine;
@@ -111,11 +111,11 @@ $dom1->undefine;
 
 
 diag "Checking that domain has now gone";
-ok_error { $conn->get_domain_by_name($name2) } "NO_DOMAIN error raised from undefined domain", 42;
+ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain", 42);
 
 diag "Stopping & undefining persistent guest config";
 $dom->destroy;
 $dom->undefine;
 diag "Checking that domain has now gone";
-ok_error { $conn->get_domain_by_name($name1) } "NO_DOMAIN error raised from undefined domain", 42;
+ok_error(sub { $conn->get_domain_by_name($name1) }, "NO_DOMAIN error raised from undefined domain", 42);
 

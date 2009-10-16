@@ -47,7 +47,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 unlink "tck.img" if -f "tck.img";
 eval { $dom->save("tck.img"); };
@@ -56,7 +56,7 @@ SKIP: {
     ok(!$@, "domain saved");
 
     diag "Checking that transient domain has gone away";
-    ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 
     diag "Delibrately corrupting saved state";
     open SRC, "+<tck.img" or die "cannot update tck.img: $!";
@@ -66,9 +66,9 @@ SKIP: {
     close SRC or die "cannot save truncated tck.img: $!";
 
     diag "Attempting to restore the guest from corrupt image";
-    ok_error { $conn->restore_domain("tck.img") } "domain failed during restore";
+    ok_error(sub { $conn->restore_domain("tck.img") }, "domain failed during restore");
 
-    ok_error { $dom = $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+    ok_error(sub { $dom = $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 }
 
 diag "Destroying the transient domain just in case its still there";

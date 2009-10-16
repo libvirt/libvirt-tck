@@ -47,10 +47,10 @@ my $xml2 = $cfg->as_xml;
 
 diag "Defining an inactive domain config";
 my $dom;
-ok_domain { $dom = $conn->define_domain($xml1) } "defined persistent domain config";
+ok_domain(sub { $dom = $conn->define_domain($xml1) }, "defined persistent domain config");
 
 diag "Updating inactive domain config";
-ok_domain { $dom = $conn->define_domain($xml2) } "re-defined persistent domain config";
+ok_domain(sub { $dom = $conn->define_domain($xml2) }, "re-defined persistent domain config");
 
 diag "Undefining inactive domain config";
 $dom->undefine;
@@ -58,11 +58,11 @@ $dom->DESTROY;
 $dom = undef;
 
 diag "Checking that persistent domain has gone away";
-ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 
 
 diag "Defining inactive domain config again";
-ok_domain { $dom = $conn->define_domain($xml1) } "defined persistent domain config";
+ok_domain(sub { $dom = $conn->define_domain($xml1) }, "defined persistent domain config");
 
 
 diag "Starting inactive domain config";
@@ -71,7 +71,7 @@ ok($dom->get_id() > 0, "running domain has an ID > 0");
 
 
 diag "Updating inactive domain config";
-ok_domain { $dom = $conn->define_domain($xml2) } "re-defined persistent domain config";
+ok_domain(sub { $dom = $conn->define_domain($xml2) }, "re-defined persistent domain config");
 
 diag "Destroying the running domain";
 $dom->destroy();
@@ -79,10 +79,10 @@ $dom->destroy();
 
 my $dom1;
 diag "Checking there is still an inactive domain config";
-ok_domain { $dom1 = $conn->get_domain_by_name("tck") } "the inactive domain object";
+ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "the inactive domain object");
 is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
 
 diag "Undefining the inactive domain config";
 $dom->undefine;
 
-ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);

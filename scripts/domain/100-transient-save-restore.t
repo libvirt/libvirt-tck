@@ -46,7 +46,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 unlink "tck.img" if -f "tck.img";
 eval { $dom->save("tck.img"); };
@@ -55,18 +55,18 @@ SKIP: {
     ok(!$@, "domain saved");
 
     diag "Checking that transient domain has gone away";
-    ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 
     diag "Attempting to restore the guest";
     lives_ok { $conn->restore_domain("tck.img") } "domain has been restored";
 
-    ok_domain { $dom = $conn->get_domain_by_name("tck") } "restored domain is still there", "tck";
+    ok_domain(sub { $dom = $conn->get_domain_by_name("tck") }, "restored domain is still there", "tck");
 }
 
 diag "Destroying the transient domain";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 
 # end

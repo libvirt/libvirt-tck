@@ -43,20 +43,20 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Defining an inactive domain config";
 my $dom;
-ok_domain { $dom = $conn->define_domain($xml) } "defined persistent domain config";
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined persistent domain config");
 
 my $auto = $dom->get_autostart();
 ok (!$auto, "autostart is disabled for a newly defined domain");
 
 diag "Trying to enable autostart on the domain";
-lives_ok { $dom->set_autostart(1); } "set autostart on domain";
+lives_ok(sub { $dom->set_autostart(1); }, "set autostart on domain");
 
 $auto = $dom->get_autostart();
 ok ($auto, "autostart is now enabled for the new domain");
 
 
 diag "Trying to disable autostart on the domain";
-lives_ok { $dom->set_autostart(0); } "unset autostart on domain";
+lives_ok(sub { $dom->set_autostart(0); }, "unset autostart on domain");
 
 $auto = $dom->get_autostart();
 ok (!$auto, "autostart is now disabled for the new domain");
@@ -72,21 +72,21 @@ $auto = $dom->get_autostart();
 ok (!$auto, "autostart is disabled for a newly running domain");
 
 diag "Trying to enable autostart on the running domain";
-lives_ok { $dom->set_autostart(1); } "set autostart on domain";
+lives_ok(sub { $dom->set_autostart(1); }, "set autostart on domain");
 
 $auto = $dom->get_autostart();
 ok ($auto, "autostart is now enabled for the new domain");
 
 
 diag "Trying to disable autostart on the running domain";
-lives_ok { $dom->set_autostart(0); } "unset autostart on domain";
+lives_ok(sub { $dom->set_autostart(0); }, "unset autostart on domain");
 
 $auto = $dom->get_autostart();
 ok (!$auto, "autostart is now disabled for the new domain");
 
 
 diag "Trying to enable autostart on the running domain yet again";
-lives_ok { $dom->set_autostart(1); } "set autostart on domain";
+lives_ok(sub { $dom->set_autostart(1); }, "set autostart on domain");
 
 $auto = $dom->get_autostart();
 ok ($auto, "autostart is now enabled for the new domain");
@@ -102,4 +102,4 @@ ok ($auto, "autostart is still enabled for the shutoff domain");
 diag "Undefining the inactive domain config";
 $dom->undefine;
 
-ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);

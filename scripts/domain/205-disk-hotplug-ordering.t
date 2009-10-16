@@ -45,7 +45,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 my $supported = 1;
 foreach my $dev (qw/vdb sdb/) {
@@ -89,7 +89,7 @@ SKIP: {
 EOF
 
         diag "Attaching the new disk $dev from $path";
-	lives_ok { $dom->attach_device($diskxml); } "disk $dev has been attached";
+	lives_ok(sub { $dom->attach_device($diskxml); }, "disk $dev has been attached");
     }
 
     my $devset = xpath($dom, "/domain/devices/disk/target/\@dev");

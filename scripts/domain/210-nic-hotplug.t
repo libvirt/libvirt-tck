@@ -45,7 +45,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 my $mac = "00:11:22:33:44:55";
 my $model = "virtio";
@@ -60,14 +60,14 @@ EOF
 my $initialxml = $dom->get_xml_description;
 
 diag "Attaching the new interface $mac";
-lives_ok { $dom->attach_device($netxml); } "interface has been attached";
+lives_ok(sub { $dom->attach_device($netxml); }, "interface has been attached");
 
 my $newxml = $dom->get_xml_description;
 
 ok($newxml =~ m|$mac|, "new XML has extra NIC present");
 
 diag "Detaching the new interface $mac";
-lives_ok { $dom->detach_device($netxml); } "interface has been detached";
+lives_ok(sub { $dom->detach_device($netxml); }, "interface has been detached");
 
 
 my $finalxml = $dom->get_xml_description;

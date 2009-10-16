@@ -44,19 +44,19 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new persistent domain";
 my $dom;
-ok_domain { $dom = $conn->define_domain($xml); } "defined persistent domain object";
+ok_domain(sub { $dom = $conn->define_domain($xml); }, "defined persistent domain object");
 
-ok_error { $dom->block_stats("hda") }  "block_stats of inactive domain not allowed";
-ok_error { $dom->core_dump("core.img", 0) }  "core_dump of inactive domain not allowed";
-ok_error { $dom->destroy }  "destroy of inactive domain not allowed";
-ok_error { $dom->interface_stats("eth0") }  "interface_stats of inactive domain not allowed";
-ok_error { $dom->memory_peek(0, 100, 0) }  "memory_peek of inactive domain not allowed";
-#ok_error { $dom->migrate($conn, undef, undef, undef, 0) }  "migrate of inactive domain not allowed";
-ok_error { $dom->pin_vcpu(1, 1) }  "pin_vcpu of inactive domain not allowed";
-ok_error { $dom->reboot(0) }  "reboot of inactive domain not allowed";
-ok_error { $dom->save("save.img") }  "save of inactive domain not allowed";
-ok_error { $dom->shutdown }  "shutdown of inactive domain not allowed";
-ok_error { $dom->suspend }  "suspend of inactive domain not allowed";
+ok_error(sub { $dom->block_stats("hda") }, "block_stats of inactive domain not allowed");
+ok_error(sub { $dom->core_dump("core.img", 0) }, "core_dump of inactive domain not allowed");
+ok_error(sub { $dom->destroy }, "destroy of inactive domain not allowed");
+ok_error(sub { $dom->interface_stats("eth0") }, "interface_stats of inactive domain not allowed");
+ok_error(sub { $dom->memory_peek(0, 100, 0) }, "memory_peek of inactive domain not allowed");
+#ok_error(sub { $dom->migrate($conn, undef, undef, undef, 0) }, "migrate of inactive domain not allowed");
+ok_error(sub { $dom->pin_vcpu(1, 1) }, "pin_vcpu of inactive domain not allowed");
+ok_error(sub { $dom->reboot(0) }, "reboot of inactive domain not allowed");
+ok_error(sub { $dom->save("save.img") }, "save of inactive domain not allowed");
+ok_error(sub { $dom->shutdown }, "shutdown of inactive domain not allowed");
+ok_error(sub { $dom->suspend }, "suspend of inactive domain not allowed");
 
 
 # end

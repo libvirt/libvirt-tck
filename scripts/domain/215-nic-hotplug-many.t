@@ -45,7 +45,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 my $mac1 = "01:11:22:33:44:55";
 my $mac2 = "02:11:22:33:44:55";
@@ -74,11 +74,11 @@ EOF
 my $initialxml = $dom->get_xml_description;
 
 diag "Attaching the new interface $mac1";
-lives_ok { $dom->attach_device($netxml1); } "interface has been attached";
+lives_ok(sub { $dom->attach_device($netxml1); }, "interface has been attached");
 diag "Attaching the new interface $mac2";
-lives_ok { $dom->attach_device($netxml2); } "interface has been attached";
+lives_ok(sub { $dom->attach_device($netxml2); }, "interface has been attached");
 diag "Attaching the new interface $mac3";
-lives_ok { $dom->attach_device($netxml3); } "interface has been attached";
+lives_ok(sub { $dom->attach_device($netxml3); }, "interface has been attached");
 
 my $newxml = $dom->get_xml_description;
 
@@ -95,10 +95,10 @@ ok($newxml =~ m|$mac1|, "new XML has 1st NIC present");
 ok($newxml !~ m|$mac2|, "new XML has NOT got 2nd NIC present");
 ok($newxml =~ m|$mac3|, "new XML has 3rd NIC present");
 
-ok_error { $dom->detach_device($netxml2); } "cannot detach same interface twice";
+ok_error(sub { $dom->detach_device($netxml2); }, "cannot detach same interface twice");
 
 diag "Detaching the 1st interface $mac1";
-lives_ok { $dom->detach_device($netxml1); } "interface has been detached";
+lives_ok(sub { $dom->detach_device($netxml1); }, "interface has been detached");
 
 $newxml = $dom->get_xml_description;
 
@@ -107,7 +107,7 @@ ok($newxml !~ m|$mac2|, "new XML has NOT got 2nd NIC present");
 ok($newxml =~ m|$mac3|, "new XML has 3rd NIC present");
 
 diag "Detaching the 3rd interface $mac3";
-lives_ok { $dom->detach_device($netxml3); } "interface has been detached";
+lives_ok(sub { $dom->detach_device($netxml3); }, "interface has been detached");
 
 $newxml = $dom->get_xml_description;
 

@@ -51,11 +51,11 @@ my $xml = $tck->generic_pool("dir")->as_xml;
 
 diag "Defining transient storage pool";
 my $pool;
-ok_pool { $pool = $conn->define_storage_pool($xml) } "define transient storage pool";
+ok_pool(sub { $pool = $conn->define_storage_pool($xml) }, "define transient storage pool");
 
-lives_ok { $pool->build(0) } "built storage pool";
+lives_ok(sub { $pool->build(0) }, "built storage pool");
 
-lives_ok { $pool->create } "started storage pool";
+lives_ok(sub { $pool->create }, "started storage pool");
 
 
 diag "Preparing initial source volume with some special data";
@@ -63,7 +63,7 @@ my $volsrcxml = $tck->generic_volume("tcksrc", "raw", 1024*1024*50)->as_xml;
 
 my ($vol, $path, $st);
 
-ok_volume { $vol = $pool->create_volume($volsrcxml) } "create source raw volume";
+ok_volume(sub { $vol = $pool->create_volume($volsrcxml) }, "create source raw volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 
@@ -110,7 +110,7 @@ foreach my $format (@formats) {
     my $volclonexml = $tck->generic_volume("tck$format", $format, ((1024*1024*50)+4096))->as_xml;
 
     my $clone;
-    ok_volume { $clone = $pool->clone_volume($volclonexml, $vol) } "clone to $format volume";
+    ok_volume(sub { $clone = $pool->clone_volume($volclonexml, $vol) }, "clone to $format volume");
 
     $path = xpath($clone, "string(/volume/target/path)");
     $st = stat($path);
@@ -121,7 +121,7 @@ foreach my $format (@formats) {
     diag "Cloning cloned volume back to raw format";
     my $voldstxml = $tck->generic_volume("tckdst", "raw", ((1024*1024*50)+4096))->as_xml;
     my $result;
-    ok_volume { $result = $pool->clone_volume($voldstxml, $clone) } "clone back to raw volume";
+    ok_volume(sub { $result = $pool->clone_volume($voldstxml, $clone) }, "clone back to raw volume");
 
 
     $path = xpath($result, "string(/volume/target/path)");
@@ -137,12 +137,12 @@ foreach my $format (@formats) {
 
     is($srcdigest, $dstdigest, "digests match");
 
-    lives_ok { $clone->delete(0) } "deleted clone volume";
-    lives_ok { $result->delete(0) } "deleted result volume";
+    lives_ok(sub { $clone->delete(0) }, "deleted clone volume");
+    lives_ok(sub { $result->delete(0) }, "deleted result volume");
 }
 
 
-lives_ok { $vol->delete(0) } "deleted source vol";
+lives_ok(sub { $vol->delete(0) }, "deleted source vol");
 
 
 

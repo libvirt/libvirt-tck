@@ -47,11 +47,11 @@ my $xml = $tck->generic_pool("dir")->as_xml;
 
 diag "Defining transient storage pool";
 my $pool;
-ok_pool { $pool = $conn->define_storage_pool($xml) } "define transient storage pool";
+ok_pool(sub { $pool = $conn->define_storage_pool($xml) }, "define transient storage pool");
 
-lives_ok { $pool->build(0) } "built storage pool";
+lives_ok(sub { $pool->build(0) }, "built storage pool");
 
-lives_ok { $pool->create } "started storage pool";
+lives_ok(sub { $pool->create }, "started storage pool");
 
 
 my $volsparsexml = $tck->generic_volume("tck1", "raw", 1024*1024*50)->allocation(0)->as_xml;
@@ -64,7 +64,7 @@ my $volvpcxml = $tck->generic_volume("tck7", "vpc", 1024*1024*50)->as_xml;
 
 my ($vol, $path, $st);
 
-ok_volume { $vol = $pool->create_volume($volsparsexml) } "create sparse raw volume";
+ok_volume(sub { $vol = $pool->create_volume($volsparsexml) }, "create sparse raw volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -77,7 +77,7 @@ is($st->size, 1024*1024*50, "size is 50M");
 # overhead for a sparse file
 ok($st->blocks < 10, "not many blocks allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
@@ -95,7 +95,7 @@ is($st->size, 1024*1024*50, "size is 50M");
 # overhead for a file
 ok($st->blocks > (1024*1024*50/512), "alot of blocks allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
@@ -111,12 +111,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic cow header is allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
 
-ok_volume { $vol = $pool->create_volume($volqcow1xml) } "create qcow volume";
+ok_volume(sub { $vol = $pool->create_volume($volqcow1xml) }, "create qcow volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -127,12 +127,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic qcow1 header is allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
 
-ok_volume { $vol = $pool->create_volume($volqcow2xml) } "create qcow volume";
+ok_volume(sub { $vol = $pool->create_volume($volqcow2xml) }, "create qcow volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -143,12 +143,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic qcow2 header is allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
 
-ok_volume { $vol = $pool->create_volume($volvmdkxml) } "create qcow volume";
+ok_volume(sub { $vol = $pool->create_volume($volvmdkxml) }, "create qcow volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -159,12 +159,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vmdk header is allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
 
-ok_volume { $vol = $pool->create_volume($volvpcxml) } "create qcow volume";
+ok_volume(sub { $vol = $pool->create_volume($volvpcxml) }, "create qcow volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -175,5 +175,5 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vpc header is allocated");
 
-lives_ok { $vol->delete(0) } "deleted volume";
+lives_ok(sub { $vol->delete(0) }, "deleted volume");
 

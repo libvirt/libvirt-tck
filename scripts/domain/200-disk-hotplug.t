@@ -45,7 +45,7 @@ my $xml = $tck->generic_domain("tck")->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain { $dom = $conn->create_domain($xml) } "created transient domain object";
+ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
 
 my $path = $tck->create_sparse_disk("200-disk-hotplug", "extra.img", 100);
@@ -64,14 +64,14 @@ EOF
 my $initialxml = $dom->get_xml_description;
 
 diag "Attaching the new disk $path";
-lives_ok { $dom->attach_device($diskxml); } "disk has been attached";
+lives_ok(sub { $dom->attach_device($diskxml); }, "disk has been attached");
 
 my $newxml = $dom->get_xml_description;
 
 ok($newxml =~ m|$path|, "new XML has extra disk present");
 
 diag "Detaching the new disk $path";
-lives_ok { $dom->detach_device($diskxml); } "disk has been detached";
+lives_ok(sub { $dom->detach_device($diskxml); }, "disk has been detached");
 
 
 my $finalxml = $dom->get_xml_description;

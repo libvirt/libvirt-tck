@@ -57,6 +57,7 @@ SKIP: {
     diag "Checking that transient domain has gone away";
     ok_error { $conn->get_domain_by_name("tck") } "NO_DOMAIN error raised from missing domain", 42;
 
+    diag "Attempting to restore the guest";
     lives_ok { $conn->restore_domain("tck.img") } "domain has been restored";
 
     ok_domain { $dom = $conn->get_domain_by_name("tck") } "restored domain is still there", "tck";

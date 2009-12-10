@@ -69,6 +69,7 @@ my $b = $class->new(
 	'TAP::Formatter::HTML' => 0,
 	'TAP::Harness' => 3.11,
 	'TAP::Harness::Archive' => 0,
+	'Test::Exception' => 0,
 	'Test::Builder' => 0,
 	'Test::More' => 0,
 	'Sub::Uplevel' => 0,

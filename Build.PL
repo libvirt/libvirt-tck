@@ -100,5 +100,5 @@ my $b = $class->new(
 $b->add_build_element("conf");
 $b->add_build_element("pkgdata");
 $b->install_path('conf' => File::Spec->catdir($b->install_base, "etc", "libvirt-tck"));
-$b->install_path('pkgdata' => File::Spec->catdir($b->install_base, "share", "libvirt-tck", "tests"));
+$b->install_path('pkgdata' => File::Spec->catdir($b->install_base, "usr/share", "libvirt-tck", "tests"));
 $b->create_build_script;

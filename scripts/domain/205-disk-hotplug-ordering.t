@@ -61,10 +61,17 @@ EOF
     diag "Attaching the new disk $path";
     eval {
 	$dom->attach_device($diskxml);
+    };
+    if ($@) {
+        diag "Unable to attach device $diskxml: $@";
+        $supported = 0;
+    };
+    eval {
 	$dom->detach_device($diskxml);
     };
     if ($@) {
-	$supported = 0;
+        diag "Unable to detach device $diskxml: $@";
+        $supported = 0;
     };
 }
 

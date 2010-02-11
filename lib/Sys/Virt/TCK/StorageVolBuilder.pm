@@ -13,7 +13,7 @@ sub new {
     my %params = @_;
 
     my $self = {
-	name => $params{name} ? $params{name} : "test" ,
+	name => $params{name} ? $params{name} : "tck" ,
     };
 
     bless $self, $class;
@@ -47,6 +47,14 @@ sub format {
     return $self;
 }
 
+sub secret {
+    my $self = shift;
+
+    $self->{secret} = shift;
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -61,9 +69,16 @@ sub as_xml {
     $w->dataElement("capacity", $self->{capacity});
     $w->dataElement("allocation", $self->{allocation});
 
-    if ($self->{format}) {
+    if ($self->{format} || $self->{secret}) {
 	$w->startTag("target");
-	$w->emptyTag("format", type => $self->{format});
+	if ($self->{format}) {
+	    $w->emptyTag("format", type => $self->{format});
+	}
+	if ($self->{secret}) {
+	    $w->startTag("encryption", format => "qcow");
+	    $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
+	    $w->endTag("encryption");
+	}
 	$w->endTag("target");
     }
 

@@ -18,7 +18,7 @@ sub new {
     my $ostype = $params{ostype} ? $params{ostype} : die "ostype parameter is required";
 
     my $self = {
-	name => $params{name} ? $params{name} : "test" ,
+	name => $params{name} ? $params{name} : "tck" ,
 	type => $domain,
 	ostype => $ostype,
 	boot => { type => "disk" },
@@ -300,6 +300,10 @@ sub as_xml {
 		     type => $disk->{type},
 		     $disk->{device} ? (device => $disk->{device}) : ());
 
+	if ($disk->{format}) {
+	    $w->emptyTag("driver", name => $disk->{format}->[0], type => $disk->{format}->[1]);
+	}
+
 	if ($disk->{type} eq "block") {
 	    $w->emptyTag("source",
 			 dev => $disk->{src});
@@ -310,6 +314,11 @@ sub as_xml {
 	$w->emptyTag("target",
 		     dev => $disk->{dst},
 		     $disk->{bus} ? (bus => $disk->{bus}) : ());
+	if ($disk->{secret}) {
+	    $w->startTag("encryption", format => "qcow");
+	    $w->emptyTag("secret", type => "passphrase", uuid => $disk->{secret});
+	    $w->endTag("encryption");
+	}
 	$w->endTag("disk");
     }
     foreach my $fs (@{$self->{filesystems}}) {

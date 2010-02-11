@@ -13,7 +13,7 @@ sub new {
     my %params = @_;
 
     my $self = {
-	name => $params{name} ? $params{name} : "test" ,
+	name => $params{name} ? $params{name} : "tck" ,
 	type => $params{type} ? $params{type} : "dir",
 	source => {},
     };

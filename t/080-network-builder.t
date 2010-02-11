@@ -9,7 +9,7 @@ BEGIN {
 
 my $xml = <<EOF;
 <network>
-  <name>test</name>
+  <name>tck</name>
   <bridge name="virbr0" />
   <forward dev="eth0" />
   <ip address="192.168.100.1" netmask="255.255.255.0">

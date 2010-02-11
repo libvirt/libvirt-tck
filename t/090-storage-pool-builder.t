@@ -11,7 +11,7 @@ BEGIN {
 
 my $xmlDir = <<EOF;
 <pool type="dir">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <dir path="/var/lib/libvirt/images" />
   </source>
@@ -33,7 +33,7 @@ is ($builtDir, $xmlDir);
 
 my $xmlFS = <<EOF;
 <pool type="fs">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <dev path="/dev/sda1" />
   </source>
@@ -55,7 +55,7 @@ is ($builtFS, $xmlFS);
 
 my $xmlNetFS = <<EOF;
 <pool type="netfs">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <host name="nfs.example.com" />
     <dir path="/var/lib/libvirt/images" />
@@ -79,15 +79,15 @@ is ($builtNetFS, $xmlNetFS);
 
 my $xmlLogical = <<EOF;
 <pool type="logical">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <dev path="/dev/sda1" />
     <dev path="/dev/sdb1" />
     <dev path="/dev/sdc1" />
-    <name>test</name>
+    <name>tck</name>
   </source>
   <target>
-    <path>/dev/test</path>
+    <path>/dev/tck</path>
   </target>
 </pool>
 EOF
@@ -95,8 +95,8 @@ chomp $xmlLogical;
 
 my $builtLogical = Sys::Virt::TCK::StoragePoolBuilder->new(type => "logical")
    ->source_device("/dev/sda1", "/dev/sdb1", "/dev/sdc1")
-   ->source_name("test")
-   ->target("/dev/test")
+   ->source_name("tck")
+   ->target("/dev/tck")
    ->as_xml;
 
 
@@ -105,7 +105,7 @@ is ($builtLogical, $xmlLogical);
 
 my $xmlDisk = <<EOF;
 <pool type="disk">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <dev path="/dev/sda" />
   </source>
@@ -127,7 +127,7 @@ is ($builtDisk, $xmlDisk);
 
 my $xmlSCSI = <<EOF;
 <pool type="scsi">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <adapter name="scsi1" />
   </source>
@@ -149,10 +149,10 @@ is ($builtSCSI, $xmlSCSI);
 
 my $xmlISCSI = <<EOF;
 <pool type="iscsi">
-  <name>test</name>
+  <name>tck</name>
   <source>
     <host name="iscsi.example.com" />
-    <dev path="test.target" />
+    <dev path="tck.target" />
   </source>
   <target>
     <path>/dev</path>
@@ -163,7 +163,7 @@ chomp $xmlISCSI;
 
 my $builtISCSI = Sys::Virt::TCK::StoragePoolBuilder->new(type => "iscsi")
    ->source_host("iscsi.example.com")
-   ->source_device("test.target")
+   ->source_device("tck.target")
    ->target("/dev")
    ->as_xml;
 

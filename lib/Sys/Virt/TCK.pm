@@ -769,4 +769,22 @@ sub xpath {
     return $xp->find($path);
 }
 
+sub get_host_usb_device {
+    my $self = shift;
+    my $devindex = @_ ? shift : 0;
+
+    my $devs = $self->config("host_usb_devices", []);
+
+    if ($devindex > $#{$devs}) {
+	return ();
+    }
+
+    my $bus = $self->config("host_usb_devices/[$devindex]/bus", undef);
+    my $device = $self->config("host_usb_devices/[$devindex]/device", undef);
+    my $vendor = $self->config("host_usb_devices/[$devindex]/vendor", undef);
+    my $product = $self->config("host_usb_devices/[$devindex]/product", undef);
+
+    return ($bus, $device, $vendor, $product);
+}
+
 1;

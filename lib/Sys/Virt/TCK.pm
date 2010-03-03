@@ -787,4 +787,22 @@ sub get_host_usb_device {
     return ($bus, $device, $vendor, $product);
 }
 
+sub get_host_pci_device {
+    my $self = shift;
+    my $devindex = @_ ? shift : 0;
+
+    my $devs = $self->config("host_pci_devices", []);
+
+    if ($devindex > $#{$devs}) {
+	return ();
+    }
+
+    my $domain = $self->config("host_pci_devices/[$devindex]/domain", 0);
+    my $bus = $self->config("host_pci_devices/[$devindex]/bus", 0);
+    my $slot = $self->config("host_pci_devices/[$devindex]/slot");
+    my $function = $self->config("host_pci_devices/[$devindex]/function", 0);
+
+    return ($domain, $bus, $slot, $function);
+}
+
 1;

@@ -54,6 +54,7 @@ eval { $dom->save("tck.img"); };
 SKIP: {
     skip "save/restore not implemented", 4 if $@ && err_not_implemented($@);
     ok(!$@, "domain saved");
+    die $@ if $@;
 
     diag "Checking that transient domain has gone away";
     ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);

@@ -60,6 +60,7 @@ eval { $dom->save("tck.img"); };
 SKIP: {
     skip "save/restore not implemented", 7 if $@ && err_not_implemented($@);
     ok(!$@, "domain saved");
+    die $@ if $@;
 
     diag "Checking that persistent domain is stopped";
     ok_domain(sub { $conn->get_domain_by_name("tck") }, "persistent domain is still there", "tck");

@@ -77,6 +77,14 @@ sub target {
     return $self;
 }
 
+sub format {
+    my $self = shift;
+
+    $self->{format} = shift;
+
+    return $self;
+}
+
 
 sub as_xml {
     my $self = shift;
@@ -98,7 +106,7 @@ sub as_xml {
     }
     if ($self->{source}->{device}) {
 	foreach my $dev (@{$self->{source}->{device}}) {
-	    $w->emptyTag("dev", path => $dev);
+	    $w->emptyTag("device", path => $dev);
 	}
     }
     if ($self->{source}->{adapter}) {
@@ -106,6 +114,9 @@ sub as_xml {
     }
     if ($self->{source}->{name}) {
 	$w->dataElement("name", $self->{source}->{name});
+    }
+    if ($self->{format}) {
+	$w->emptyTag("format", type => $self->{format});
     }
     $w->endTag("source");
 

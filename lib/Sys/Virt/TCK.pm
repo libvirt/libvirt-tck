@@ -805,4 +805,11 @@ sub get_host_pci_device {
     return ($domain, $bus, $slot, $function);
 }
 
+sub get_host_block_device {
+    my $self = shift;
+    my $devindex = @_ ? shift : 0;
+
+    return $self->config("host_block_devices/[$devindex]", undef);
+}
+
 1;

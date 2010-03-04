@@ -30,7 +30,7 @@ one host USB device listed.
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 9;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -52,38 +52,49 @@ ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain o
 
 my ($bus, $device, $vendor, $product) = $tck->get_host_usb_device();
 
-SKIP: {
-    # Must have one of the pairs at least
-    unless (($bus && $device) || ($vendor && $product)) {
-	skip "No host usb device available in configuration file", 4;
+my @xml = (undef, undef);
+
+if ($bus && $device) {
+    my $xml = <<EOF;
+<hostdev mode='subsystem' type='usb'>
+  <source>
+    <address bus='$bus' device='$device'/>
+  </source>
+</hostdev>
+EOF
+    $xml[0] = $xml;
+}
+if ($vendor) {
+    my $xml = <<EOF;
+<hostdev mode='subsystem' type='usb'>
+  <source>
+    <vendor id='$vendor'/>
+    <product id='$product'/>
+  </source>
+</hostdev>
+EOF
+    $xml[1] = $xml;
+}
+
+foreach my $devxml (@xml) {
+  SKIP: {
+      skip "No host usb device available in configuration file", 4 unless $devxml;
+
+      my $initialxml = $dom->get_xml_description;
+
+      diag "Attaching the new dev $devxml";
+      lives_ok(sub { $dom->attach_device($devxml); }, "USB dev has been attached");
+
+      my $newxml = $dom->get_xml_description;
+      ok($newxml =~ m|<hostdev|, "new XML has extra USB dev present");
+
+      diag "Detaching the new dev $devxml";
+      lives_ok(sub { $dom->detach_device($devxml); }, "USB dev has been detached");
+
+
+      my $finalxml = $dom->get_xml_description;
+
+      is($initialxml, $finalxml, "final XML has removed the disk")
     }
-
-    my $devxml = "<hostdev mode='subsystem' type='usb'>\n" .
-	"<source>\n";
-    if ($bus && $device) {
-        $devxml .= "<address bus='$bus' device='$device'/>\n"
-    }
-    if ($vendor && $product) {
-        $devxml .= "<vendor id='$vendor'/>\n";
-        $devxml .= "<product id='$product'/>\n";
-    }
-    $devxml .= "</source>\n" .
-	"</hostdev>\n";
-
-    my $initialxml = $dom->get_xml_description;
-
-    diag "Attaching the new dev $devxml";
-    lives_ok(sub { $dom->attach_device($devxml); }, "USB dev has been attached");
-
-    my $newxml = $dom->get_xml_description;
-    ok($newxml =~ m|<hostdev|, "new XML has extra USB dev present");
-
-    diag "Detaching the new dev $devxml";
-    lives_ok(sub { $dom->detach_device($devxml); }, "USB dev has been detached");
-
-
-    my $finalxml = $dom->get_xml_description;
-
-    is($initialxml, $finalxml, "final XML has removed the disk")
 }
 

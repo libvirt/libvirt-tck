@@ -1,6 +1,6 @@
 # -*- perl -*-
 #
-# Copyright (C) 2009-2010 Red Hat
+# Copyright (C) 2009-2010 Red Hat, Inc.
 # Copyright (C) 2009-2010 Daniel P. Berrange
 #
 # This program is free software; You can redistribute it and/or modify

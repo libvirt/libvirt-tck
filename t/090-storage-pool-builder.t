@@ -47,7 +47,7 @@ my $xmlFS = <<EOF;
 <pool type="fs">
   <name>tck</name>
   <source>
-    <dev path="/dev/sda1" />
+    <device path="/dev/sda1" />
   </source>
   <target>
     <path>/var/lib/libvirt/images</path>
@@ -93,9 +93,9 @@ my $xmlLogical = <<EOF;
 <pool type="logical">
   <name>tck</name>
   <source>
-    <dev path="/dev/sda1" />
-    <dev path="/dev/sdb1" />
-    <dev path="/dev/sdc1" />
+    <device path="/dev/sda1" />
+    <device path="/dev/sdb1" />
+    <device path="/dev/sdc1" />
     <name>tck</name>
   </source>
   <target>
@@ -119,7 +119,7 @@ my $xmlDisk = <<EOF;
 <pool type="disk">
   <name>tck</name>
   <source>
-    <dev path="/dev/sda" />
+    <device path="/dev/sda" />
   </source>
   <target>
     <path>/dev</path>
@@ -164,7 +164,7 @@ my $xmlISCSI = <<EOF;
   <name>tck</name>
   <source>
     <host name="iscsi.example.com" />
-    <dev path="tck.target" />
+    <device path="tck.target" />
   </source>
   <target>
     <path>/dev</path>

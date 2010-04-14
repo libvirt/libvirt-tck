@@ -428,6 +428,7 @@ sub match_kernel {
 sub best_kernel {
     my $self = shift;
     my $caps = shift;
+    my $wantostype = shift;
 
     my $kernels = $self->config("kernels", []);
 
@@ -437,6 +438,11 @@ sub best_kernel {
 	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
 
 	foreach $ostype (@ostype) {
+	    if ((defined $wantostype) &&
+		($wantostype ne $ostype)) {
+		next;
+	    }
+
 	    my ($domain, $emulator, $loader) =
 		$self->match_kernel($caps, $arch, $ostype);
 
@@ -452,9 +458,10 @@ sub best_kernel {
 sub get_kernel {
     my $self = shift;
     my $caps = shift;
+    my $wantostype = shift;
 
     my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
-	$self->best_kernel($caps);
+	$self->best_kernel($caps, $wantostype);
 
     if (!defined $cfgindex) {
 	die "cannot find any supported kernel configuration";
@@ -512,8 +519,9 @@ sub generic_machine_domain {
     my $self = shift;
     my $name = shift;
     my $caps = shift;
+    my $ostype = shift;
 
-    my %config = $self->get_kernel($caps);
+    my %config = $self->get_kernel($caps, $ostype);
 
     my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
 					       name => $name,
@@ -580,15 +588,19 @@ sub generic_container_domain {
 sub generic_domain {
     my $self = shift;
     my $name = @_ ? shift : "tck";
+    my $ostype = @_ ? shift : undef;
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
-    my $container = $self->best_container_domain($caps);
+    my $container;
+
+    $container = $self->best_container_domain($caps)
+	unless $ostype && $ostype ne "exe";
 
     if ($container) {
 	return $self->generic_container_domain($name, $caps, $container);
     } else {
-	return $self->generic_machine_domain($name, $caps);
+	return $self->generic_machine_domain($name, $caps, $ostype);
     }
 }
 

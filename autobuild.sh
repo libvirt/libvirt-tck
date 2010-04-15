@@ -2,6 +2,18 @@
 #
 # This script is used to Test::AutoBuild (http://www.autobuild.org)
 # to perform automated builds of the Sys-Virt module
+#
+# Copyright (C) 2009 Red Hat, Inc.
+# Copyright (C) 2009 Daniel P. Berrange
+#
+# This program is free software; You can redistribute it and/or modify
+# it under the GNU General Public License as published by the Free
+# Software Foundation; either version 2, or (at your option) any
+# later version
+#
+# The file "LICENSE" distributed along with this file provides full
+# details of the terms and conditions
+#
 
 NAME=Sys-Virt-TCK
 

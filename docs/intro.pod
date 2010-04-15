@@ -1,3 +1,16 @@
+#
+# Copyright (C) 2009 Red Hat, Inc.
+# Copyright (C) 2009 Daniel P. Berrange
+#
+# This program is free software; You can redistribute it and/or modify
+# it under the GNU General Public License as published by the Free
+# Software Foundation; either version 2, or (at your option) any
+# later version
+#
+# The file "LICENSE" distributed along with this file provides full
+# details of the terms and conditions
+#
+
 =pod
 
 =head1 libvirt TCK: Technology Compatability Kit
@@ -166,7 +179,7 @@ the libvirt TCK, there is a small program
 Given no arguments, this will connect using the default hypervisor
 URI and a previously obtained kernel+initrd and run all the tests
 currently available for the libvirt TCK, and report on failures.
-It comes witha number of options to alter the output format or
+It comes with a number of options to alter the output format or
 choose different configurations. 'man 1 libvirt-tck' will produce
 details
 
@@ -309,7 +322,7 @@ up some pre-requisite pieces. Specifically it would
 
 =item *
 
-Build an bootable ISO image using the kernel+initrd
+Build a bootable ISO image using the kernel+initrd
 
 =item *
 

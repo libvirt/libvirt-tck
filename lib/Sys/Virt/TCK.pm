@@ -33,6 +33,7 @@ use IO::Uncompress::Gunzip qw(gunzip);
 use IO::Uncompress::Bunzip2 qw(bunzip2);
 use XML::XPath;
 use Carp qw(cluck carp);
+use Fcntl qw(O_RDONLY SEEK_END);
 
 use Test::Builder;
 use Sub::Uplevel qw(uplevel);
@@ -833,7 +834,19 @@ sub get_host_block_device {
     my $self = shift;
     my $devindex = @_ ? shift : 0;
 
-    return $self->config("host_block_devices/[$devindex]", undef);
+    my $device = ($self->config("host_block_devices/[$devindex]/path", undef)
+		  || $self->config("host_block_devices/[$devindex]", undef));
+    return undef unless $device;
+
+    my $kb_blocks = $self->config("host_block_devices/[$devindex]/size", 0);
+
+    # Filter out devices that the current user can't open.
+    sysopen(BLK, $device, O_RDONLY) or return undef;
+    my $match = ($kb_blocks ? sysseek(BLK, 0, SEEK_END) == $kb_blocks * 1024
+		 : 1);
+    close BLK;
+
+    return $match ? $device : undef;
 }
 
 1;

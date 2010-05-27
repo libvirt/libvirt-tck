@@ -34,6 +34,14 @@ sub new {
     return $self;
 }
 
+sub uuid {
+    my $self = shift;
+
+    $self->{uuid} = shift;
+
+    return $self;
+}
+
 sub bridge {
     my $self = shift;
     my $name = shift;
@@ -83,7 +91,9 @@ sub as_xml {
 			     DATA_MODE => 1,
 			     DATA_INDENT => 2);
     $w->startTag("network");
-    $w->dataElement("name" => $self->{name});
+    foreach (qw(name uuid)) {
+	$w->dataElement("$_" => $self->{$_}) if $self->{$_};
+    }
 
     $w->emptyTag("bridge", %{$self->{bridge}})
 	if $self->{bridge};

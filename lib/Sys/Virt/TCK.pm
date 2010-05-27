@@ -39,7 +39,8 @@ use Test::Builder;
 use Sub::Uplevel qw(uplevel);
 use base qw(Exporter);
 
-our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume xpath err_not_implemented);
+our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume ok_network
+                 xpath err_not_implemented);
 
 our $VERSION = '0.1.0';
 
@@ -101,6 +102,16 @@ sub sanity_check {
 	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
     }
 
+    my @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_networks;
+    if (@nets) {
+	die "there is/are " . int(@nets) . " pre-existing active network(s) in this driver";
+    }
+
+    @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_networks;
+    if (@nets) {
+	die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
+    }
+
     my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
     if (@pools) {
 	die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
@@ -125,6 +136,18 @@ sub reset {
     @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_domains();
     foreach my $dom (@doms) {
 	$dom->undefine;
+    }
+
+    my @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_networks;
+    foreach my $net (@nets) {
+	if ($net->is_active()) {
+	    $net->destroy;
+	}
+    }
+
+    @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_networks();
+    foreach my $net (@nets) {
+	$net->undefine;
     }
 
     my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
@@ -290,6 +313,21 @@ sub create_sparse_disk {
     truncate DISK, ($size * 1024 * 1024);
 
     close DISK or die "cannot save $target: $!";
+
+    return $target;
+}
+
+
+sub create_empty_dir {
+    my $self = shift;
+    my $bucket = shift;
+    my $name = shift;
+
+    my $dir = $self->bucket_dir($bucket);
+
+    my $target = catfile($dir, $name);
+
+    mkpath($target) unless -e $target;
 
     return $target;
 }
@@ -621,6 +659,19 @@ sub generic_pool {
 }
 
 
+sub generic_network {
+    my $self = shift;
+    my $name = @_ ? shift : "tck";
+
+    my $b = Sys::Virt::TCK::NetworkBuilder->new(name => $name);
+
+    # XXX check for host clash
+    #$b->ipaddr("10.250.250.250", "255.255.255.0");
+
+    return $b;
+}
+
+
 sub generic_volume {
     my $self = shift;
     my $name = @_ ? shift : "tck";
@@ -741,6 +792,35 @@ sub ok_volume(&$;$) {
 	} else {
 	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::StorageVol")) {
 		$Tester->diag("found Sys::Virt::StorageVol object with name " . $ret->get_name);
+	    } else {
+		$Tester->diag("found '$ret'");
+	    }
+	}
+    }
+}
+
+sub ok_network(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    die "must pass coderef, description and (optional) expected name"
+	unless defined $description;
+
+    my ($ret, $exception) = _try_as_caller($coderef);
+
+    my $ok = "$exception" eq "" &&
+	$ret && ref($ret) && $ret->isa("Sys::Virt::Network") &&
+	(!defined $name || ($ret->get_name() eq $name));
+
+    $Tester->ok($ok, $description);
+    unless ($ok) {
+	$Tester->diag("expected Sys::Virt::Network object" . ($name ? " with name $name" : ""));
+	if ($exception) {
+	    $Tester->diag("found '$exception'");
+	} else {
+	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::Network")) {
+		$Tester->diag("found Sys::Virt::Network object with name " . $ret->get_name);
 	    } else {
 		$Tester->diag("found '$ret'");
 	    }

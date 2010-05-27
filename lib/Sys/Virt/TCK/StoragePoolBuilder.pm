@@ -29,9 +29,18 @@ sub new {
 	name => $params{name} ? $params{name} : "tck" ,
 	type => $params{type} ? $params{type} : "dir",
 	source => {},
+	perms => {},
     };
 
     bless $self, $class;
+
+    return $self;
+}
+
+sub uuid {
+    my $self = shift;
+
+    $self->{uuid} = shift;
 
     return $self;
 }
@@ -99,6 +108,30 @@ sub format {
 }
 
 
+sub user {
+    my $self = shift;
+
+    $self->{perms}->{user} = shift;
+
+    return $self;
+}
+
+sub group {
+    my $self = shift;
+
+    $self->{perms}->{group} = shift;
+
+    return $self;
+}
+
+sub mode {
+    my $self = shift;
+
+    $self->{perms}->{mode} = shift;
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -108,7 +141,9 @@ sub as_xml {
 			     DATA_MODE => 1,
 			     DATA_INDENT => 2);
     $w->startTag("pool", type => $self->{type});
-    $w->dataElement("name" => $self->{name});
+    foreach (qw(name uuid)) {
+	$w->dataElement("$_" => $self->{$_}) if $self->{$_};
+    }
 
     $w->startTag("source");
     if ($self->{source}->{host}) {
@@ -135,6 +170,13 @@ sub as_xml {
 
     $w->startTag("target");
     $w->dataElement("path", $self->{target});
+    if (@%{$self->{perms}}) {
+	$w->startTag("permissions");
+	foreach (qw(mode user group)) {
+	    $w->dataElement("$_" => $self->{perms}->{$_}) if $self->{perms}->{$_};
+	}
+	$w->endTag("permissions");
+    }
     $w->endTag("target");
 
     $w->endTag("pool");

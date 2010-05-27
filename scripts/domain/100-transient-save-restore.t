@@ -56,7 +56,8 @@ SKIP: {
     die $@ if $@;
 
     diag "Checking that transient domain has gone away";
-    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+	     Sys::Virt::Error::ERR_NO_DOMAIN);
 
     diag "Attempting to restore the guest";
     lives_ok { $conn->restore_domain("tck.img") } "domain has been restored";
@@ -68,6 +69,7 @@ diag "Destroying the transient domain";
 $dom->destroy;
 
 diag "Checking that transient domain has gone away";
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);
 
 # end

@@ -61,4 +61,5 @@ diag "Removing inactive domain config";
 $dom->undefine;
 
 diag "Checking that inactive domain has really gone";
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);

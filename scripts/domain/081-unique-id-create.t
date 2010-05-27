@@ -86,7 +86,8 @@ $dom1->destroy;
 
 
 diag "Checking that domain has now gone";
-ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain", 42);
+ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);
 
 
 diag "Starting persistent domain config";
@@ -111,11 +112,13 @@ $dom1->destroy;
 
 
 diag "Checking that domain has now gone";
-ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain", 42);
+ok_error(sub { $conn->get_domain_by_name($name2) }, "NO_DOMAIN error raised from undefined domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);
 
 diag "Stopping & undefining persistent guest config";
 $dom->destroy;
 $dom->undefine;
 diag "Checking that domain has now gone";
-ok_error(sub { $conn->get_domain_by_name($name1) }, "NO_DOMAIN error raised from undefined domain", 42);
+ok_error(sub { $conn->get_domain_by_name($name1) }, "NO_DOMAIN error raised from undefined domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);
 

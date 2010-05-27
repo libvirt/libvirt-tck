@@ -51,7 +51,8 @@ $dom->DESTROY;
 $dom = undef;
 
 diag "Checking that persistent domain has gone away";
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);
 
 
 diag "Defining inactive domain config again";
@@ -80,4 +81,5 @@ is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
 diag "Undefining the inactive domain config";
 $dom->undefine;
 
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+	 Sys::Virt::Error::ERR_NO_DOMAIN);

@@ -68,6 +68,19 @@ sub secret {
     return $self;
 }
 
+sub backing_format {
+    my $self = shift;
+    $self->{backingFormat} = shift;
+    return $self;
+}
+
+sub backing_file {
+    my $self = shift;
+    $self->{backingFile} = shift;
+    return $self;
+}
+
+
 sub as_xml {
     my $self = shift;
 
@@ -93,6 +106,20 @@ sub as_xml {
 	    $w->endTag("encryption");
 	}
 	$w->endTag("target");
+    }
+
+    if ($self->{backingFile}) {
+	$w->startTag("backingStore");
+	$w->dataElement("path", $self->{backingFile});
+	if ($self->{backingFormat}) {
+	    $w->emptyTag("format", type => $self->{backinFormat});
+	}
+	if ($self->{secret}) {
+	    $w->startTag("encryption", format => "qcow");
+	    $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
+	    $w->endTag("encryption");
+	}
+	$w->endTag("backingStore");
     }
 
     $w->endTag("volume");

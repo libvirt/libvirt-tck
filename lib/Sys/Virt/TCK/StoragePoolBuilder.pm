@@ -170,7 +170,7 @@ sub as_xml {
 
     $w->startTag("target");
     $w->dataElement("path", $self->{target});
-    if (@%{$self->{perms}}) {
+    if (int(keys %{$self->{perms}})) {
 	$w->startTag("permissions");
 	foreach (qw(mode user group)) {
 	    $w->dataElement("$_" => $self->{perms}->{$_}) if $self->{perms}->{$_};

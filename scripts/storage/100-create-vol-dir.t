@@ -93,7 +93,7 @@ is($st->size, 1024*1024*50, "size is 50M");
 
 # In theory exact number blocks are allocated, but most FS have a couple of blocks
 # overhead for a file
-ok($st->blocks > (1024*1024*50/512), "alot of blocks allocated");
+ok($st->blocks >= (1024*1024*50/512), "alot of blocks allocated");
 
 lives_ok(sub { $vol->delete(0) }, "deleted volume");
 

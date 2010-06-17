@@ -314,7 +314,9 @@ sub as_xml {
 		     $disk->{device} ? (device => $disk->{device}) : ());
 
 	if ($disk->{format}) {
-	    $w->emptyTag("driver", name => $disk->{format}->[0], type => $disk->{format}->[1]);
+	    $w->emptyTag("driver",
+			 name => $disk->{format}->{name},
+			 type => $disk->{format}->{type});
 	}
 
 	if ($disk->{type} eq "block") {

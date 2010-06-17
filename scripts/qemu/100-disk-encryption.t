@@ -85,7 +85,7 @@ diag "Creating volume $volXML";
 lives_ok(sub { $vol = $pool->create_volume($volXML) }, "volume created");
 
 my $xml = $tck->generic_domain("tck")
-    ->disk(format => ["qemu", "qcow2"],
+    ->disk(format => { name => "qemu", type => "qcow2" },
 	   secret => $secretUUID,
 	   type => "file",
 	   src => $disk,

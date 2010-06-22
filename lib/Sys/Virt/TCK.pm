@@ -665,6 +665,7 @@ sub generic_network {
 
     my $b = Sys::Virt::TCK::NetworkBuilder->new(name => $name);
 
+    $b->bridge($name);
     # XXX check for host clash
     #$b->ipaddr("10.250.250.250", "255.255.255.0");
 

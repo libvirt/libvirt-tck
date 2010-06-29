@@ -40,7 +40,7 @@ Version: @VERSION@
 Release: 1%{_extra_release}
 License: GPLv2
 Group: Development/Tools
-Source: http://libvirt.org/sources/tck/%{appname}-%{version}.tar.gz
+Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz
 Url: http://libvirt.org/
 BuildRoot: %{_tmppath}/%{appname}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: perl >= %{perlversion}
@@ -66,6 +66,10 @@ BuildRequires: perl(Sub::Uplevel)
 BuildRequires: perl(Sys::Virt) >= 0.2.0
 BuildRequires: perl(XML::Twig)
 BuildRequires: perl(XML::Writer)
+# RPM autoprovides misses these 3
+Requires: perl(Test::Exception)
+Requires: perl(TAP::Formatter::HTML)
+Requires: perl(TAP::Harness::Archive)
 BuildArchitectures: noarch
 
 %description
@@ -74,7 +78,7 @@ correct operation of libvirt drivers with underlying virtualization
 technology.
 
 %prep
-%setup -q -n %{appname}-%{version}
+%setup -q -n %{appname}-v%{version}
 
 
 %build

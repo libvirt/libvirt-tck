@@ -51,7 +51,7 @@ my $conn = Sys::Virt->new(address => "test:///default");
 
 my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn, domain => "xen", ostype => 'hvm')
     ->with_acpi->memory(500*1025)->vcpu(3)
-    ->disk(format => ["qemu", "qcow2"], type => 'block', src => "/dev/hda1", dst => "/dev/xvda", bus => "xen", secret => "0a81f5b2-8403-7b23-c8d6-21ccc2f80d6f")
+    ->disk(format => { name => "qemu", type => "qcow2" }, type => 'block', src => "/dev/hda1", dst => "/dev/xvda", bus => "xen", secret => "0a81f5b2-8403-7b23-c8d6-21ccc2f80d6f")
     ->as_xml;
 
 

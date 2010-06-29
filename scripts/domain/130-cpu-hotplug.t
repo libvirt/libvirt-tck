@@ -52,7 +52,7 @@ my $max;
 lives_ok(sub { $max = $dom->get_max_vcpus() }, "queried max vcpus");
 
 SKIP: {
-    skip "SMP guests not supported", 4 unless $max > 1;
+    skip "SMP guests not supported", 6 unless $max > 1;
 
     diag "Increasing CPU count to max";
     lives_ok(sub { $dom->set_vcpus($max); }, "set vcpus to $max");

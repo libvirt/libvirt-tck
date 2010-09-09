@@ -1,0 +1,73 @@
+#ebtables -t nat -L PREROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
+-i vnet0 -j libvirt-I-vnet0
+#ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
+-o vnet0 -j libvirt-O-vnet0
+#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+-p IPv4 -j I-vnet0-ipv4
+-p ARP -j I-vnet0-arp
+-p 0x8035 -j I-vnet0-rarp
+-p 0x835 -j ACCEPT 
+-j DROP 
+#ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
+-p IPv4 -j O-vnet0-ipv4
+-p ARP -j O-vnet0-arp
+-p 0x8035 -j O-vnet0-rarp
+-j DROP 
+#ebtables -t nat -L I-vnet0-ipv4 | grep -v "^Bridge" | grep -v "^$"
+-s ! 52:54:0:9f:33:da -j DROP 
+-p IPv4 --ip-src ! 10.1.1.1 -j DROP 
+#ebtables -t nat -L O-vnet0-ipv4 | grep -v "^Bridge" | grep -v "^$"
+-j ACCEPT 
+#ebtables -t nat -L I-vnet0-arp | grep -v "^Bridge" | grep -v "^$"
+-s ! 52:54:0:9f:33:da -j DROP 
+-p ARP --arp-mac-src ! 52:54:0:9f:33:da -j DROP 
+-p ARP --arp-ip-src ! 10.1.1.1 -j DROP 
+-p ARP --arp-op Request -j ACCEPT 
+-p ARP --arp-op Reply -j ACCEPT 
+-j DROP 
+#ebtables -t nat -L O-vnet0-arp | grep -v "^Bridge" | grep -v "^$"
+-p ARP --arp-op Reply --arp-mac-dst ! 52:54:0:9f:33:da -j DROP 
+-p ARP --arp-ip-dst ! 10.1.1.1 -j DROP 
+-p ARP --arp-op Request -j ACCEPT 
+-p ARP --arp-op Reply -j ACCEPT 
+-j DROP 
+#ip6tables -L FI-vnet0 -n
+Chain FI-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all      ::/0                 ::/0                
+#ip6tables -L FO-vnet0 -n
+Chain FO-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all      ::/0                 ::/0                
+#ip6tables -L HI-vnet0 -n
+Chain HI-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all      ::/0                 ::/0                
+#ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
+HI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+#ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "
+FI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+#ip6tables -L libvirt-in-post -n | grep vnet0
+ACCEPT     all      ::/0                 ::/0                PHYSDEV match --physdev-in vnet0 
+#ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
+FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 
+#iptables -L FI-vnet0 -n
+Chain FI-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+#iptables -L FO-vnet0 -n
+Chain FO-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+#iptables -L HI-vnet0 -n
+Chain HI-vnet0 (1 references)
+target     prot opt source               destination         
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+#iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
+HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-in -n | grep vnet0 | tr -s " " 
+FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-in-post -n | grep vnet0
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-out -n | grep vnet0 | tr -s " "
+FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 

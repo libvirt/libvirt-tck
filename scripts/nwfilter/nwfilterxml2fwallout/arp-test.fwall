@@ -1,0 +1,9 @@
+#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+-p ARP -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --arp-op Request --arp-htype 12 --arp-ptype 0x22 --arp-mac-src 1:2:3:4:5:6 --arp-mac-dst a:b:c:d:e:f -j ACCEPT 
+-p ARP -s 1:2:3:4:5:6 --arp-op Request --arp-htype 255 --arp-ptype 0xff -j ACCEPT 
+-p ARP -s 1:2:3:4:5:6 --arp-op 11 --arp-htype 256 --arp-ptype 0x100 -j ACCEPT 
+-p ARP -s 1:2:3:4:5:6 --arp-op 65535 --arp-htype 65535 --arp-ptype 0xffff -j ACCEPT 
+-p ARP -s 1:2:3:4:5:6 -j ACCEPT 
+#ebtables -t nat -L PREROUTING | grep vnet0
+-i vnet0 -j libvirt-I-vnet0
+

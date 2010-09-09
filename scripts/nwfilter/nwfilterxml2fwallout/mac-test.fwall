@@ -1,0 +1,12 @@
+#ebtables -t nat -L PREROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
+-i vnet0 -j libvirt-I-vnet0
+#ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
+-o vnet0 -j libvirt-O-vnet0
+#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+-p ARP -s 1:2:3:4:5:6 -j ACCEPT 
+#ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
+-p IPv4 -d aa:bb:cc:dd:ee:ff -j ACCEPT 
+-p 0x600 -d aa:bb:cc:dd:ee:ff -j ACCEPT 
+-d aa:bb:cc:dd:ee:ff -j ACCEPT 
+-p 0xffff -d aa:bb:cc:dd:ee:ff -j ACCEPT 
+

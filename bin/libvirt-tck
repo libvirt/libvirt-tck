@@ -114,7 +114,7 @@ use strict;
 use warnings;
 
 use Getopt::Long;
-use File::Spec::Functions qw(rootdir catdir catfile);
+use File::Spec::Functions qw(rootdir catdir catfile rel2abs);
 use Pod::Usage;
 # Ultimately we're just a dumb wrapper around C<prove> making
 # it less tedious to run the tests than it is when using
@@ -163,6 +163,7 @@ unless (-e $config) {
     print STDERR "$0: config file $config does not exist\n";
     exit 2;
 }
+$config = rel2abs ($config);
 
 if ($verbose && $quiet) {
     pod2usage(-msg => "$0: only one of --verbose and --quiet can be used\n",

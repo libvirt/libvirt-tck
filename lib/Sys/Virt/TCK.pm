@@ -308,7 +308,7 @@ sub create_sparse_disk {
 
     my $target = catfile($dir, $name);
 
-    open DISK, ">$target" or die "cannot create $target: $!";
+    open DISK, ">>$target" or die "cannot create $target: $!";
 
     truncate DISK, ($size * 1024 * 1024);
 

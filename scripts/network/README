@@ -1,0 +1,12 @@
+
+Test cases:
+
+000-install-image.t		creates and install a 2GB fedora virtual disk via kickstart file from the network
+100-ping-still-working.t	verifies the VM is pingable
+210-no-mac-spoofing.t		verifies mac spoofing is prevented
+220-no-ip-spoofing.t		verifies ip spoofing is prevented
+230-no-mac-broadcast.t		verifies mac broadcasting is prevented
+240-no-arp-spoofing.t		verifies arp spoofing is prevented
+
+
+

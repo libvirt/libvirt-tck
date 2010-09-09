@@ -172,6 +172,34 @@ sub boot_init {
     return $self;
 }
 
+sub boot_cmdline {
+    my $self = shift;
+    my $cmdline = shift;
+
+    my $kernel = $self->{boot}->{kernel};
+    my $initrd = $self->{boot}->{initrd};
+
+    $self->{boot} = {
+	type => "kernel",
+	kernel => $kernel,
+	initrd => $initrd,
+	cmdline => $cmdline
+    };
+
+    return $self;
+}
+
+sub clear_kernel_initrd_cmdline {
+    my $self = shift;
+
+    $self->{boot} = {
+	type => "kernel",
+	kernel => "",
+	initrd => "",
+	cmdline => ""
+    };
+    return $self;
+}
 
 sub on_reboot {
     my $self = shift;
@@ -222,6 +250,12 @@ sub loader {
 }
 
 
+sub rmdisk {
+    my $self = shift;
+
+    return pop @{$self->{disks}};
+}
+
 sub disk {
     my $self = shift;
     my %params = @_;
@@ -231,6 +265,30 @@ sub disk {
     die "type parameter is required" unless $params{type};
 
     push @{$self->{disks}}, \%params;
+
+    return $self;
+}
+
+sub interface {
+    my $self = shift;
+    my %params = @_;
+
+    die "type parameter is required" unless $params{type};
+    die "source parameter is required" unless $params{source};
+    die "model parameter is required" unless $params{model};
+
+    push @{$self->{interfaces}}, \%params;
+
+    return $self;
+}
+
+sub graphics {
+    my $self = shift;
+    my %params = @_;
+
+    die "type parameter is required" unless $params{type};
+
+    push @{$self->{graphics}}, \%params;
 
     return $self;
 }
@@ -345,6 +403,36 @@ sub as_xml {
 	$w->emptyTag("target",
 		     dir => $fs->{dst});
 	$w->endTag("filesystem");
+    }
+    foreach my $interface (@{$self->{interfaces}}) {
+	$w->startTag("interface",
+		     type => $interface->{type});
+
+	$w->emptyTag("mac",
+		     address =>  $interface->{mac});
+	$w->emptyTag("source",
+		     network => $interface->{source});
+	$w->emptyTag("model",
+		     type => $interface->{model});
+	if( $interface->{filterref}) {
+	    $w->emptyTag("filterref",
+			 filter => $interface->{filterref});
+	}
+	$w->endTag("interface");
+    }
+    foreach my $graphic (@{$self->{graphics}}) {
+	$w->startTag("graphics",
+		     type => $graphic->{type});
+
+	$w->emptyTag("port",
+		     port => $graphic->{port});
+	$w->emptyTag("autoport",
+		     autoport => $graphic->{autoport});
+	$w->emptyTag("listen",
+		     listen => $graphic->{listen});
+	$w->emptyTag("keymap",
+		     keymap => $graphic->{keymap});
+	$w->endTag("graphics");
     }
     $w->emptyTag("console", type => "pty");
     $w->endTag("devices");

@@ -9,7 +9,6 @@ VIRSH=virsh
 uri=
 if [ "x${LIBVIRT_TCK_CONFIG}x" != "xx" ]; then
      uri_exp=`cat ${LIBVIRT_TCK_CONFIG} | grep "^uri\s*=" | sed -e 's/uri\s*=\s*//' | tail -n 1`
-     echo "$uri_exp"
      if [ "x${uri_exp}x" != "xx" ]; then
          eval "uri=${uri_exp}"
      fi

@@ -41,9 +41,9 @@ END { $tck->cleanup if $tck; }
 use File::Spec::Functions qw(catfile catdir rootdir);
 
 # variables which may need to be adapted
-my $disk_name ="f12nwtest";
+my $dom_name ="tckf12nwtest";
 
-my $testdom = prepare_test_disk_and_vm($tck, $conn, "${disk_name}");
+my $testdom = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $testdom->create();
 ok($testdom->get_id() > 0, "running domain has an ID > 0");
 sleep(20);

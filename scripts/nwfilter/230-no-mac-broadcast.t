@@ -43,9 +43,9 @@ END {
 
 # create first domain and start it
 my $dom1;
-my $disk_name ="f12nwtest";
+my $dom_name ="tckf12nwtest";
 
-$dom1 = prepare_test_disk_and_vm($tck, $conn, "${disk_name}");
+$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $dom1->create();
 
 ok($dom1->get_id() > 0, "running domain has an ID > 0");

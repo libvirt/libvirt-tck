@@ -46,9 +46,9 @@ END {
 # create first domain and start it
 diag "Trying domain lookup by name";
 my $dom1;
-my $disk_name ="f12nwtest";
+my $dom_name ="tckf12nwtest";
 
-$dom1 = prepare_test_disk_and_vm($tck, $conn, "${disk_name}");
+$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $dom1->create();
 
 my $xml = $dom1->get_xml_description;

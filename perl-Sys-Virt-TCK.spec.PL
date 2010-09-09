@@ -70,6 +70,7 @@ BuildRequires: perl(XML::Writer)
 Requires: perl(Test::Exception)
 Requires: perl(TAP::Formatter::HTML)
 Requires: perl(TAP::Harness::Archive)
+Requires: /usr/bin/mkisofs
 BuildArchitectures: noarch
 
 %description

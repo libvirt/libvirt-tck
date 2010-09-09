@@ -32,7 +32,6 @@ use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
 use Net::SSH::Perl;
-use XML::LibXML;
 
 use File::Spec::Functions qw(catfile catdir rootdir);
 
@@ -45,10 +44,10 @@ END {
 
 # create first domain and start it
 
-my $disk_name ="f12nwtest";
+my $dom_name ="tckf12nwtest";
 
 my $dom1;
-$dom1 = prepare_test_disk_and_vm($tck, $conn, "${disk_name}");
+$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $dom1->create();
 ok($dom1->get_id() > 0, "running domain has an ID > 0");
 my $xml = $dom1->get_xml_description;

@@ -106,7 +106,10 @@ my $b = $class->new(
 	  MailingList => "http://www.redhat.com/mailman/listinfo/libvir-list",
 	},
     },
-    conf_files => { 'conf/default.cfg' => 'conf/default.cfg' },
+    conf_files => {
+	'conf/default.cfg' => 'conf/default.cfg',
+	'conf/ks.cfg' => 'conf/ks.cfg',
+    },
     PL_files => [ 'perl-Sys-Virt-TCK.spec.PL' ],
     );
 $b->add_build_element("conf");

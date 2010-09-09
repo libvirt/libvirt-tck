@@ -1,16 +1,10 @@
-use XML::LibXML;
-use utf8;
+use Sys::Virt::TCK qw(xpath);
 use strict;
 
 
 sub get_first_macaddress {
     my $dom = shift;
-    my $result = xpath($dom, "/domain/devices/interface/mac/\@address");
-    my @macaddrs = map { $_->getNodeValue} $result->get_nodelist;
-# we want the first mac
-    my $mac = $macaddrs[0];
-    utf8::decode($mac);
-    return $mac;
+    return xpath($dom, "string(/domain/devices/interface[1]/mac/\@address)");
 }
 
 sub get_ip_from_leases{

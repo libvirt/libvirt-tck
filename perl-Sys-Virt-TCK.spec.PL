@@ -110,6 +110,7 @@ rm -rf $RPM_BUILD_ROOT
 #%doc INSTALL
 %dir %{_sysconfdir}/libvirt-tck
 %config(noreplace) %{_sysconfdir}/libvirt-tck/default.cfg
+%config(noreplace) %{_sysconfdir}/libvirt-tck/ks.cfg
 %{_bindir}/libvirt-tck
 %dir %{_datadir}/libvirt-tck
 %{_datadir}/libvirt-tck/*

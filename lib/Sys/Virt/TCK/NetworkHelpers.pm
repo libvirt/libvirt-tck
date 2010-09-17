@@ -1,10 +1,12 @@
 use Sys::Virt::TCK qw(xpath);
 use strict;
-
+use utf8;
 
 sub get_first_macaddress {
     my $dom = shift;
-    return xpath($dom, "string(/domain/devices/interface[1]/mac/\@address)");
+    my $mac = xpath($dom, "string(/domain/devices/interface[1]/mac/\@address)");
+    utf8::encode($mac);
+    return $mac;
 }
 
 sub get_ip_from_leases{

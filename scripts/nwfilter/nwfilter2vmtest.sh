@@ -23,6 +23,7 @@ FLAG_ATTACH="$((1<<1))"
 FLAG_VERBOSE="$((1<<2))"
 FLAG_LIBVIRT_TEST="$((1<<3))"
 FLAG_TAP_TEST="$((1<<4))"
+FLAG_FORCE_CLEAN="$((1<<5))"
 
 failctr=0
 passctr=0
@@ -47,6 +48,8 @@ Options:
  --verbose      : Verbose output
  --libvirt-test : Use the libvirt test output format
  --tap-test     : TAP format output
+ --force        : Allow the automatic cleaning of VMs and nwfilters
+                  previously created by the TCK test suite
 
 This test will create two virtual machines. The one virtual machine
 will use a filter called '${TESTFILTERNAME}', and reference the filter
@@ -498,11 +501,12 @@ function main() {
   while [ $# -ne 0 ]; do
     case "$1" in
     --help|-h|-\?) usage ${prgname}; exit 0;;
-    --noattach)     ((flags ^= FLAG_ATTACH  ));;
+    --noattach)     ((flags &= ~FLAG_ATTACH ));;
     --wait)         ((flags |= FLAG_WAIT    ));;
     --verbose)      ((flags |= FLAG_VERBOSE ));;
     --libvirt-test) ((flags |= FLAG_LIBVIRT_TEST ));;
     --tap-test)     ((flags |= FLAG_TAP_TEST ));;
+    --force)        ((flags |= FLAG_FORCE_CLEAN ));;
     *) usage ${prgname}; exit 1;;
     esac
     shift 1
@@ -523,12 +527,14 @@ function main() {
         exit 0
     fi
 
-    for name in `virsh nwfilter-list | awk '{print $2}'`
+    for name in `virsh list | awk '{print $2}'`
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" ]; then
-          res=$(virsh nwfilter-undefine ${name} 2>&1)
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
+             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+          res=$(virsh destroy  ${name} 2>&1)
+          res=$(virsh undefine ${name} 2>&1)
           if [ $? -ne 0 ]; then
             echo "Bail out! Could not undefine nwfiler ${name}: ${res}"
             exit 0
@@ -544,8 +550,9 @@ function main() {
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" ]; then
-          res=$(virsh undefine ${name} 2>&1)
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
+             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+          res=$(virsh nwfilter-undefine ${name} 2>&1)
           if [ $? -ne 0 ]; then
             echo "Bail out! Could not undefine domain ${name}: ${res}"
             exit 1

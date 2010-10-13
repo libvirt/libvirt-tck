@@ -410,8 +410,25 @@ sub as_xml {
 
 	$w->emptyTag("mac",
 		     address =>  $interface->{mac});
-	$w->emptyTag("source",
-		     network => $interface->{source});
+
+	if( $interface->{dev}) {
+	    $w->emptyTag("source",
+			 dev => $interface->{dev},
+			 mode => $interface->{mode});
+	} else {
+	    $w->emptyTag("source",
+			 network => $interface->{source});
+	}
+	if( $interface->{virtualport}) {
+	    $w->startTag("virtualport",
+			 type => $interface->{virtualport});
+	    $w->emptyTag("parameters",
+			 managerid => '1',
+			 typeid => '2',
+			 typeidversion => '3',
+			 instanceid => '40000000-0000-0000-0000-000000000000');
+	    $w->endTag("virtualport");
+	}
 	$w->emptyTag("model",
 		     type => $interface->{model});
 	if( $interface->{filterref}) {

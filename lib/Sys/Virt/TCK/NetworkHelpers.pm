@@ -42,6 +42,7 @@ sub build_cdrom_ks_image {
 sub build_domain{
     my $tck = shift;
     my $domain_name = shift;
+    my $mode = @_ ? shift : "bridge";
 
     my $guest;
     my $mac = "52:54:00:11:11:11";
@@ -50,10 +51,19 @@ sub build_domain{
     my $filterref = "clean-traffic";
     my $network = "network";
     my $source = "default";
+    my $dev = "eth2";
+    my $virtualport;
 
     my ($cdrom, $ksurl) = build_cdrom_ks_image($tck);
 
     my $guest = $tck->generic_domain($domain_name);
+
+    # change the type of network connection for 802.1Qbg tests
+    if ($mode eq  "vepa") {
+	$network ="direct";
+	$virtualport = "802.1Qbg";
+   }
+
     # We want a bigger disk than normal
     $guest->rmdisk();
     my $diskpath = $tck->create_sparse_disk("nwfilter", "main.img", 2048);
@@ -79,12 +89,23 @@ sub build_domain{
     } else {
 	diag "Do normal boot";
 	$guest->clear_kernel_initrd_cmdline();
-	$guest->interface(type => $network,
-			  source => $source,
-			  model => $model,
-			  mac => $mac,
-			  filterref => $filterref);
+	if ($mode eq "vepa") {
+	    $guest->interface(type => $network,
+			      source => $source,
+			      model => $model,
+			      mac => $mac,
+			      dev => $dev,
+			      mode => $mode,
+			      virtualport => $virtualport);
+	} else {
+	    $guest->interface(type => $network,
+			      source => $source,
+			      model => $model,
+			      mac => $mac,
+			      filterref => $filterref);
+	}
     }
+
     # common configuration
     $guest->maxmem("524288");
     $guest->memory("524288");
@@ -111,8 +132,9 @@ sub  prepare_test_disk_and_vm{
     my $tck = shift;
     my $conn = shift;
     my $domain_name = shift;
+    my $mode = @_ ? shift : "bridge";
 
-    my ($guest, $need_install) = build_domain($tck, $domain_name);
+    my ($guest, $need_install) = build_domain($tck, $domain_name, $mode);
     if ($need_install) {
 	my $dom = $conn->define_domain($guest->as_xml);
 	diag "Starting installation domain";
@@ -129,7 +151,7 @@ sub  prepare_test_disk_and_vm{
 	diag " .. done";
     }
 
-    ($guest, $need_install) = build_domain($tck, $domain_name);
+    ($guest, $need_install) = build_domain($tck, $domain_name, $mode);
     if ($need_install) {
 	die "guest install appears to have failed";
     }

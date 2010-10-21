@@ -1,0 +1,22 @@
+#iptables -L FI-vnet0 -n
+Chain FI-vnet0 (1 references)
+target     prot opt source               destination         
+RETURN     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 state ESTABLISHED 
+RETURN     icmp --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED 
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+#iptables -L FO-vnet0 -n
+Chain FO-vnet0 (1 references)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:22 state NEW,ESTABLISHED 
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED 
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+#iptables -L HI-vnet0 -n
+Chain HI-vnet0 (1 references)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+

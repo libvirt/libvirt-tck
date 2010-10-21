@@ -1,0 +1,20 @@
+#iptables -L FI-vnet0 -n
+Chain FI-vnet0 (1 references)
+target     prot opt source               destination         
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           /* out: existing and related (ftp) connections */ state RELATED,ESTABLISHED 
+RETURN     udp  --  0.0.0.0/0            0.0.0.0/0           /* out: DNS lookups */ udp dpt:53 state NEW 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+#iptables -L FO-vnet0 -n
+Chain FO-vnet0 (1 references)
+target     prot opt source               destination         
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           /* in: existing connections */ state ESTABLISHED 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           /* in: ftp and ssh */ tcp dpts:21:22 state NEW 
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           /* in: icmp */ state NEW 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+#iptables -L HI-vnet0 -n
+Chain HI-vnet0 (1 references)
+target     prot opt source               destination         
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           /* out: existing and related (ftp) connections */ state RELATED,ESTABLISHED 
+RETURN     udp  --  0.0.0.0/0            0.0.0.0/0           /* out: DNS lookups */ udp dpt:53 state NEW 
+DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+

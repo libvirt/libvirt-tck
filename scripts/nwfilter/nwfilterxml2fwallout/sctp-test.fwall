@@ -1,21 +1,21 @@
 #iptables -L FI-vnet0 -n
 Chain FI-vnet0 (1 references)
 target     prot opt source               destination         
-RETURN     sctp --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02state NEW,ESTABLISHED 
-RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x21sctp spts:100:1111 dpts:20:21 state ESTABLISHED 
-RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x3fsctp spt:65535 dpts:255:256 state ESTABLISHED 
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02state NEW,ESTABLISHED ctdir REPLY
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x21sctp spts:100:1111 dpts:20:21 state ESTABLISHED ctdir ORIGINAL
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x3fsctp spt:65535 dpts:255:256 state ESTABLISHED ctdir ORIGINAL
 #iptables -L FO-vnet0 -n
 Chain FO-vnet0 (1 references)
 target     prot opt source               destination         
-ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           DSCP match 0x02state ESTABLISHED 
-ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x21sctp spts:20:21 dpts:100:1111 state NEW,ESTABLISHED 
-ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x3fsctp spts:255:256 dpt:65535 state NEW,ESTABLISHED 
+ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           DSCP match 0x02state ESTABLISHED ctdir ORIGINAL
+ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x21sctp spts:20:21 dpts:100:1111 state NEW,ESTABLISHED ctdir REPLY
+ACCEPT     sctp --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x3fsctp spts:255:256 dpt:65535 state NEW,ESTABLISHED ctdir REPLY
 #iptables -L HI-vnet0 -n
 Chain HI-vnet0 (1 references)
 target     prot opt source               destination         
-ACCEPT     sctp --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02
-ACCEPT     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x21sctp spts:100:1111 dpts:20:21 
-ACCEPT     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x3fsctp spt:65535 dpts:255:256 
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02state NEW,ESTABLISHED ctdir REPLY
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x21sctp spts:100:1111 dpts:20:21 state ESTABLISHED ctdir ORIGINAL
+RETURN     sctp --  0.0.0.0/0            10.1.2.3            DSCP match 0x3fsctp spt:65535 dpts:255:256 state ESTABLISHED ctdir ORIGINAL
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "

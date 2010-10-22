@@ -3,17 +3,17 @@ Chain FI-vnet0 (1 references)
 target     prot opt source               destination         
 DROP       icmp --  0.0.0.0/0            0.0.0.0/0           #conn/32 > 1 
 DROP       tcp  --  0.0.0.0/0            0.0.0.0/0           #conn/32 > 2 
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED 
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED ctdir REPLY
 #iptables -L FO-vnet0 -n
 Chain FO-vnet0 (1 references)
 target     prot opt source               destination         
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED 
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED ctdir ORIGINAL
 #iptables -L HI-vnet0 -n
 Chain HI-vnet0 (1 references)
 target     prot opt source               destination         
 DROP       icmp --  0.0.0.0/0            0.0.0.0/0           #conn/32 > 1 
 DROP       tcp  --  0.0.0.0/0            0.0.0.0/0           #conn/32 > 2 
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED ctdir REPLY
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "

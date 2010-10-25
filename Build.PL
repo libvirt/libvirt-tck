@@ -89,6 +89,7 @@ my $b = $class->new(
 	'XML::Twig' => 0,
 	'XML::Writer' => 0,
 	'XML::XPath' => 0,
+	'Slurp' => 0,
     },
     build_requires => {
 	'Test::Pod' => '0',

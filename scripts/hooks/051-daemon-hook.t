@@ -50,24 +50,24 @@ SKIP: {
                                           conf_dir => '/etc/libvirt/hooks',
                                           log_name => '/tmp/daemon.log');
 
-    $hook->libvirtd_status;
+    $hook->libvirtd_status();
     BAIL_OUT "libvirtd is not running, Exit..."
         if ($hook->{libvirtd_status} eq 'stopped');
 
-    eval { $hook->prepare; };
+    eval { $hook->prepare(); };
     BAIL_OUT "failed to setup hooks testing ENV: $@" if $@;
 
-    diag "restart libvirtd for hooks scripts taking effect";
-    $hook->action('restart');
-    $hook->service_libvirtd;
+    diag "reload libvirtd for hooks scripts taking effect";
+    $hook->action('reload');
+    $hook->service_libvirtd();
     unlink $hook->{log_name} unless -f $hook->{log_name};
 
     # stop libvirtd
     $hook->action('stop');
-    $hook->expect_log;
+    $hook->expect_log();
 
     diag "$hook->{action} libvirtd";
-    $hook->service_libvirtd;
+    $hook->service_libvirtd();
 
     my $hook_data = slurp($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
@@ -82,17 +82,17 @@ SKIP: {
     diag "expected log:\n$hook->{expect_log}";
 
     diag "check if the actual log is same with expected log";
-    ok($hook->compare_log, "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
+    ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is stopped";
     ok(`service libvirtd status` =~ /stopped/, "libvirtd is stopped");
 
     # start libvirtd
     $hook->action('start');
-    $hook->expect_log;
+    $hook->expect_log();
 
     diag "$hook->{action} libvirtd";
-    $hook->service_libvirtd;
+    $hook->service_libvirtd();
 
     $hook_data = slurp($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
@@ -107,17 +107,17 @@ SKIP: {
     diag "expected log: \n$hook->{expect_log}";
 
     diag "check if the actual log is same with expected log";
-    ok($hook->compare_log, "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
+    ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
     ok(`service libvirtd status` =~ /running/, "libvirtd is running");
 
     # restart libvirtd
     $hook->action('restart');
-    $hook->expect_log;
+    $hook->expect_log();
 
     diag "$hook->{action} libvirtd";
-    $hook->service_libvirtd;
+    $hook->service_libvirtd();
 
     $hook_data = slurp($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
@@ -132,17 +132,17 @@ SKIP: {
     diag "expected log: \n$hook->{expect_log}";
 
     diag "check if the actual log is same with expected log";
-    ok($hook->compare_log, "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
+    ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
     ok(`service libvirtd status` =~ /running/, "libvirtd is running");
 
     # reload libvirtd
     $hook->action('reload');
-    $hook->expect_log;
+    $hook->expect_log();
 
     diag "$hook->{action} libvirtd";
-    $hook->service_libvirtd;
+    $hook->service_libvirtd();
 
     $hook_data = slurp($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
@@ -157,11 +157,11 @@ SKIP: {
     diag "expected log: \n$hook->{expect_log}";
 
     diag "check if the actual log is same with expected log";
-    ok($hook->compare_log, "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
+    ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
     ok(`service libvirtd status` =~ /running/, "libvirtd is running");
 
-    $hook->cleanup;
+    $hook->cleanup();
 };
 

@@ -35,7 +35,7 @@ sub new {
         conf_dir => $params{conf_dir} ? $params{conf_dir} : $HOOKS_CONF_DIR,
         name => $params{conf_dir}.'/'.$params{type},
         expect_result => $params{expect_result} ? $params{expect_result} : 0,
-        log_name => $params{log_name} ? $params{log_name} : "/tmp/$self->{type}.log",
+        log_name => $params{log_name} ? $params{log_name} : "/tmp/$params{type}.log",
         libvirtd_status => undef,
         domain_name => undef,
         domain_state => undef,
@@ -144,13 +144,13 @@ sub expect_log {
             }
         }
     } elsif ($self->{type} eq 'qemu' or $self->{type} eq 'lxc') {
-        if ($domain_state eq 'running') {
-            if ($action eq 'stop') {
+        if ($domain_state eq &Sys::Virt::Domain::STATE_RUNNING) {
+            if ($action eq 'destroy') {
                $expect_log = "$hook $domain_name stopped end -";
             } else {
                 die "hooks testing doesn't support $action running domain";
             }
-        } elsif ($domain_state eq 'shut off') {
+        } elsif ($domain_state eq &Sys::Virt::Domain::STATE_SHUTOFF) {
             if ($action eq 'start') {
                $expect_log = "$hook $domain_name start begin -";
             } else {

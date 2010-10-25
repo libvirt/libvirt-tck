@@ -38,7 +38,7 @@ of checks that will be run in the test case. This enables the
 test harness to determine if a test case crashed / exited earlier
 than expected without running all checks. Each line starts with
 a word 'ok' or 'not ok' to indicate state of the check, followed
-by the check number (assigned incremnetally), and a description
+by the check number (assigned incrementally), and a description
 of the check performed. Diagnostic comments can be output using
 a leading '#' to assist in debugging / interpreting the results.
 
@@ -148,7 +148,7 @@ Going line by line, this first imports the 'Sys::Virt::TCK' package
 and its functions. Then it creates an instance of the 'Sys::Virt::TCK'
 object. Then it runs the 'setup' method to obtain a libvirt
 connection, catching any error that may be thrown. The fourth line
-willl abort the entire test if an error occurred during setup. The
+will abort the entire test if an error occurred during setup. The
 final line registers a 'END' block which will perform cleanup when
 Perl exits.
 
@@ -190,7 +190,7 @@ domain.
          "created a running domain", "test");
 
 This creates a new running guest from '$xml', and checks that it
-succeeeded and returns a domain object with an expected name of
+succeeded and returns a domain object with an expected name of
 'test'. If an exception was thrown during guest creation this
 will be reported as an error. If the guest has the incorrect name,
 that will also be reported as an error.
@@ -428,6 +428,6 @@ If something went wrong, it might look like
    # Looks like you failed 1 test of 2 run.
    # Looks like your test died just after 2.
 
-Notice that since the tst script declared upfront that it intended
+Notice that since the test script declared upfront that it intended
 to run 5 checks, Perl was able to detect that it aborted earlier
 than expected.

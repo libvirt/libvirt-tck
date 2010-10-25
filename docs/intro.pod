@@ -16,7 +16,7 @@
 =head1 libvirt TCK: Technology Compatability Kit
 
 The libvirt TCK provides a framework for performing testing
-of the integration bqetween libvirt drivers, the underlying virt
+of the integration between libvirt drivers, the underlying virt
 hypervisor technology, related operating system services and system
 configuration. The idea (and name) is motivated by the Java TCK
 
@@ -51,7 +51,7 @@ to determine the level of compatability of their platform, and
 evaluate whether it will meet their needs, and get awareness of any
 regressions that may have occurred since a previous test run
 
-In relation to other libvirt testing, the split of responsibiity
+In relation to other libvirt testing, the split of responsibility
 will be
 
 =over 4
@@ -131,7 +131,7 @@ These are all currently available within Fedora 11, and later
 
 These modules are all well tested, actively maintained parts of
 Perl / CPAN, so easily available for every other operating system
-in existance.
+in existence.
 
 =head2 Overview of framework structure
 
@@ -238,7 +238,7 @@ update the 'ID' field in the virDomainPtr
 
 =item *
 
-After destroying a active domain, the remote driver did not
+After destroying an active domain, the remote driver did not
 update the 'ID' field in the virDomainPtr
 
 =item *
@@ -340,7 +340,7 @@ vs a virtual root filesystem for containers
 
 =item More helper XML helper modules
 
-Add helpers for building network, storage and inteface XML
+Add helpers for building network, storage and interface XML
 configs
 
 =item Broader host configuration

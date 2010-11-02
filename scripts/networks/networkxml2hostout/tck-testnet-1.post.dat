@@ -1,0 +1,7 @@
+#iptables -t nat -L -n | grep ' 10\\.1\\.2\\.'
+#iptables -n -L FORWARD | grep ' 10\\.1\\.2\\.'
+#ps aux | sed -n '/dnsmasq .*10\\.1\\.2\\./ s|.*\\(dnsmasq[[:print:]*]\\)|\\1|p'
+#route -n | grep '10\\.1\\.2\\.'
+#brctl show | grep tck-testbr
+#ifconfig tck-testbr 2>/dev/null| grep ':10\\.1\\.2\\.' 
+#virsh net-list | grep tck-testnet

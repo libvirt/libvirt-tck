@@ -1,0 +1,12 @@
+<network>
+  <name>tck-testnet</name>
+  <uuid>aadc8920-502a-4774-ac2b-cd382a204d06</uuid>
+  <forward mode='route'/>
+  <bridge name='tck-testbr' stp='on' delay='0' />
+  <ip address='10.1.2.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='10.1.2.2' end='10.1.2.254' />
+    </dhcp>
+  </ip>
+</network>
+

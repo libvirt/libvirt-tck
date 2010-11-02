@@ -29,7 +29,7 @@ sub process_pkgdata_files {
         my $name = $File::Find::name;
 	if (-d) {
 	    $tck_dirs{$name} = [];
-	} elsif (-f && (/\.t$/ || /\.sh$/ || /\.fwall$/ || /\.xml$/)) {
+	} elsif (-f && /\.(t|sh|fwall|xml|dat)$/) {
 	    push @{$tck_dirs{$dir}}, $name;
 	}
     };

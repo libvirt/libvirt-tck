@@ -1,17 +1,17 @@
-#iptables -t nat -L -n | grep ' 10\\.1\\.2\\.'
+#iptables -t nat -L -n | grep ' 10\.1\.2\.'
 MASQUERADE  tcp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  udp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24         
-#iptables -n -L FORWARD | grep ' 10\\.1\\.2\\.'
+#iptables -n -L FORWARD | grep ' 10\.1\.2\.'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
 ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
-#ps aux | sed -n '/dnsmasq .*10\\.1\\.2\\./ s|.*\\(dnsmasq[[:print:]*]\\)|\\1|p'
+#ps aux | sed -n '/dnsmasq .*10\.1\.2\./ s|.*\(dnsmasq[[:print:]*]\)|\1|p'
 dnsmasq --strict-order --bind-interfaces --pid-file=/var/run/libvirt/network/tck-testnet.pid --conf-file=  --listen-address 10.1.2.1 --except-interface lo --dhcp-range 10.1.2.2,10.1.2.254 --dhcp-lease-max=253 --dhcp-no-override
-#route -n | grep '10\\.1\\.2\\.'
+#route -n | grep '10\.1\.2\.'
 10.1.2.0        0.0.0.0         255.255.255.0   U     0      0        0 tck-testbr
 #brctl show | grep tck-testbr
 tck-testbr		8000.000000000000	yes		
-#ifconfig tck-testbr | grep ':10\\.1\\.2\\.'
+#ifconfig tck-testbr | grep ':10\.1\.2\.'
           inet addr:10.1.2.1  Bcast:10.1.2.255  Mask:255.255.255.0
 #virsh net-list | grep tck-testnet
 tck-testnet          active     no        

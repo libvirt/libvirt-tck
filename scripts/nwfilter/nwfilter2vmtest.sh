@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ORIG_IFNAME="vnet0"
 ATTACH_IFNAME="attach0"
@@ -6,17 +6,20 @@ TESTFILTERNAME="nwfiltertestfilter"
 TESTVM2FWALLDATA="nwfilterxml2fwallout/testvm.fwall.dat"
 VIRSH=virsh
 
-uri=
-if [ "x${LIBVIRT_TCK_CONFIG}x" != "xx" ]; then
-     uri_exp=`cat ${LIBVIRT_TCK_CONFIG} | grep "^uri\s*=" | sed -e 's/uri\s*=\s*//' | tail -n 1`
-     if [ "x${uri_exp}x" != "xx" ]; then
-         eval "uri=${uri_exp}"
-     fi
-else
-      uri="qemu:///system"
-fi
-LIBVIRT_URI=${uri}
+# For each line starting with uri=, remove the prefix and set the hold
+# space to the rest of the line.  Then at file end, print the hold
+# space, which is effectively the last uri= line encountered.
+uri=$(sed -n '/^uri[     ]*=[     ]*/ {
+  s///
+  h
+}
+$ {
+  x
+  p
+}' < "$LIBVIRT_TCK_CONFIG")
+: "${uri:=qemu:///system}"
 
+LIBVIRT_URI=${uri}
 
 FLAG_WAIT="$((1<<0))"
 FLAG_ATTACH="$((1<<1))"
@@ -34,8 +37,8 @@ TAP_FAIL_LIST=""
 TAP_FAIL_CTR=0
 TAP_TOT_CTR=0
 
-function usage() {
-  local cmd="$0"
+usage() {
+  cmd="$0"
 cat <<EOF
 Usage: ${cmd} [--help|-h|-?] [--noattach] [--wait] [--verbose]
               [--libvirt-test] [--tap-test]
@@ -60,73 +63,69 @@ EOF
 }
 
 
-function tap_fail() {
-  echo "not ok $1 - ${2:0:66}"
-  TAP_FAIL_LIST+="$1 "
-  ((TAP_FAIL_CTR++))
-  ((TAP_TOT_CTR++))
+tap_fail() {
+  txt=$(echo "$2" | gawk '{print substr($0,1,66)}')
+  echo "not ok $1 - ${txt}"
+  TAP_FAIL_LIST="$TAP_FAIL_LIST $1 "
+  TAP_FAIL_CTR=$(($TAP_FAIL_CTR + 1))
+  TAP_TOT_CTR=$(($TAP_TOT_CTR + 1))
 }
 
-function tap_pass() {
-  echo "ok $1 - ${2:0:70}"
-  ((TAP_TOT_CTR++))
+tap_pass() {
+  txt=$(echo "$2" | gawk '{print substr($0,1,70)}')
+  echo "ok $1 - ${txt}"
+  TAP_TOT_CTR=$(($TAP_TOT_CTR + 1))
 }
 
-function tap_final() {
-  local okay
-
+tap_final() {
   [ -n "${TAP_FAIL_LIST}" ] && echo "FAILED tests ${TAP_FAIL_LIST}"
 
   okay=`echo "($TAP_TOT_CTR-$TAP_FAIL_CTR)*100/$TAP_TOT_CTR" | bc -l`
-  echo "Failed ${TAP_FAIL_CTR}/${TAP_TOT_CTR} tests, ${okay:0:5}% okay"
+  txt=$(echo $okay | gawk '{print substr($0,1,5)}')
+  echo "Failed ${TAP_FAIL_CTR}/${TAP_TOT_CTR} tests, ${txt}% okay"
 }
 
 # A wrapper for mktemp in case it does not exist
 # Echos the name of a temporary file.
-function mktmpfile() {
-  local tmp
-  type -P mktemp > /dev/null
-  if [ $? -eq 0 ]; then
-    tmp=$(mktemp -t nwfvmtest.XXXXXX)
-    echo ${tmp}
-  else
-    while :; do
-      tmp="/tmp/nwfvmtest.${RANDOM}"
-      if [ ! -f ${tmp} ]; then
-          touch ${tmp}
-          chmod 666 ${tmp}
-          echo ${tmp}
-          break
-      fi
-    done
-  fi
+mktmpdir() {
+  {
+    tmp=$( (umask 077 && mktemp -d ./nwfvmtest.XXXXXX) 2>/dev/null) &&
+    test -n "$tmp" && test -d "$tmp"
+  } ||
+  {
+    tmp=./nwfvmtest$$-$RANDOM
+    (umask 077 && mkdir "$tmp")
+  } || { echo "failed to create secure temporary directory" >&2; exit 1; }
+  echo "${tmp}"
   return 0
 }
 
 
-function checkExpectedOutput() {
-  local xmlfile="$1"
-  local fwallfile="$2"
-  local ifname="$3"
-  local flags="$4"
-  local skipregex="$5"
-  local regex="s/${ORIG_IFNAME}/${ifname}/g"
-  local cmd line tmpfile tmpfile2 skip
+checkExpectedOutput() {
+  xmlfile="$1"
+  fwallfile="$2"
+  ifname="$3"
+  flags="$4"
+  skipregex="$5"
+  regex="s/${ORIG_IFNAME}/${ifname}/g"
 
-  tmpfile=`mktmpfile`
-  tmpfile2=`mktmpfile`
+  tmpdir=$(mktmpdir)
+  tmpfile=$tmpdir/file
+  tmpfile2=$tmpdir/file2
+  OIFS="${IFS}"
 
   exec 4<${fwallfile}
 
-  read <&4
-  line="${REPLY}"
+  IFS=""
+
+  read -r line <&4
 
   while [ "x${line}x" != "xx" ]; do
-    cmd=`echo ${line##\#} | sed ${regex}`
+    cmd=$(printf %s\\n ${line##\#} | sed ${regex})
 
     skip=0
     if [ "x${skipregex}x" != "xx" ]; then
-    	skip=`echo ${cmd} | grep -c -E ${skipregex}`
+    	skip=$(printf %s\\n ${cmd} | grep -c -E ${skipregex})
     fi
 
     eval ${cmd} 2>&1 | tee ${tmpfile} 1>/dev/null
@@ -135,10 +134,14 @@ function checkExpectedOutput() {
     touch ${tmpfile2}
 
     while [ 1 ]; do
-      read <&4
-      line="${REPLY}"
+      read -r line <&4
 
-      if [ "${line:0:1}" == "#" ] || [ "x${line}x" == "xx"  ]; then
+      case "${line}" in
+      '#'*)  letter="#";;
+      *)     letter="";;
+      esac
+
+      if [ "x${letter}x" = "x#x" ] || [ "x${line}x" = "xx"  ]; then
 
 	if [ ${skip} -ne 0 ]; then
 	  break
@@ -147,52 +150,53 @@ function checkExpectedOutput() {
         diff ${tmpfile} ${tmpfile2} >/dev/null
 
         if [ $? -ne 0 ]; then
-          if [ $((flags & FLAG_VERBOSE)) -ne 0 ]; then
+          if [ $(($flags & $FLAG_VERBOSE)) -ne 0 ]; then
             echo "FAIL ${xmlfile} : ${cmd}"
             diff ${tmpfile} ${tmpfile2}
           fi
-          ((failctr++))
-          if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+          failctr=$(($failctr + 1))
+          if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
                 echo "tmp files: $tmpfile, $tmpfile2"
           	echo "Press enter"
-          	read
+          	read enter
           fi
-          [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ] && \
-              test_result $((passctr+failctr)) "" 1
-          [ $((flags & FLAG_TAP_TEST)) -ne 0 ] && \
-             tap_fail $((passctr+failctr)) "${xmlfile} : ${cmd}"
+          [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
+              test_result $(($passctr + $failctr)) "" 1
+          [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
+             tap_fail $(($passctr + $failctr)) "${xmlfile} : ${cmd}"
         else
-          ((passctr++))
-          [ $((flags & FLAG_VERBOSE)) -ne 0 ] && \
+          passctr=$(($passctr + 1))
+          [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && \
               echo "PASS ${xmlfile} : ${cmd}"
-          [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ] && \
-              test_result $((passctr+failctr)) "" 0
-          [ $((flags & FLAG_TAP_TEST)) -ne 0 ] && \
-              tap_pass $((passctr+failctr)) "${xmlfile} : ${cmd}"
+          [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
+              test_result $(($passctr + $failctr)) "" 0
+          [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
+              tap_pass $(($passctr + $failctr)) "${xmlfile} : ${cmd}"
         fi
 
         break
 
       fi
-      echo "${line}" | sed ${regex} >> ${tmpfile2}
+      printf %s\\n "${line}" | sed ${regex} >> ${tmpfile2}
     done
   done
 
   exec 4>&-
 
-  rm -rf "${tmpfile}" "${tmpfile2}" 2>/dev/null
+  rm -rf "${tmpdir}"
+
+  IFS="${OIFS}"
 }
 
 
-function doTest() {
-  local xmlfile="$1"
-  local fwallfile="$2"
-  local vm1name="$3"
-  local vm2name="$4"
-  local flags="$5"
-  local testnum="$6"
-  local linenums ctr=0
-  local tmpfile b msg rc
+doTest() {
+  xmlfile="$1"
+  fwallfile="$2"
+  vm1name="$3"
+  vm2name="$4"
+  flags="$5"
+  testnum="$6"
+  ctr=0
 
   if [ ! -r "${xmlfile}" ]; then
     echo "FAIL : Cannot access filter XML file ${xmlfile}."
@@ -207,9 +211,10 @@ function doTest() {
   checkExpectedOutput "${TESTFILTERNAME}" "${TESTVM2FWALLDATA}" \
   	"${vm2name}" "${flags}" ""
 
-  if [ $((flags & FLAG_ATTACH)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_ATTACH)) -ne 0 ]; then
 
-    tmpfile=`mktmpfile`
+    tmpdir=$(mktmpdir)
+    tmpfile=$tmpdir/tmpfile
 
     b=`{ ${VIRSH} dumpxml ${vm1name} | tr -d "\n"; echo; } | \
        sed "s/.*\<interface.*source bridge='\([a-zA-Z0-9_]\+\)'.*<\/interface>.*/\1/"`
@@ -225,7 +230,7 @@ EOF
     msg=`${VIRSH} attach-device "${vm1name}" "${tmpfile}" > /dev/null`
     rc=$?
 
-    ((attachctr++))
+    attachctr=$(($attachctr + 1))
 
     if [ $rc -eq 0 ]; then
       checkExpectedOutput "${xmlfile}" "${fwallfile}" "${ATTACH_IFNAME}" \
@@ -237,7 +242,7 @@ EOF
         echo "FAIL: Detach of interface failed."
       fi
     else
-      if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+      if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
         # In case of TAP, run the test anyway so we get to the full number
         # of tests
         checkExpectedOutput "${xmlfile}" "${fwallfile}" "${ATTACH_IFNAME}" \
@@ -245,48 +250,45 @@ EOF
         checkExpectedOutput "${TESTFILTERNAME}" "${TESTVM2FWALLDATA}" \
           "${vm2name}" "${flags}" #"(PRE|POST)ROUTING"
       fi
-       
-      ((attachfailctr++))
-      if [ $((flags & FLAG_VERBOSE)) -ne 0 ]; then
+
+      attachfailctr=$(($attachfailctr + 1))
+      if [ $(($flags & $FLAG_VERBOSE)) -ne 0 ]; then
         echo "FAIL: Could not attach interface to vm ${vm1name}."
-        if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+        if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
           echo "Press enter"
-          read
+          read enter
         fi
       fi
     fi
 
-    rm -rf ${tmpfile}
+    rm -rf ${tmpdir}
   fi
 
   return 0
 }
 
 
-function runTests() {
-  local vm1name="$1"
-  local vm2name="$2"
-  local xmldir="$3"
-  local fwalldir="$4"
-  local flags="$5"
-  local fwallfiles f c
-  local tap_total=0 ctr=0
+runTests() {
+  vm1name="$1"
+  vm2name="$2"
+  xmldir="$3"
+  fwalldir="$4"
+  flags="$5"
+  tap_total=0
+  ctr=0
 
-  pushd ${PWD} > /dev/null
-  cd ${fwalldir}
-  fwallfiles=`ls *.fwall`
-  popd > /dev/null
+  fwallfiles=$(cd ${fwalldir}; ls *.fwall)
 
-  if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     # Need to count the number of total tests
     for fil in ${fwallfiles}; do
       c=$(grep -c "^#" ${fwalldir}/${fil})
-      ((tap_total+=c))
-      ((ctr++))
+      tap_total=$(($tap_total + $c))
+      ctr=$(($ctr + 1))
     done
     c=$(grep -c "^#" "${TESTVM2FWALLDATA}")
-    ((tap_total+=c*ctr))
-    [ $((flags & FLAG_ATTACH)) -ne 0 ] && ((tap_total*=2))
+    tap_total=$(($tap_total + $c * $ctr))
+    [ $(($flags & $FLAG_ATTACH)) -ne 0 ] && tap_total=$(($tap_total * 2))
     echo "1..${tap_total}"
   fi
 
@@ -296,9 +298,9 @@ function runTests() {
            "${vm2name}" "${flags}"
   done
 
-  if [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ]; then
-    test_final $((passctr+failctr)) $failctr
-  elif [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ]; then
+    test_final $(($passctr + $failctr)) $failctr
+  elif [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     tap_final
   else
     echo ""
@@ -310,14 +312,14 @@ function runTests() {
 }
 
 
-function createVM() {
-  local vmname="$1"
-  local filtername="$2"
-  local ipaddr="$3"
-  local macaddr="$4"
-  local flags="$5"
-  local res
-  local tmpfile='mktmpfile'
+createVM() {
+  vmname="$1"
+  filtername="$2"
+  ipaddr="$3"
+  macaddr="$4"
+  flags="$5"
+  tmpdir=$(mktmpdir)
+  tmpfile=$tmpdir/tmpfile
 
   cat > ${tmpfile} << EOF
   <domain type='kvm'>
@@ -363,33 +365,32 @@ EOF
   res=$(${VIRSH} start ${vmname})
   if [ $? -ne 0 ]; then
     echo "Could not start VM ${vmname} : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
     $(${VIRSH} undefine ${vmname})
     return 1
   fi
 
-  [ $((flags & FLAG_VERBOSE)) -ne 0 ] && echo "Created VM ${vmname}."
+  [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && echo "Created VM ${vmname}."
 
-  rm -rf ${tmpfile}
+  rm -rf ${tmpdir}
 
   return 0
 }
 
 
-function destroyVM() {
-  local vmname="$1"
-  local flags="$2"
-  local res
+destroyVM() {
+  vmname="$1"
+  flags="$2"
 
   res=$(${VIRSH} destroy ${vmname})
   if [ $? -ne 0 ]; then
     echo "Could not destroy VM ${vmname} : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
     return 1
   fi
@@ -397,23 +398,23 @@ function destroyVM() {
   res=$(${VIRSH} undefine ${vmname})
   if [ $? -ne 0 ]; then
     echo "Could not undefine VM ${vmname} : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
     return 1
   fi
 
-  [ $((flags & FLAG_VERBOSE)) -ne 0 ] && echo "Destroyed VM ${vmname}."
+  [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && echo "Destroyed VM ${vmname}."
 
   return 0
 }
 
 
-function createTestFilters() {
-  local flags="$1"
-  local tmpfile=`mktmpfile`
-  local res
+createTestFilters() {
+  flags="$1"
+  tmpdir=$(mktmpdir)
+  tmpfile=$tmpdir/tmpfile
 
   cat >${tmpfile} << EOF
 <filter name="${TESTFILTERNAME}">
@@ -431,11 +432,11 @@ EOF
   res=$(${VIRSH} nwfilter-define ${tmpfile})
   if [ $? -ne 0 ]; then
     echo "Could not define filter : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
-    rm -rf ${tmpfile}
+    rm -rf ${tmpdir}
     return 1
   fi
 
@@ -446,39 +447,38 @@ EOF
   res=$(${VIRSH} nwfilter-define ${tmpfile})
   if [ $? -ne 0 ]; then
     echo "Could not define filter : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
-    rm -rf ${tmpfile}
+    rm -rf ${tmpdir}
     return 1
   fi
 
-  rm -rf ${tmpfile}
+  rm -rf ${tmpdir}
 
   return 0
 }
 
 
-function deleteTestFilter() {
-  local flags="$1"
-  local res
+deleteTestFilter() {
+  flags="$1"
 
   res=$(${VIRSH} nwfilter-undefine ${TESTFILTERNAME} 2>&1)
   if [ $? -ne 0 ]; then
     echo "Could not undefine filter : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
     return 1
   fi
   res=$(${VIRSH} nwfilter-undefine tck-testcase 2>&1)
   if [ $? -ne 0 ]; then
     echo "Could not undefine filter : ${res}"
-    if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
       echo "Press enter."
-      read
+      read enter
     fi
     return 1
   fi
@@ -486,34 +486,32 @@ function deleteTestFilter() {
 }
 
 
-function main() {
-  local prgname="$0"
-  local vm1 vm2
-  local xmldir="nwfilterxml2xmlin"
-  local fwalldir="nwfilterxml2fwallout"
-  local found=0 vms res
-  local filtername="tck-testcase"
-  local libvirtdpid=-1
-  local flags OPWD
+main() {
+  prgname="$0"
+  xmldir="nwfilterxml2xmlin"
+  fwalldir="nwfilterxml2fwallout"
+  found=0
+  filtername="tck-testcase"
+  libvirtdpid=-1
 
-  ((flags=${FLAG_ATTACH}))
+  flags=${FLAG_ATTACH}
 
   while [ $# -ne 0 ]; do
     case "$1" in
     --help|-h|-\?) usage ${prgname}; exit 0;;
-    --noattach)     ((flags &= ~FLAG_ATTACH ));;
-    --wait)         ((flags |= FLAG_WAIT    ));;
-    --verbose)      ((flags |= FLAG_VERBOSE ));;
-    --libvirt-test) ((flags |= FLAG_LIBVIRT_TEST ));;
-    --tap-test)     ((flags |= FLAG_TAP_TEST ));;
-    --force)        ((flags |= FLAG_FORCE_CLEAN ));;
+    --noattach)     flags=$(($flags & ~$FLAG_ATTACH));;
+    --wait)         flags=$(($flags | $FLAG_WAIT    ));;
+    --verbose)      flags=$(($flags | $FLAG_VERBOSE ));;
+    --libvirt-test) flags=$(($flags | $FLAG_LIBVIRT_TEST ));;
+    --tap-test)     flags=$(($flags | $FLAG_TAP_TEST ));;
+    --force)        flags=$(($flags | $FLAG_FORCE_CLEAN ));;
     *) usage ${prgname}; exit 1;;
     esac
     shift 1
   done
 
   if [ `uname` != "Linux" ]; then
-    if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
       echo "1..0 # Skipped: Only valid on Linux hosts"
     else
       echo "This script will only run on Linux."
@@ -521,21 +519,23 @@ function main() {
     exit 1;
   fi
 
-  if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     if [ "${LIBVIRT_URI}" != "qemu:///system" ]; then
         echo "1..0 # Skipped: Only valid for Qemu system driver"
         exit 0
     fi
 
-    for name in `virsh list | awk '{print $2}'`
+    for name in `virsh list --all | awk '{print $2}'`
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
-             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" = "x1" ] || \
+           [ $(($flags & $FLAG_FORCE_CLEAN)) -ne 0 ]; then
           res=$(virsh destroy  ${name} 2>&1)
+          rc1=$?
           res=$(virsh undefine ${name} 2>&1)
-          if [ $? -ne 0 ]; then
+          rc2=$?
+          if [ $rc1 -ne 0 ] && [ $rc2 -ne 0 ]; then
             echo "Bail out! Could not undefine nwfiler ${name}: ${res}"
             exit 0
           fi
@@ -550,35 +550,33 @@ function main() {
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
-             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" = "x1" ] || \
+           [ $(($flags & $FLAG_FORCE_CLEAN)) -ne 0 ]; then
           res=$(virsh nwfilter-undefine ${name} 2>&1)
           if [ $? -ne 0 ]; then
-            echo "Bail out! Could not undefine domain ${name}: ${res}"
+            echo "Bail out! Could not undefine filter ${name}: ${res}"
             exit 1
           fi
         else
-          echo "Bail out! Domain ${name} already exists, use --force to clean"
+          echo "Bail out! Filter ${name} already exists, use --force to clean"
           exit 1
         fi
       esac
     done
   fi
 
-  if [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ]; then
-    pushd ${PWD} > /dev/null
+  if [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ]; then
+    curdir="${PWD}"
     . test-lib.sh
     if [ $? -ne 0 ]; then
         exit 1
     fi
     test_intro $this_test
-    popd > /dev/null
+    cd "${curdir}" || { echo "cd failed" >&2; exit 1; }
   fi
 
-  res=$(${VIRSH} capabilities 2>&1)
-
-  vm1="tck-testvm${RANDOM}"
-  vm2="tck-testvm${RANDOM}"
+  vm1="tck-test$$1"
+  vm2="tck-test$$2"
 
   createTestFilters "${flags}"
   if [ $? -ne 0 ]; then

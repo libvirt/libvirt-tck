@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 VIRSH=virsh
 
@@ -33,8 +33,8 @@ TAP_FAIL_LIST=""
 TAP_FAIL_CTR=0
 TAP_TOT_CTR=0
 
-function usage() {
-  local cmd="$0"
+usage() {
+  cmd="$0"
 cat <<EOF
 Usage: ${cmd} [--help|-h|-?] [--noattach] [--wait] [--verbose]
               [--libvirt-test] [--tap-test]
@@ -56,37 +56,37 @@ EOF
 }
 
 
-function tap_fail() {
-  echo "not ok $1 - ${2:0:66}"
-  TAP_FAIL_LIST+="$1 "
-  ((TAP_FAIL_CTR++))
-  ((TAP_TOT_CTR++))
+tap_fail() {
+  txt=$(echo "$2" | gawk '{print substr($0,1,66)}')
+  echo "not ok $1 - ${txt}"
+  TAP_FAIL_LIST="$TAP_FAIL_LIST $1 "
+  TAP_FAIL_CTR=$(($TAP_FAIL_CTR + 1))
+  TAP_TOT_CTR=$(($TAP_TOT_CTR + 1))
 }
 
-function tap_pass() {
-  echo "ok $1 - ${2:0:70}"
-  ((TAP_TOT_CTR++))
+tap_pass() {
+  txt=$(echo "$2" | gawk '{print substr($0,1,66)}')
+  echo "ok $1 - ${txt}"
+  TAP_TOT_CTR=$(($TAP_TOT_CTR + 1))
 }
 
-function tap_final() {
-  local okay
-
+tap_final() {
   [ -n "${TAP_FAIL_LIST}" ] && echo "FAILED tests ${TAP_FAIL_LIST}"
 
   okay=$(echo "($TAP_TOT_CTR-$TAP_FAIL_CTR)*100/$TAP_TOT_CTR" | bc -l)
-  echo "Failed ${TAP_FAIL_CTR}/${TAP_TOT_CTR} tests, ${okay:0:5}% okay"
+  txt=$(echo $okay | gawk '{print substr($0,1,5)}')
+  echo "Failed ${TAP_FAIL_CTR}/${TAP_TOT_CTR} tests, ${txt}% okay"
 }
 
 # A wrapper for mktemp in case it does not exist
 # Echos the name of a secure temporary directory.
-function mktmpdir() {
-  local tmp
+mktmpdir() {
   {
-    tmp=$( (umask 077 && mktemp -d ./nwfvmtest.XXXXXX) 2>/dev/null) &&
+    tmp=$( (umask 077 && mktemp -d ./nwtst.XXXXXX) 2>/dev/null) &&
     test -n "$tmp" && test -d "$tmp"
   } ||
   {
-    tmp=./nwfvmtest$$-$RANDOM
+    tmp=./nwtst$$-$RANDOM
     (umask 077 && mkdir "$tmp")
   } || { echo "failed to create secure temporary directory" >&2; exit 1; }
   echo "${tmp}"
@@ -94,16 +94,16 @@ function mktmpdir() {
 }
 
 
-function checkExpectedOutput() {
-  local xmlfile="$1"
-  local datafile="$2"
-  local flags="$3"
-  local skipregex="$4"
-  local cmd line tmpdir tmpfile tmpfile2 skip
+checkExpectedOutput() {
+  xmlfile="$1"
+  datafile="$2"
+  flags="$3"
+  skipregex="$4"
 
   tmpdir=$(mktmpdir)
   tmpfile=$tmpdir/file
   tmpfile2=$tmpdir/file2
+  OIFS="${IFS}"
 
   if echo a | grep -E '(a|b)' >/dev/null 2>&1
   then EGREP='grep -E'
@@ -112,11 +112,12 @@ function checkExpectedOutput() {
 
   exec 4<"${datafile}"
 
-  read <&4
-  line="${REPLY}"
+  IFS=""
+
+  read -r line <&4
 
   while [ "x${line}x" != "xx" ]; do
-    cmd=$(echo "${line##\#}")
+    cmd=$(printf %s\\n "${line##\#}")
 
     skip=0
     if [ "x${skipregex}x" != "xx" ]; then
@@ -128,10 +129,14 @@ function checkExpectedOutput() {
     : >"${tmpfile2}"
 
     while :; do
-      read <&4
-      line="${REPLY}"
+      read -r line <&4
 
-      if [ "${line:0:1}" == "#" ] || [ "x${line}x" == "xx"  ]; then
+      case "${line}" in
+      '#'*) letter="#";;
+      *)    letter="";;
+      esac
+
+      if [ "x${letter}x" = "x#x" ] || [ "x${line}x" = "xx"  ]; then
 
         if [ ${skip} -ne 0 ]; then
           break
@@ -140,49 +145,50 @@ function checkExpectedOutput() {
         diff "${tmpfile}" "${tmpfile2}" >/dev/null
 
         if [ $? -ne 0 ]; then
-          if [ $((flags & FLAG_VERBOSE)) -ne 0 ]; then
+          if [ $(($flags & $FLAG_VERBOSE)) -ne 0 ]; then
             echo "FAIL ${xmlfile} : ${cmd}"
             diff "${tmpfile}" "${tmpfile2}"
           fi
-          ((failctr++))
-          if [ $((flags & FLAG_WAIT)) -ne 0 ]; then
-                echo "tmp files: $tmpfile, $tmpfile2"
-                echo "Press enter"
-                read
+          failctr=$(($failctr + 1))
+          if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
+            echo "tmp files: $tmpfile, $tmpfile2"
+            echo "Press enter"
+            read enter
           fi
-          [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ] && \
-              test_result $((passctr+failctr)) "" 1
-          [ $((flags & FLAG_TAP_TEST)) -ne 0 ] && \
-             tap_fail $((passctr+failctr)) "${xmlfile} : ${cmd}"
+          [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
+            test_result $(($passctr + $failctr)) "" 1
+          [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
+            tap_fail $(($passctr + $failctr)) "${xmlfile} : ${cmd}"
         else
-          ((passctr++))
-          [ $((flags & FLAG_VERBOSE)) -ne 0 ] && \
-              echo "PASS ${xmlfile} : ${cmd}"
-          [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ] && \
-              test_result $((passctr+failctr)) "" 0
-          [ $((flags & FLAG_TAP_TEST)) -ne 0 ] && \
-              tap_pass $((passctr+failctr)) "${xmlfile} : ${cmd}"
+          passctr=$(($passctr + 1))
+          [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && \
+            echo "PASS ${xmlfile} : ${cmd}"
+          [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
+            test_result $(($passctr + $failctr)) "" 0
+          [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
+            tap_pass $(($passctr + $failctr)) "${xmlfile} : ${cmd}"
         fi
 
         break
 
       fi
-      echo "${line}" >> "${tmpfile2}"
+      printf %s\\n "${line}" >> "${tmpfile2}"
     done
   done
 
   exec 4>&-
 
   rm -rf "${tmpdir}"
+
+  IFS="${OIFS}"
 }
 
 
-function doTest() {
-  local xmlfile="$1"
-  local datafile="$2"
-  local postdatafile="$3"
-  local flags="$4"
-  local netname
+doTest() {
+  xmlfile="$1"
+  datafile="$2"
+  postdatafile="$3"
+  flags="$4"
 
   if [ ! -r "${xmlfile}" ]; then
     echo "FAIL : Cannot access filter XML file ${xmlfile}."
@@ -205,24 +211,20 @@ function doTest() {
 }
 
 
-function runTests() {
-  local xmldir="$1"
-  local hostoutdir="$2"
-  local flags="$3"
-  local datafiles f c
-  local tap_total=0 ctr=0
+runTests() {
+  xmldir="$1"
+  hostoutdir="$2"
+  flags="$3"
+  tap_total=0 ctr=0
 
-  pushd "${PWD}" > /dev/null
-  cd "${hostoutdir}"
-  datafiles=$(ls *.dat)
-  popd > /dev/null
+  datafiles=$(cd "${hostoutdir}";ls *.dat)
 
-  if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     # Need to count the number of total tests
     for fil in ${datafiles}; do
       c=$(grep -c "^#" "${hostoutdir}/${fil}")
-      ((tap_total+=c))
-      ((ctr++))
+      tap_total=$(($tap_total + $c))
+      ctr=$(($ctr + 1))
     done
     echo "1..${tap_total}"
   fi
@@ -236,9 +238,9 @@ function runTests() {
            "${hostoutdir}/${f}.post.dat" "${flags}"
   done
 
-  if [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ]; then
-    test_final $((passctr+failctr)) $failctr
-  elif [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ]; then
+    test_final $(($passctr + $failctr)) $failctr
+  elif [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     tap_final
   else
     echo ""
@@ -250,29 +252,27 @@ function runTests() {
 }
 
 
-function main() {
-  local prgname="$0"
-  local vm1 vm2
-  local xmldir="networkxml2xmlin"
-  local hostoutdir="networkxml2hostout"
-  local res rc
-  local flags
+main() {
+  prgname="$0"
+  xmldir="networkxml2xmlin"
+  hostoutdir="networkxml2hostout"
+  flags=0
 
   while [ $# -ne 0 ]; do
     case "$1" in
     --help|-h|-\?) usage ${prgname}; exit 0;;
-    --wait)         ((flags |= FLAG_WAIT    ));;
-    --verbose)      ((flags |= FLAG_VERBOSE ));;
-    --libvirt-test) ((flags |= FLAG_LIBVIRT_TEST ));;
-    --tap-test)     ((flags |= FLAG_TAP_TEST ));;
-    --force)        ((flags |= FLAG_FORCE_CLEAN ));;
+    --wait)         flags=$(($flags | $FLAG_WAIT    ));;
+    --verbose)      flags=$(($flags | $FLAG_VERBOSE ));;
+    --libvirt-test) flags=$(($flags | $FLAG_LIBVIRT_TEST ));;
+    --tap-test)     flags=$(($flags | $FLAG_TAP_TEST ));;
+    --force)        flags=$(($flags | $FLAG_FORCE_CLEAN ));;
     *) usage ${prgname}; exit 1;;
     esac
     shift 1
   done
 
   if [ $(uname) != "Linux" ]; then
-    if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+    if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
       echo "1..0 # Skipped: Only valid on Linux hosts"
     else
       echo "This script will only run on Linux."
@@ -280,7 +280,7 @@ function main() {
     exit 1;
   fi
 
-  if [ $((flags & FLAG_TAP_TEST)) -ne 0 ]; then
+  if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     if [ "${LIBVIRT_URI}" != "qemu:///system" ]; then
         echo "1..0 # Skipped: Only valid for Qemu system driver"
         exit 0
@@ -290,8 +290,8 @@ function main() {
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
-             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" ] || \
+           [ $(($flags & $FLAG_FORCE_CLEAN)) -ne 0 ]; then
           res=$(virsh destroy  ${name} 2>&1)
           res=$(virsh undefine ${name} 2>&1)
           if [ $? -ne 0 ]; then
@@ -309,8 +309,8 @@ function main() {
     do
       case ${name} in
       tck*)
-        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" -o \
-             $((flags & FLAG_FORCE_CLEAN)) -ne 0 ]; then
+        if [ "x${LIBVIRT_TCK_AUTOCLEAN}" == "x1" ] || \
+           [ $(($flags & $FLAG_FORCE_CLEAN)) -ne 0 ]; then
           res=$(virsh net-destroy ${name} 2>&1)
           rc=$?
           res=$(virsh net-undefine ${name} 2>&1)
@@ -326,17 +326,15 @@ function main() {
     done
   fi
 
-  if [ $((flags & FLAG_LIBVIRT_TEST)) -ne 0 ]; then
-    pushd "${PWD}" > /dev/null
+  if [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ]; then
+    curdir="${PWD}"
     . ./test-lib.sh
     if [ $? -ne 0 ]; then
         exit 1
     fi
     test_intro $this_test
-    popd > /dev/null
+    cd "${curdir}" || { echo "cd failed" >&2; exit 1; }
   fi
-
-  res=$(${VIRSH} capabilities 2>&1)
 
   runTests "${xmldir}" "${hostoutdir}" "${flags}"
 

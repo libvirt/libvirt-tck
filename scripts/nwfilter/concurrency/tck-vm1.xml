@@ -1,0 +1,30 @@
+  <domain type='kvm'>
+    <name>tck-vm1</name>
+    <memory>32768</memory>
+    <currentMemory>32768</currentMemory>
+    <vcpu>1</vcpu>
+    <os>
+      <type>hvm</type>
+      <boot dev='hd'/>
+    </os>
+    <features>
+      <acpi/>
+      <apic/>
+    </features>
+    <clock offset='utc'/>
+    <on_poweroff>destroy</on_poweroff>
+    <on_reboot>restart</on_reboot>
+    <on_crash>destroy</on_crash>
+    <devices>
+      <interface type='bridge'>
+        <source bridge='virbr0'/>
+        <filterref filter='tck-vm1-filter'>
+        </filterref>
+        <target dev='tck-vm1-if0'/>
+      </interface>
+      <console type='pty'>
+      </console>
+      <input type='mouse' bus='ps2'/>
+      <graphics type='vnc' port='-1' autoport='yes'/>
+    </devices>
+  </domain>

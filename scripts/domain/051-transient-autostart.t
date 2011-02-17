@@ -48,7 +48,7 @@ my $auto = $dom->get_autostart();
 
 ok(!$auto, "autostart is disabled for transient VMs");
 
-ok_error(sub { $dom->set_autostart(1) }, "Set autostart not supported on transient VMs", Sys::Virt::Error::ERR_INTERNAL_ERROR);
+ok_error(sub { $dom->set_autostart(1) }, "Set autostart not supported on transient VMs", Sys::Virt::Error::ERR_OPERATION_INVALID);
 
 diag "Destroying the transient domain";
 $dom->destroy;

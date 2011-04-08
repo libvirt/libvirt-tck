@@ -10,6 +10,10 @@ target     prot opt source               destination
 ACCEPT     tcp  --  10.1.2.3             0.0.0.0/0           DSCP match 0x02state ESTABLISHED ctdir ORIGINAL
 ACCEPT     tcp  --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x21tcp spts:20:21 dpts:100:1111 
 ACCEPT     tcp  --  10.1.2.3             0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x3ftcp spts:255:256 dpt:65535 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x02/0x3F 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x02/0x12 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x04/0x00 
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x08/0x00 
 #iptables -L HI-vnet0 -n
 Chain HI-vnet0 (1 references)
 target     prot opt source               destination         

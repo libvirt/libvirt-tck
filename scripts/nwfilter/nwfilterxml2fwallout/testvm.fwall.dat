@@ -26,6 +26,7 @@
 -p ARP --arp-op Reply -j ACCEPT 
 -j DROP 
 #ebtables -t nat -L O-vnet0-arp | grep -v "^Bridge" | grep -v "^$"
+-p ARP --arp-gratuitous -j ACCEPT 
 -p ARP --arp-op Reply --arp-mac-dst ! 52:54:0:9f:33:da -j DROP 
 -p ARP --arp-ip-dst ! 10.1.1.1 -j DROP 
 -p ARP --arp-op Request -j ACCEPT 

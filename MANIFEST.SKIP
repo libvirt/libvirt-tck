@@ -15,3 +15,4 @@ results/
 ^\.git/
 ^cover_db/
 ^libvirt-tck/
+^MYMETA.yml$

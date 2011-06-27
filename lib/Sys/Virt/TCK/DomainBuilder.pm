@@ -46,7 +46,8 @@ sub new {
 	consoles => [],
 	inputs => [],
 	graphics => [],
-	hostdevs => []
+	hostdevs => [],
+	seclabel => {},
     };
 
     bless $self, $class;
@@ -307,6 +308,19 @@ sub filesystem {
     return $self;
 }
 
+sub seclabel {
+    my $self = shift;
+    my %params = @_;
+
+    die "model parameter is required" unless $params{model};
+    die "type parameter is required" unless $params{type};
+    die "relabel parameter is required" unless $params{relabel};
+
+    $self->{seclabel} = \%params;
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -453,6 +467,22 @@ sub as_xml {
     }
     $w->emptyTag("console", type => "pty");
     $w->endTag("devices");
+    if ($self->{seclabel}->{model}) {
+	$w->startTag("seclabel",
+		     model => $self->{seclabel}->{model},
+		     type => $self->{seclabel}->{type},
+		     relabel => $self->{seclabel}->{relabel});
+	if ($self->{seclabel}->{label}) {
+	    $w->dataElement("label", $self->{seclabel}->{label});
+	}
+	if ($self->{seclabel}->{imagelabel}) {
+	    $w->dataElement("imagelabel", $self->{seclabel}->{imagelabel});
+	}
+	if ($self->{seclabel}->{baselabel}) {
+	    $w->dataElement("baselabel", $self->{seclabel}->{baselabel});
+	}
+	$w->endTag("seclabel");
+    }
     $w->endTag("domain");
 
     return $data;

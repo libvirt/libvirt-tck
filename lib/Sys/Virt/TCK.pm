@@ -66,91 +66,113 @@ sub new {
     return $self;
 }
 
+sub setup_conn {
+    my $self = shift;
+    my $uri = shift;
+
+    my $conn = Sys::Virt->new(address => $uri);
+    my $type = lc ($conn->get_type());
+
+    $self->reset($conn) if $self->{autoclean};
+
+    $self->sanity_check($conn);
+
+    return $conn;
+}
 
 sub setup {
     my $self = shift;
+    my %params = @_;
+    my $dualhost = $params{dualhost} || 0;
 
     my $uri = $self->config("uri", undef);
-    $self->{conn} = Sys::Virt->new(address => $uri);
-    my $type = $self->{conn}->get_type();
-    $self->{type} = lc $type;
+    my $otheruri;
+    $otheruri = $self->config("otheruri", undef) if $dualhost;
 
-    $self->reset if $self->{autoclean};
+    my $conn = $self->setup_conn($uri);
+    my $otherconn;
+    $otherconn = $self->setup_conn($otheruri) if $otheruri;
 
-    eval {
-	$self->sanity_check;
-    };
-    if ($@) {
-	$self->{conn} = undef;
-	die $@;
-    }
+    $self->{conns} = [ $conn, $otherconn ];
 
-    return $self->{conn};
+    return wantarray ? @{$self->{conns}} : $self->{conns}->[0];
 }
 
 
 sub sanity_check {
     my $self = shift;
+    my $conn = shift;
 
-    my @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_domains;
+    my @doms = grep { $_->get_name =~ /^tck/ } $conn->list_domains;
     if (@doms) {
 	die "there is/are " . int(@doms) . " pre-existing active domain(s) in this driver";
     }
 
-    @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_domains;
+    @doms = grep { $_->get_name =~ /^tck/ } $conn->list_defined_domains;
     if (@doms) {
 	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
     }
 
-    my @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_networks;
+    my @nets = grep { $_->get_name =~ /^tck/ } $conn->list_networks;
     if (@nets) {
 	die "there is/are " . int(@nets) . " pre-existing active network(s) in this driver";
     }
 
-    @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_networks;
+    @nets = grep { $_->get_name =~ /^tck/ } $conn->list_defined_networks;
     if (@nets) {
 	die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
     }
 
-    my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
+    my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     if (@pools) {
 	die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
     }
 
-    @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_storage_pools;
+    @pools = grep { $_->get_name =~ /^tck/ } $conn->list_defined_storage_pools;
     if (@pools) {
 	die "there is/are " . int(@pools) . " pre-existing inactive storage_pool(s) in this driver";
     }
 }
 
-sub reset {
+sub reset_domains {
     my $self = shift;
+    my $conn = shift;
 
-    my @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_domains;
+    my @doms = grep { $_->get_name =~ /^tck/ } $conn->list_domains;
     foreach my $dom (@doms) {
 	if ($dom->get_id != 0) {
 	    $dom->destroy;
 	}
     }
 
-    @doms = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_domains();
+    @doms = grep { $_->get_name =~ /^tck/ } $conn->list_defined_domains();
     foreach my $dom (@doms) {
 	$dom->undefine;
     }
+}
 
-    my @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_networks;
+sub reset_networks {
+    my $self = shift;
+    my $conn = shift;
+
+    my @nets = grep { $_->get_name =~ /^tck/ } $conn->list_networks;
     foreach my $net (@nets) {
 	if ($net->is_active()) {
 	    $net->destroy;
 	}
     }
 
-    @nets = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_networks();
+    @nets = grep { $_->get_name =~ /^tck/ } $conn->list_defined_networks();
     foreach my $net (@nets) {
 	$net->undefine;
     }
+}
 
-    my @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_storage_pools;
+sub reset_storage_pools {
+    my $self = shift;
+    my $conn = shift;
+
+    my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     foreach my $pool (@pools) {
 	my @vols = $pool->list_volumes;
 	foreach my $vol (@vols) {
@@ -159,7 +181,7 @@ sub reset {
 	$pool->destroy;
     }
 
-    @pools = grep { $_->get_name =~ /^tck/ } $self->{conn}->list_defined_storage_pools();
+    @pools = grep { $_->get_name =~ /^tck/ } $conn->list_defined_storage_pools();
     foreach my $pool (@pools) {
 	eval {
 	    $pool->delete(0);
@@ -168,12 +190,24 @@ sub reset {
     }
 }
 
+
+sub reset {
+    my $self = shift;
+    my $conn = shift || $self->conn;
+
+    $self->reset_domains($conn);
+    $self->reset_networks($conn);
+    $self->reset_storage_pools($conn);
+}
+
 sub cleanup {
     my $self = shift;
 
-    $self->reset();
+    foreach my $conn (@{$self->{conns}}) {
+	$self->reset($conn);
+    }
 
-    delete $self->{conn};
+    delete $self->{conns};
 }
 
 sub config {
@@ -190,7 +224,8 @@ sub config {
 
 sub conn {
     my $self = shift;
-    return $self->{conn};
+    my $index = @_ ? shift : 0;
+    return $self->{conns}->[$index];
 }
 
 
@@ -559,10 +594,11 @@ sub generic_machine_domain {
     my $name = shift;
     my $caps = shift;
     my $ostype = shift;
+    my $conn = @_ ? shift : $self->conn;
 
     my %config = $self->get_kernel($caps, $ostype);
 
-    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
+    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn,
 					       name => $name,
 					       domain => $config{domain},
 					       ostype => $config{ostype});
@@ -603,10 +639,11 @@ sub generic_container_domain {
     my $name = shift;
     my $caps = shift;
     my $domain = shift;
+    my $conn = @_ ? shift : $self->conn;
 
     my $bucket = "os-exe";
 
-    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->{conn},
+    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn,
 					       name => $name,
 					       domain => $domain,
 					       ostype => "exe");
@@ -628,8 +665,9 @@ sub generic_domain {
     my $self = shift;
     my $name = @_ ? shift : "tck";
     my $ostype = @_ ? shift : undef;
+    my $conn = shift || $self->conn;
 
-    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
+    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $conn->get_capabilities);
 
     my $container;
 

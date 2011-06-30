@@ -135,8 +135,6 @@ sub onetest {
 
     $st->add_callback(Sys::Virt::Stream::EVENT_READABLE, \&streamevent);
 
-    $SIG{ALRM} = sub { die "timeout while downloading" };
-
     ${$quitref} = 0;
     alarm 15;
     while (!${$quitref}) {

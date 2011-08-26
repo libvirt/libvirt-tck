@@ -134,12 +134,23 @@ sub sanity_check {
     }
 }
 
+sub reset_snapshots {
+    my $self = shift;
+    my $dom = shift;
+
+    my @domss = $dom->list_snapshots;
+    foreach my $domss (@domss) {
+	$domss->delete;
+    }
+}
+
 sub reset_domains {
     my $self = shift;
     my $conn = shift;
 
     my @doms = grep { $_->get_name =~ /^tck/ } $conn->list_domains;
     foreach my $dom (@doms) {
+	$self->reset_snapshots($dom);
 	if ($dom->get_id != 0) {
 	    $dom->destroy;
 	}
@@ -147,6 +158,7 @@ sub reset_domains {
 
     @doms = grep { $_->get_name =~ /^tck/ } $conn->list_defined_domains();
     foreach my $dom (@doms) {
+	$self->reset_snapshots($dom);
 	$dom->undefine;
     }
 }

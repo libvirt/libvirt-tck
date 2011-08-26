@@ -39,7 +39,8 @@ use Test::Builder;
 use Sub::Uplevel qw(uplevel);
 use base qw(Exporter);
 
-our @EXPORT = qw(ok_error ok_domain ok_pool ok_volume ok_network
+our @EXPORT = qw(ok_error ok_domain ok_domain_snapshot ok_pool
+                 ok_volume ok_network ok_interface ok_node_device
                  xpath err_not_implemented);
 
 our $VERSION = '0.1.0';
@@ -751,45 +752,63 @@ sub _quiet_caller (;$) { ## no critic Prototypes
 
 sub _try_as_caller {
     my $coderef = shift;
+    my $depth = shift;
 
     # local works here because Sub::Uplevel has already overridden caller
     local *CORE::GLOBAL::caller;
     { no warnings 'redefine'; *CORE::GLOBAL::caller = \&_quiet_caller; }
 
-    my $ret = eval { uplevel 3, $coderef };
+    my $ret = eval { uplevel $depth, $coderef };
     return ($ret, $@);
 };
 
 
 my $Tester = Test::Builder->new;
 
-sub ok_domain(&$;$) {
+sub ok_object($$$;$) {
     my $coderef = shift;
+    my $class = shift;
     my $description = shift;
     my $name = shift;
 
-    die "must pass coderef, description and (optional) expected name"
+    die "must pass coderef, class, description and (optional) expected name"
 	unless defined $description;
 
-    my ($ret, $exception) = _try_as_caller($coderef);
+    my ($ret, $exception) = _try_as_caller($coderef, 4);
 
     my $ok = "$exception" eq "" &&
-	$ret && ref($ret) && $ret->isa("Sys::Virt::Domain") &&
+	$ret && ref($ret) && $ret->isa($class) &&
 	(!defined $name || ($ret->get_name() eq $name));
 
     $Tester->ok($ok, $description);
     unless ($ok) {
-	$Tester->diag("expected Sys::Virt::Domain object" . ($name ? " with name $name" : ""));
+	$Tester->diag("expected $class object" . ($name ? " with name $name" : ""));
 	if ($exception) {
 	    $Tester->diag("found '$exception'");
 	} else {
-	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::Domain")) {
-		$Tester->diag("found Sys::Virt::Domain object with name " . $ret->get_name);
+	    if ($ret && ref($ret) && $ret->isa($class)) {
+		$Tester->diag("found $class object with name " . $ret->get_name);
 	    } else {
 		$Tester->diag("found '$ret'");
 	    }
 	}
     }
+}
+
+sub ok_domain(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    ok_object($coderef, "Sys::Virt::Domain", $description, $name);
+}
+
+sub ok_domain_snapshot(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    ok_object($coderef, "Sys::Virt::DomainSnapshot", $description, $name);
 }
 
 sub ok_pool(&$;$) {
@@ -797,57 +816,7 @@ sub ok_pool(&$;$) {
     my $description = shift;
     my $name = shift;
 
-    die "must pass coderef, description and (optional) expected name"
-	unless defined $description;
-
-    my ($ret, $exception) = _try_as_caller($coderef);
-
-    my $ok = "$exception" eq "" &&
-	$ret && ref($ret) && $ret->isa("Sys::Virt::StoragePool") &&
-	(!defined $name || ($ret->get_name() eq $name));
-
-    $Tester->ok($ok, $description);
-    unless ($ok) {
-	$Tester->diag("expected Sys::Virt::StoragePool object" . ($name ? " with name $name" : ""));
-	if ($exception) {
-	    $Tester->diag("found '$exception'");
-	} else {
-	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::StoragePool")) {
-		$Tester->diag("found Sys::Virt::StoragePool object with name " . $ret->get_name);
-	    } else {
-		$Tester->diag("found '$ret'");
-	    }
-	}
-    }
-}
-
-sub ok_volume(&$;$) {
-    my $coderef = shift;
-    my $description = shift;
-    my $name = shift;
-
-    die "must pass coderef, description and (optional) expected name"
-	unless defined $description;
-
-    my ($ret, $exception) = _try_as_caller($coderef);
-
-    my $ok = "$exception" eq "" &&
-	$ret && ref($ret) && $ret->isa("Sys::Virt::StorageVol") &&
-	(!defined $name || ($ret->get_name() eq $name));
-
-    $Tester->ok($ok, $description);
-    unless ($ok) {
-	$Tester->diag("expected Sys::Virt::StorageVol object" . ($name ? " with name $name" : ""));
-	if ($exception) {
-	    $Tester->diag("found '$exception'");
-	} else {
-	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::StorageVol")) {
-		$Tester->diag("found Sys::Virt::StorageVol object with name " . $ret->get_name);
-	    } else {
-		$Tester->diag("found '$ret'");
-	    }
-	}
-    }
+    ok_object($coderef, "Sys::Virt::StoragePool", $description, $name);
 }
 
 sub ok_network(&$;$) {
@@ -855,29 +824,33 @@ sub ok_network(&$;$) {
     my $description = shift;
     my $name = shift;
 
-    die "must pass coderef, description and (optional) expected name"
-	unless defined $description;
-
-    my ($ret, $exception) = _try_as_caller($coderef);
-
-    my $ok = "$exception" eq "" &&
-	$ret && ref($ret) && $ret->isa("Sys::Virt::Network") &&
-	(!defined $name || ($ret->get_name() eq $name));
-
-    $Tester->ok($ok, $description);
-    unless ($ok) {
-	$Tester->diag("expected Sys::Virt::Network object" . ($name ? " with name $name" : ""));
-	if ($exception) {
-	    $Tester->diag("found '$exception'");
-	} else {
-	    if ($ret && ref($ret) && $ret->isa("Sys::Virt::Network")) {
-		$Tester->diag("found Sys::Virt::Network object with name " . $ret->get_name);
-	    } else {
-		$Tester->diag("found '$ret'");
-	    }
-	}
-    }
+    ok_object($coderef, "Sys::Virt::Network", $description, $name);
 }
+
+sub ok_volume(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    ok_object($coderef, "Sys::Virt::StorageVol", $description, $name);
+}
+
+sub ok_interface(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    ok_object($coderef, "Sys::Virt::Interface", $description, $name);
+}
+
+sub ok_node_device(&$;$) {
+    my $coderef = shift;
+    my $description = shift;
+    my $name = shift;
+
+    ok_object($coderef, "Sys::Virt::NodeDevice", $description, $name);
+}
+
 
 sub ok_error(&$;$) {
     my $coderef = shift;
@@ -887,7 +860,7 @@ sub ok_error(&$;$) {
     die "must pass coderef, description and (optional) expected error code"
 	unless defined $description;
 
-    my ($ret, $exception) = _try_as_caller($coderef);
+    my ($ret, $exception) = _try_as_caller($coderef, 3);
 
     my $ok = ref($exception) && $exception->isa("Sys::Virt::Error") &&
 	(!defined $code || ($exception->code() == $code));

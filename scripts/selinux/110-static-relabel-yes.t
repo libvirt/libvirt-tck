@@ -43,7 +43,7 @@ eval {
     $info = $conn->get_node_security_model();
 };
 
-SELINUX: {
+SKIP: {
     skip "Only relevant to SELinux hosts", 5 unless $info && $info->{model} eq "selinux";
 
     my $disk = $tck->create_sparse_disk("selinux", "tck", 50);

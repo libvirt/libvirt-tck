@@ -58,6 +58,7 @@ BuildRequires: perl(IO::Uncompress::Gunzip)
 BuildRequires: perl(IO::Uncompress::Bunzip2)
 BuildRequires: perl(Module::Build)
 BuildRequires: perl(TAP::Formatter::HTML)
+BuildRequires: perl(TAP::Formatter::JUnit)
 BuildRequires: perl(TAP::Harness)
 BuildRequires: perl(TAP::Harness::Archive)
 BuildRequires: perl(Test::Builder)
@@ -69,6 +70,7 @@ BuildRequires: perl(XML::Writer)
 # RPM autoprovides misses these 3
 Requires: perl(Test::Exception)
 Requires: perl(TAP::Formatter::HTML)
+Requires: perl(TAP::Formatter::JUnit)
 Requires: perl(TAP::Harness::Archive)
 Requires: /usr/bin/mkisofs
 BuildArchitectures: noarch

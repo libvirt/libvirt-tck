@@ -79,6 +79,7 @@ my $b = $class->new(
 	'IO::Uncompress::Gunzip' => 0,
 	'IO::Uncompress::Bunzip2' => 0,
 	'TAP::Formatter::HTML' => 0,
+	'TAP::Formatter::JUnit' => 0,
 	'TAP::Harness' => 3.11,
 	'TAP::Harness::Archive' => 0,
 	'Test::Exception' => 0,

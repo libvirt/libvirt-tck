@@ -109,6 +109,10 @@ Generate an archive containing all the raw test results. The
 filename given should end in either C<.bz>, C<.tar.gz> or
 C<.tgz>
 
+=item --timer
+
+Print elapsed time after each test.
+
 =back
 
 =cut
@@ -136,6 +140,7 @@ my $quiet = 0;
 my $help = 0;
 my $force = 0;
 my $debug = 0;
+my $timer = 0;
 my $archive;
 my $config = catfile($confdir, "default.cfg");
 my $format = "text";
@@ -149,7 +154,8 @@ if (!GetOptions("verbose" => \$verbose,
 		"config=s" => \$config,
 		"force" => \$force,
 		"format=s" => \$format,
-		"testdir=s" => \$testdir) || $help) {
+		"testdir=s" => \$testdir,
+		"timer" => \$timer) || $help) {
     pod2usage(-verbose => $help,
 	      -output => $help ? \*STDOUT : \*STDERR,
 	      -exitval => $help ? 0 : 1);
@@ -204,6 +210,9 @@ if ($format eq "xml") {
 	      -output => \*STDERR);
 }
 
+if ($timer) {
+    push @newargv, "--timer";
+}
 
 # This env variable is the only way to pass config into
 # the Sys::Virt::TCK module from here

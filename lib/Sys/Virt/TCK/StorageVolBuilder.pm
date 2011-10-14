@@ -112,7 +112,7 @@ sub as_xml {
 	$w->startTag("backingStore");
 	$w->dataElement("path", $self->{backingFile});
 	if ($self->{backingFormat}) {
-	    $w->emptyTag("format", type => $self->{backinFormat});
+	    $w->emptyTag("format", type => $self->{backingFormat});
 	}
 	if ($self->{secret}) {
 	    $w->startTag("encryption", format => "qcow");

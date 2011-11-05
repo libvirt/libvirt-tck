@@ -52,16 +52,21 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
+my $info;
+eval {
+    $info = $conn->get_node_security_model();
+};
+
 SKIP: {
     skip "Only relevant to QEMU driver", 26 unless $conn->get_type() eq "QEMU";
     skip "Only relevant when run as root", 26 unless $< == 0;
     skip "Only relevant for system driver", 26 unless
 	$conn->get_uri() =~ m/system/;
-
+    skip "Only relevant when using a security model", 26 unless
+	$info && $info->{model};
 
     my $xml = $tck->generic_pool("dir")
 	->mode("0755")->as_xml;
-
 
     diag "Defining transient storage pool $xml";
     my $pool;

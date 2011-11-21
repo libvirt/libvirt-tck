@@ -5,12 +5,14 @@ MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24
 #iptables -n -L FORWARD | grep ' 10\.1\.2\.'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
 ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
-#ps aux | sed -n '/dnsmasq .*10\.1\.2\./ s|.*\(dnsmasq[[:print:]*]\)|\1|p'
-dnsmasq --strict-order --bind-interfaces --pid-file=/var/run/libvirt/network/tck-testnet.pid --conf-file=  --listen-address 10.1.2.1 --except-interface lo --dhcp-range 10.1.2.2,10.1.2.254 --dhcp-lease-max=253 --dhcp-no-override
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 10\.1\.2\.1*\).*|\1|p'
+listen-address 10.1.2.1
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(dhcp-range 10\.1\.2\.2\,10\.1\.2\.254*\).*|\1|p'
+dhcp-range 10.1.2.2,10.1.2.254
 #route -n | grep '10\.1\.2\.'
 10.1.2.0        0.0.0.0         255.255.255.0   U     0      0        0 tck-testbr
-#brctl show | grep tck-testbr
-tck-testbr		8000.000000000000	yes		
+#brctl show | grep tck-testbr | gawk '{print $1" "$3}'
+tck-testbr yes
 #ifconfig tck-testbr | grep ':10\.1\.2\.'
           inet addr:10.1.2.1  Bcast:10.1.2.255  Mask:255.255.255.0
 #virsh net-list | grep tck-testnet

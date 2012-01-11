@@ -348,9 +348,15 @@ createVM() {
           <parameter name='A' value='1.1.1.1'/>
           <parameter name='A' value='2.2.2.2'/>
           <parameter name='A' value='3.3.3.3'/>
+          <parameter name='A' value='3.3.3.3'/>
           <parameter name='B' value='80'/>
           <parameter name='B' value='90'/>
           <parameter name='B' value='80'/>
+          <parameter name='B' value='80'/>
+          <parameter name='C' value='1080'/>
+          <parameter name='C' value='1090'/>
+          <parameter name='C' value='1100'/>
+          <parameter name='C' value='1110'/>
         </filterref>
         <target dev='${vmname}'/>
       </interface>

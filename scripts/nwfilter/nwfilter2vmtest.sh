@@ -345,6 +345,12 @@ createVM() {
         <source bridge='virbr0'/>
         <filterref filter='${filtername}'>
           <parameter name='IP' value='${ipaddr}'/>
+          <parameter name='A' value='1.1.1.1'/>
+          <parameter name='A' value='2.2.2.2'/>
+          <parameter name='A' value='3.3.3.3'/>
+          <parameter name='B' value='80'/>
+          <parameter name='B' value='90'/>
+          <parameter name='B' value='80'/>
         </filterref>
         <target dev='${vmname}'/>
       </interface>

@@ -1,0 +1,37 @@
+#iptables -L FI-vnet0 -n
+Chain FI-vnet0 (1 references)
+target     prot opt source               destination         
+RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
+RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
+RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
+RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
+RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
+#iptables -L FO-vnet0 -n
+Chain FO-vnet0 (1 references)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x01tcp dpt:80 state ESTABLISHED ctdir ORIGINAL
+ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x01tcp dpt:90 state ESTABLISHED ctdir ORIGINAL
+ACCEPT     udp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x02udp dpt:80 state ESTABLISHED ctdir ORIGINAL
+ACCEPT     udp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x02udp dpt:90 state ESTABLISHED ctdir ORIGINAL
+ACCEPT     sctp --  0.0.0.0/0            2.2.2.2             DSCP match 0x03sctp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
+#iptables -L HI-vnet0 -n
+Chain HI-vnet0 (1 references)
+target     prot opt source               destination         
+RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
+RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
+RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
+RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
+RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
+#iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
+HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-in -n | grep vnet0 | tr -s " "
+FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-in-post -n | grep vnet0
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+#iptables -L libvirt-out -n | grep vnet0 | tr -s " "
+FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 
+#iptables -L FORWARD -n --line-number | grep libvirt
+1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0           
+2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0           
+3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0           
+

@@ -18,7 +18,7 @@
 -p 0x8035 -j O-vnet0-rarp
 -j DROP 
 #ebtables -t nat -L I-vnet0-ipv4-ip | grep -v "^Bridge" | grep -v "^$"
--p IPv4 --ip-src 0.0.0.0 --ip-proto udp --ip-sport 68 -j ACCEPT 
+-p IPv4 --ip-src 0.0.0.0 --ip-proto udp -j RETURN 
 -p IPv4 --ip-src 10.1.1.1 -j RETURN 
 -j DROP 
 #ebtables -t nat -L O-vnet0-ipv4 | grep -v "^Bridge" | grep -v "^$"

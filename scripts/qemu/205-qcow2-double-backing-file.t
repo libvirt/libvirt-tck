@@ -114,7 +114,6 @@ SKIP: {
 
     my $volmainxml = $tck->generic_volume("tck-main", "qcow2", 1024*1024*50)
 	->backing_file($pathback)
-	->backing_format("qcow2")
 	->allocation(0)->as_xml;
 
 

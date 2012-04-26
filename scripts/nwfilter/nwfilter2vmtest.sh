@@ -9,7 +9,7 @@ VIRSH=virsh
 # For each line starting with uri=, remove the prefix and set the hold
 # space to the rest of the line.  Then at file end, print the hold
 # space, which is effectively the last uri= line encountered.
-uri=$(sed -n '/^uri[     ]*=[     ]*/ {
+[ -r "$LIBVIRT_TCK_CONFIG" ] && uri=$(sed -n '/^uri[     ]*=[     ]*/ {
   s///
   h
 }
@@ -147,12 +147,12 @@ checkExpectedOutput() {
 	  break
 	fi
 
-        diff ${tmpfile} ${tmpfile2} >/dev/null
+        diff -w ${tmpfile} ${tmpfile2} >/dev/null
 
         if [ $? -ne 0 ]; then
           if [ $(($flags & $FLAG_VERBOSE)) -ne 0 ]; then
             echo "FAIL ${xmlfile} : ${cmd}"
-            diff ${tmpfile} ${tmpfile2}
+            diff -w ${tmpfile} ${tmpfile2}
           fi
           failctr=$(($failctr + 1))
           if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then

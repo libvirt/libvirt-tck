@@ -107,6 +107,7 @@ checkExpectedOutput() {
   ifname="$3"
   flags="$4"
   skipregex="$5"
+  skiptest="$6"
   regex="s/${ORIG_IFNAME}/${ifname}/g"
 
   tmpdir=$(mktmpdir)
@@ -145,6 +146,18 @@ checkExpectedOutput() {
 
 	if [ ${skip} -ne 0 ]; then
 	  break
+	fi
+
+	if [ -n "${skiptest}" ]; then
+	  # treat all skips as passes
+          passctr=$(($passctr + 1))
+          [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && \
+              echo "SKIP ${xmlfile} : ${cmd}"
+          [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
+              test_result $(($passctr + $failctr)) "" 0
+          [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
+              tap_pass $(($passctr + $failctr)) "SKIP: ${xmlfile} : ${skiptest}"
+          break
 	fi
 
         diff -w ${tmpfile} ${tmpfile2} >/dev/null
@@ -197,19 +210,27 @@ doTest() {
   flags="$5"
   testnum="$6"
   ctr=0
+  skiptest=""
 
   if [ ! -r "${xmlfile}" ]; then
     echo "FAIL : Cannot access filter XML file ${xmlfile}."
     return 1
   fi
 
-  ${VIRSH} nwfilter-define "${xmlfile}" > /dev/null
+  # Check whether we can run this test at all
+  cmd=$(sed -n '1 s/^<\!--[	 ]*#\(.*\)#[	 ]*-->/\1/p' "${xmlfile}")
+  if [ -n "${cmd}" ]; then
+    eval "${cmd}" 2>/dev/null 1>/dev/null
+    [ $? -ne 0 ] && skiptest="${cmd}"
+  fi
+
+  [ -z "${skiptest}" ] && ${VIRSH} nwfilter-define "${xmlfile}" > /dev/null
 
   checkExpectedOutput "${xmlfile}" "${fwallfile}" "${vm1name}" "${flags}" \
-  	""
+       "" "${skiptest}"
 
   checkExpectedOutput "${TESTFILTERNAME}" "${TESTVM2FWALLDATA}" \
-  	"${vm2name}" "${flags}" ""
+       "${vm2name}" "${flags}" "" "${skiptest}"
 
   if [ $(($flags & $FLAG_ATTACH)) -ne 0 ]; then
 
@@ -234,9 +255,9 @@ EOF
 
     if [ $rc -eq 0 ]; then
       checkExpectedOutput "${xmlfile}" "${fwallfile}" "${ATTACH_IFNAME}" \
-        "${flags}" "(PRE|POST)ROUTING"
+        "${flags}" "(PRE|POST)ROUTING" "${skiptest}"
       checkExpectedOutput "${TESTFILTERNAME}" "${TESTVM2FWALLDATA}" \
-        "${vm2name}" "${flags}" "(PRE|POST)ROUTING"
+        "${vm2name}" "${flags}" "(PRE|POST)ROUTING" "${skiptest}"
       msg=`${VIRSH} detach-device "${vm1name}" "${tmpfile}"`
       if [ $? -ne 0 ]; then
         echo "FAIL: Detach of interface failed."
@@ -246,9 +267,9 @@ EOF
         # In case of TAP, run the test anyway so we get to the full number
         # of tests
         checkExpectedOutput "${xmlfile}" "${fwallfile}" "${ATTACH_IFNAME}" \
-          "${flags}" "" #"(PRE|POST)ROUTING"
+          "${flags}" "" "${skiptest}" #"(PRE|POST)ROUTING"
         checkExpectedOutput "${TESTFILTERNAME}" "${TESTVM2FWALLDATA}" \
-          "${vm2name}" "${flags}" #"(PRE|POST)ROUTING"
+          "${vm2name}" "${flags}" "${skiptest}" #"(PRE|POST)ROUTING"
       fi
 
       attachfailctr=$(($attachfailctr + 1))
@@ -357,6 +378,7 @@ createVM() {
           <parameter name='C' value='1090'/>
           <parameter name='C' value='1100'/>
           <parameter name='C' value='1110'/>
+          <parameter name='IPSETNAME' value='tck_test'/>
         </filterref>
         <target dev='${vmname}'/>
       </interface>

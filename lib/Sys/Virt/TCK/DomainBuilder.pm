@@ -460,7 +460,8 @@ sub as_xml {
 	$w->emptyTag("autoport",
 		     autoport => $graphic->{autoport});
 	$w->emptyTag("listen",
-		     listen => $graphic->{listen});
+		     listen => $graphic->{listen},
+		     $graphic->{listen_type} ? (type => $graphic->{listen_type}) : type => "address");
 	$w->emptyTag("keymap",
 		     keymap => $graphic->{keymap});
 	$w->endTag("graphics");

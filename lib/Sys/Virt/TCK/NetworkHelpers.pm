@@ -66,7 +66,7 @@ sub build_domain{
 
     # We want a bigger disk than normal
     $guest->rmdisk();
-    my $diskpath = $tck->create_sparse_disk("nwfilter", "main.img", 2048);
+    my $diskpath = $tck->create_sparse_disk("nwfilter", "main.img", 5120);
     $guest->disk(src => $diskpath,
 		 dst => "vda",
 		 type=> "file");
@@ -107,8 +107,8 @@ sub build_domain{
     }
 
     # common configuration
-    $guest->maxmem("524288");
-    $guest->memory("524288");
+    $guest->maxmem("1048576");
+    $guest->memory("1048576");
     $guest->graphics(type => "vnc",
 		     port => "-1",
 		     autoport => "yes",

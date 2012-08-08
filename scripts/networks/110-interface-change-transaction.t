@@ -1,7 +1,7 @@
 # -*- perl -*-
 #
-# Copyright (C) 2012-2013 Red Hat, Inc.
-# Copyright (C) 2012-2013 Xiaoqiang Hu <xhu@redhat.com>
+# Copyright (C) 2012 Red Hat, Inc.
+# Copyright (C) 2012 Xiaoqiang Hu <xhu@redhat.com>
 #
 # This program is free software; You can redistribute it and/or modify
 # it under the GNU General Public License as published by the Free

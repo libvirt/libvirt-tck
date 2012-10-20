@@ -32,8 +32,10 @@ sub build_cdrom_ks_image {
     unless (-e $isoimage) {
 	my $isofiledir = $tck->bucket_dir($bucket1);
 	my $ksfile = $tck->get_scratch_resource($ks, $bucket1, "ks.cfg");
+	my @progs = `which mkisofs genisoimage`;
+	chomp(@progs);
 
-	`mkisofs -o "$isoimage" $isofiledir`;
+	`$progs[0] -o "$isoimage" $isofiledir`;
     }
 
     return ($isoimage, "cdrom:/ks.cfg");

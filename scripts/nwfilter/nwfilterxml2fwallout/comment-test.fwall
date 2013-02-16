@@ -27,7 +27,7 @@ FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
 ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 
+FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
 #ip6tables -L FI-vnet0 -n
 Chain FI-vnet0 (1 references)
 target     prot opt source               destination         
@@ -56,7 +56,7 @@ FI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0
 #ip6tables -L libvirt-in-post -n | grep vnet0
 ACCEPT     all      ::/0                 ::/0                PHYSDEV match --physdev-in vnet0 
 #ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 
+FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
@@ -64,7 +64,7 @@ FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
 ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 
+FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
 #ip6tables -L INPUT -n --line-numbers | grep libvirt
 1    libvirt-host-in  all      ::/0                 ::/0                
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
@@ -74,4 +74,4 @@ FI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0
 #ip6tables -L libvirt-in-post -n | grep vnet0
 ACCEPT     all      ::/0                 ::/0                PHYSDEV match --physdev-in vnet0 
 #ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 
+FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged

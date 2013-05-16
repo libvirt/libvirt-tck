@@ -28,6 +28,10 @@ FLAG_LIBVIRT_TEST="$((1<<3))"
 FLAG_TAP_TEST="$((1<<4))"
 FLAG_FORCE_CLEAN="$((1<<5))"
 
+# --ctdir original vs. --ctdir reply's meaning was inverted in
+# netfilter at some point. We probe for it.
+IPTABLES_CTRDIR_CORRECTED=0
+
 failctr=0
 passctr=0
 attachfailctr=0
@@ -100,6 +104,15 @@ mktmpdir() {
   return 0
 }
 
+probeIptablesCtdir() {
+  # below gawk works for "2\.6\.39.*"; any non-digit immediately
+  # after '39' will be ignored
+  rev=$(uname -r | gawk -F. '{print $1 * 1000000 + $2 * 1000 + $3 }')
+  # 2.6.39 had the correction
+  if [ $rev -ge 2006039 ]; then
+    IPTABLES_CTDIR_CORRECTED=1
+  fi
+}
 
 checkExpectedOutput() {
   xmlfile="$1"
@@ -159,6 +172,14 @@ checkExpectedOutput() {
               tap_pass $(($passctr + $failctr)) "SKIP: ${xmlfile} : ${skiptest}"
           break
 	fi
+
+        if [ $IPTABLES_CTDIR_CORRECTED -ne 0 ]; then
+          #change --ctdir ORIGINAL to --ctdir REPLY
+          #and    --ctdir REPLY    to --ctdir ORIGINAL
+          sed -i "s/ctdir[ ]*ORIGINAL/ctdir _REPLY/" ${tmpfile}
+          sed -i "s/ctdir[ ]*REPLY/ctdir ORIGINAL/" ${tmpfile}
+          sed -i "s/ctdir _REPLY/ctdir REPLY/" ${tmpfile}
+        fi
 
         diff -w ${tmpfile} ${tmpfile2} >/dev/null
 
@@ -551,6 +572,8 @@ main() {
       echo "This script will only run on Linux."
     fi
     exit 1;
+  else
+    probeIptablesCtdir
   fi
 
   if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then

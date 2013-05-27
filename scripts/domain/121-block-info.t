@@ -103,8 +103,8 @@ is($dom->get_block_info($dst2,0)->{physical}, 1024*1024, "Get disk physical info
 
 
 is($dom->get_block_info($dst,0)->{capacity}, 1024*1024*50, "Get disk capacity info");
-is($dom->get_block_info($dst,0)->{allocation}, 1024*1024*50, "Get disk allocation info");
-is($dom->get_block_info($dst,0)->{physical}, 1024*1024*50, "Get disk physical info");
+ok($dom->get_block_info($dst,0)->{allocation} >= 1024*1024*50, "Get disk allocation info");
+ok($dom->get_block_info($dst,0)->{physical} >= 1024*1024*50, "Get disk physical info");
 
 diag "Test block_resize";
 lives_ok(sub {$dom->block_resize($dst, 512*50)}, "resize to 512*50 KB");
@@ -112,8 +112,8 @@ $st = stat($path);
 is($st->size, 512*1024*50, "size is 25M");
 
 is($dom->get_block_info($dst,0)->{capacity}, 1024*512*50, "Get disk capacity info");
-is($dom->get_block_info($dst,0)->{allocation}, 1024*512*50, "Get disk allocation info");
-is($dom->get_block_info($dst,0)->{physical}, 1024*512*50, "Get disk physical info");
+ok($dom->get_block_info($dst,0)->{allocation} >= 1024*512*50, "Get disk allocation info");
+ok($dom->get_block_info($dst,0)->{physical} >= 1024*512*50, "Get disk physical info");
 
 lives_ok(sub {$dom->block_resize($dst, 1024*50)}, "resize to 1024*50 KB");
 $st = stat($path);

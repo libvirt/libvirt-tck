@@ -80,7 +80,7 @@ $path3 = xpath($vol3, "string(/volume/target/path)");
 $st3 = stat($path3);
 ok($st3, "path $path3 exists");
 
-diag "Generic guest with pervious created vol";
+diag "Generic guest with previous created vol";
 my $disktype = "raw";
 my $dst = "vda";
 my $dst2 = "vdb";
@@ -91,7 +91,6 @@ $guest->rmdisk();
 $guest->disk(format => { name => "qemu", type => $disktype }, type => "file", src => $path, dst => $dst);
 $guest->disk(format => { name => "qemu", type => $disktype }, type => "file", src=> $path2, dst => $dst2);
 $guest->disk(format => { name => "qemu", type => "qcow2" }, type => "file", src=> $path3, dst => $dst3);
-$guest->interface(type => "network", source => "default", model => "virtio", mac => "52:54:00:22:22:22");
 
 $xml = $guest->as_xml;
 my $dom;

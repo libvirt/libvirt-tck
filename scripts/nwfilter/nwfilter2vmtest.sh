@@ -181,6 +181,11 @@ checkExpectedOutput() {
           sed -i "s/ctdir _REPLY/ctdir REPLY/" ${tmpfile}
         fi
 
+        #iptables >= v1.4.16 converts -m state --state ... to
+        #-m conntrack --ctstate ... We now change ctstate back to
+        #state
+        sed -i "s/ctstate/state/" ${tmpfile}
+
         diff -w ${tmpfile} ${tmpfile2} >/dev/null
 
         if [ $? -ne 0 ]; then

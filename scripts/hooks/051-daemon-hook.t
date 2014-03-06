@@ -85,7 +85,7 @@ SKIP: {
     ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is stopped";
-    ok(`service libvirtd status` =~ /stopped/, "libvirtd is stopped");
+    ok(`service libvirtd status` =~ /stopped|unused|inactive/, "libvirtd is stopped");
 
     # start libvirtd
     $hook->action('start');

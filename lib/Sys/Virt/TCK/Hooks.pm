@@ -73,10 +73,10 @@ sub libvirtd_status {
     my $status = `service libvirtd status`;
     my $_ = $status;
 
-    if (/running/) {
-        $self->{libvirtd_status} = 'running';
-    } elsif (/stopped/) {
+    if (/stopped|unused|inactive/) {
         $self->{libvirtd_status} = 'stopped';
+    } elsif (/running|active/) {
+        $self->{libvirtd_status} = 'running';
     }
 
     return $self;
@@ -146,13 +146,20 @@ sub expect_log {
     } elsif ($self->{type} eq 'qemu' or $self->{type} eq 'lxc') {
         if ($domain_state eq &Sys::Virt::Domain::STATE_RUNNING) {
             if ($action eq 'destroy') {
-               $expect_log = "$hook $domain_name stopped end -";
+                $expect_log = "$hook $domain_name stopped end -\n".
+                              "$hook $domain_name release end -";
             } else {
                 die "hooks testing doesn't support $action running domain";
             }
         } elsif ($domain_state eq &Sys::Virt::Domain::STATE_SHUTOFF) {
             if ($action eq 'start') {
-               $expect_log = "$hook $domain_name start begin -";
+                $expect_log = "$hook $domain_name prepare begin -\n".
+                              "$hook $domain_name start begin -\n".
+                              "$hook $domain_name started begin -";
+            } elsif ($action eq 'failstart') {
+                $expect_log = "$hook $domain_name prepare begin -\n".
+                              "$hook $domain_name stopped end -\n".
+                              "$hook $domain_name release end -";
             } else {
                 die "hooks testing doesn't support $action shutoff domain";
             }

@@ -90,7 +90,7 @@ SKIP: {
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
     my $actual_log_data = slurp($hook->{log_name});
-    diag "acutal log: $hook->{log_name} '$actual_log_data'";
+    diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expect log:\n $hook->{expect_log}";
 
@@ -147,7 +147,7 @@ SKIP: {
 
     $hook->domain_name($domain_name);
     $hook->domain_state($domain_state);
-    $hook->action('start');
+    $hook->action('failstart');
     $hook->expect_log();
 
     diag "start $domain_name";
@@ -170,7 +170,7 @@ SKIP: {
     diag "expect log:\n $hook->{expect_log}";
 
     diag "check if the actual log is same with expected log";
-    ok($hook->compare_log, "$hook->{name} is invoked correctly while start $domain_name");
+    ok($hook->compare_log, "$hook->{name} is invoked correctly while failing to start $domain_name");
 
     # undefine domain
     diag "undefine $domain_name";

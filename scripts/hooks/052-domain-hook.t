@@ -180,4 +180,8 @@ SKIP: {
          Sys::Virt::Error::ERR_NO_DOMAIN);
 
     $hook->cleanup();
+
+    diag "reload libvirtd after hook cleanup";
+    $hook->action('reload');
+    $hook->service_libvirtd();
 };

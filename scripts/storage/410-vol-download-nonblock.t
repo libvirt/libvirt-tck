@@ -1,6 +1,6 @@
 # -*- perl -*-
 #
-# Copyright (C) 2011 Red Hat, Inc.
+# Copyright (C) 2011, 2014 Red Hat, Inc.
 # Copyright (C) 2011 Daniel P. Berrange
 #
 # This program is free software; You can redistribute it and/or modify
@@ -108,7 +108,7 @@ sub onetest {
 
     sub streamevent {
 	my $st = shift;
- 	my $events = shift;
+	my $events = shift;
 
 	if ($events & (Sys::Virt::Stream::EVENT_HANGUP |
 		       Sys::Virt::Stream::EVENT_ERROR)) {

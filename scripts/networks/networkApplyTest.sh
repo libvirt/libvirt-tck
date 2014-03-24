@@ -136,11 +136,16 @@ checkExpectedOutput() {
       *)    letter="";;
       esac
 
-      if [ "x${letter}x" = "x#x" ] || [ "x${line}x" = "xx"  ]; then
+      if [ "x${letter}x" = "x#x" ] || [ "x${line}x" = "xx" ]; then
 
         if [ ${skip} -ne 0 ]; then
           break
         fi
+
+        # Remove trailing whitespace, replace multiple spaces with just two
+        for file in ${tmpfile} ${tmpfile2}; do
+           sed -i -e 's/ *$//' -e 's/   */  /g' $file
+        done
 
         diff "${tmpfile}" "${tmpfile2}" >/dev/null
 

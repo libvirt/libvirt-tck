@@ -2,20 +2,20 @@
 -i vnet0 -j libvirt-I-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
 -o vnet0 -j libvirt-O-vnet0
-#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L libvirt-I-vnet0 | sed s/0x8035/RARP/g | grep -v "^Bridge" | grep -v "^$"
 -j I-vnet0-mac
 -p IPv4 -j I-vnet0-ipv4-ip
 -p IPv4 -j ACCEPT 
 -p ARP -j I-vnet0-arp-mac
 -p ARP -j I-vnet0-arp-ip
 -p ARP -j ACCEPT 
--p 0x8035 -j I-vnet0-rarp
+-p RARP -j I-vnet0-rarp
 -p 0x835 -j ACCEPT 
 -j DROP 
-#ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L libvirt-O-vnet0 | sed s/0x8035/RARP/g | grep -v "^Bridge" | grep -v "^$"
 -p IPv4 -j O-vnet0-ipv4
 -p ARP -j ACCEPT 
--p 0x8035 -j O-vnet0-rarp
+-p RARP -j O-vnet0-rarp
 -j DROP 
 #ebtables -t nat -L I-vnet0-ipv4-ip | grep -v "^Bridge" | grep -v "^$"
 -p IPv4 --ip-src 0.0.0.0 --ip-proto udp -j RETURN 

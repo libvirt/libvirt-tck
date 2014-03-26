@@ -17,6 +17,6 @@
           srcipaddr='10.1.2.3' srcipmask='32'
           dscp='63'
           srcportstart='255' srcportend='256'
-          dstportstart='65535' dstportend='65536'/>
+          dstportstart='65535' dstportend='65535'/>
   </rule>
 </filter>

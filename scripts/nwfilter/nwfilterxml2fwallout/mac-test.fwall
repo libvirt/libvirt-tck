@@ -7,6 +7,5 @@
 #ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
 -p IPv4 -d aa:bb:cc:dd:ee:ff -j ACCEPT 
 -p 0x600 -d aa:bb:cc:dd:ee:ff -j ACCEPT 
--d aa:bb:cc:dd:ee:ff -j ACCEPT 
 -p 0xffff -d aa:bb:cc:dd:ee:ff -j ACCEPT 
 

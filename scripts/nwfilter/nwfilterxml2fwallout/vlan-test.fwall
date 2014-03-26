@@ -7,7 +7,6 @@
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j CONTINUE 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 1234 -j RETURN 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j DROP 
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff -j ACCEPT 
 #ebtables -t nat -L PREROUTING | grep vnet0
 -i vnet0 -j libvirt-I-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0

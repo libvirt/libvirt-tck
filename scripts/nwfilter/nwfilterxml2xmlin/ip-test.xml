@@ -21,14 +21,8 @@
   <rule action='accept' direction='in'>
      <ip  srcipaddr='10.1.2.3' srcipmask='255.255.255.254'
           dstipaddr='10.1.2.3' dstipmask='255.255.255.128'
-          protocol='255' dscp='64'
+          protocol='255' dscp='63'
       />
   </rule>
 
-  <rule action='accept' direction='inout'>
-     <ip  srcipaddr='10.1.2.3' srcipmask='255.255.255.127'
-          dstipaddr='10.1.2.3' dstipmask='255.255.255.254'
-          protocol='256' dscp='64'
-      />
-  </rule>
 </filter>

@@ -28,7 +28,7 @@
            dstipmask='ffff:ffff:ffff:ffff:8000::'
            protocol='6'
            srcportstart='255' srcportend='256'
-           dstportstart='65535' dstportend='65536'
+           dstportstart='65535' dstportend='65535'
       />
   </rule>
 

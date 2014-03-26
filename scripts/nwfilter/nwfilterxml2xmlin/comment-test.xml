@@ -50,7 +50,7 @@
   <rule action='accept' direction='in'>
      <tcp-ipv6 srcmacaddr='1:2:3:4:5:6'
                srcipaddr='a:b:c::' srcipmask='128'
-               dscp='0x40'
+               dscp='0x39'
                srcportstart='0x20' srcportend='0x21'
                dstportstart='0x100' dstportend='0x1111'
                comment='tcp/ipv6 rule'/>

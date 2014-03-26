@@ -11,15 +11,15 @@
 #iptables -L FI-vnet0 -n
 Chain FI-vnet0 (1 references)
 target     prot opt source               destination         
-RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */ 
+RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */
 #iptables -L FO-vnet0 -n
 Chain FO-vnet0 (1 references)
 target     prot opt source               destination         
-ACCEPT     udp  --  10.1.2.3             0.0.0.0/0           DSCP match 0x22udp spts:564:1092 dpts:291:400 state ESTABLISHED ctdir ORIGINAL/* udp rule */ 
+ACCEPT     udp  --  10.1.2.3             0.0.0.0/0           DSCP match 0x22udp spts:564:1092 dpts:291:400 state ESTABLISHED ctdir ORIGINAL/* udp rule */
 #iptables -L HI-vnet0 -n
 Chain HI-vnet0 (1 references)
 target     prot opt source               destination         
-RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */ 
+RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */
 #iptables -L libvirt-host-in -n | grep HI-vnet0 | tr -s " "
 HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
 #iptables -L libvirt-in -n | grep FI-vnet0 | tr -s " "
@@ -31,24 +31,24 @@ FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --p
 #ip6tables -L FI-vnet0 -n
 Chain FI-vnet0 (1 references)
 target     prot opt source               destination         
-RETURN     tcp      ::/0                 a:b:c::/128         tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */ 
-RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */ 
-RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */ 
-RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */ 
+RETURN     tcp      ::/0                 a:b:c::/128         DSCP match 0x39 tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */
+RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
+RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */
+RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L FO-vnet0 -n
 Chain FO-vnet0 (1 references)
 target     prot opt source               destination         
-ACCEPT     tcp      a:b:c::/128          ::/0                MAC 01:02:03:04:05:06 tcp spts:32:33 dpts:256:4369 state NEW,ESTABLISHED ctdir REPLY/* tcp/ipv6 rule */ 
-ACCEPT     udp      ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */ 
-ACCEPT     sctp     ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* comment with lone ', `, ", `, \, $x, and two  spaces */ 
-ACCEPT     ah       ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */ 
+ACCEPT     tcp      a:b:c::/128          ::/0                MAC 01:02:03:04:05:06 DSCP match 0x39 tcp spts:32:33 dpts:256:4369 state NEW,ESTABLISHED ctdir REPLY/* tcp/ipv6 rule */
+ACCEPT     udp      ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
+ACCEPT     sctp     ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* comment with lone ', `, ", `, \, $x, and two  spaces */
+ACCEPT     ah       ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L HI-vnet0 -n
 Chain HI-vnet0 (1 references)
 target     prot opt source               destination         
-RETURN     tcp      ::/0                 a:b:c::/128         tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */ 
-RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */ 
-RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */ 
-RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */ 
+RETURN     tcp      ::/0                 a:b:c::/128         DSCP match 0x39 tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */
+RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
+RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */
+RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 HI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
 #ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "

@@ -502,9 +502,12 @@ sub match_kernel {
 	    my @domains = $caps->guest_domain_types($i);
 	    next unless int(@domains);
 
-	    return ($domains[0],
-		    $caps->guest_domain_emulator($i, $domains[0]),
-		    $caps->guest_domain_loader($i, $domains[0]));
+	    # Prefer kvm if multiple domain types are returned
+	    my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
+
+	    return ($domain,
+		    $caps->guest_domain_emulator($i, $domain),
+		    $caps->guest_domain_loader($i, $domain));
 	}
     }
 

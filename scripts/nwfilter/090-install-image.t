@@ -41,7 +41,7 @@ END { $tck->cleanup if $tck; }
 use File::Spec::Functions qw(catfile catdir rootdir);
 
 # variables which may need to be adapted
-my $dom_name ="tckf12nwtest";
+my $dom_name ="tcknwtest";
 
 my $testdom = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $testdom->create();

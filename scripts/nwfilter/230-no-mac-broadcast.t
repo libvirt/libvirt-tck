@@ -43,7 +43,7 @@ END {
 
 # create first domain and start it
 my $dom1;
-my $dom_name ="tckf12nwtest";
+my $dom_name ="tcknwtest";
 
 $dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
 $dom1->create();

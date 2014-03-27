@@ -1,8 +1,10 @@
 #iptables -t nat -L -n | grep ' 10\.1\.2\.'
+RETURN     all  --  10.1.2.0/24     224.0.0.0/24
+RETURN     all  --  10.1.2.0/24     255.255.255.255
 MASQUERADE  tcp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  udp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24         
-#iptables -n -L FORWARD | grep ' 10\.1\.2\.'
+#iptables -n -L FORWARD | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
 ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
 #ip6tables -n -L FORWARD | grep ' 2001:db8:ac10'
@@ -10,40 +12,25 @@ ACCEPT     all      ::/0                 2001:db8:ac10:fd01::/64
 ACCEPT     all      2001:db8:ac10:fd01::/64  ::/0                
 ACCEPT     all      ::/0                 2001:db8:ac10:fe01::/64 
 ACCEPT     all      2001:db8:ac10:fe01::/64  ::/0                
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 10\.1\.2\.1\).*|\1|p'
-listen-address 10.1.2.1
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 192\.168\.123\.1\).*|\1|p'
-listen-address 192.168.123.1
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 172\.28\.255\.241\).*|\1|p'
-listen-address 172.28.255.241
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(dhcp-range 10\.1\.2\.2,10\.1\.2\.254\).*|\1|p'
-dhcp-range 10.1.2.2,10.1.2.254
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 2001\:db8\:ac10\:fe01\:\:1\).*|\1|p'
-listen-address 2001:db8:ac10:fe01::1
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 2001\:db8\:ac10\:fd01\:\:1\).*|\1|p'
-listen-address 2001:db8:ac10:fd01::1
-#ps aux | sed -n '/radvd --.*tck-testnet-/ s|.*\(\/radvd\/tck-testnet-radvd.conf\).*|\1|p'
-/radvd/tck-testnet-radvd.conf
-#route -n | grep '10\.1\.2\.'
-10.1.2.0        0.0.0.0         255.255.255.0   U     0      0        0 tck-testbr
-#route -n | grep '192\.168\.123\.'
-192.168.123.0   0.0.0.0         255.255.255.0   U     0      0        0 tck-testbr
-#route -n | grep '172\.28\.255\.240'
-172.28.255.240  0.0.0.0         255.255.255.240 U     0      0        0 tck-testbr
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p'
+/dnsmasq/tck-testnet.conf
+#grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
+bind-dynamic
+#grep dhcp-range `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
+dhcp-range=10.1.2.2,10.1.2.254
+dhcp-range=2001:db8:ac10:fe01::1,ra-only
+dhcp-range=2001:db8:ac10:fd01::1,ra-only
 #brctl show | grep tck-testbr | gawk '{print $1" "$3}'
 tck-testbr yes
-#ifconfig tck-testbr | grep ':10\.1\.2\.'
-          inet addr:10.1.2.1  Bcast:10.1.2.255  Mask:255.255.255.0
-#ifconfig tck-testbr | grep 'inet6 addr: 2001'
-          inet6 addr: 2001:db8:ac10:fd01::1/64 Scope:Global
-          inet6 addr: 2001:db8:ac10:fe01::1/64 Scope:Global
-#ip addr show tck-testbr | grep "inet "
-    inet 10.1.2.1/24 brd 10.1.2.255 scope global tck-testbr
-    inet 192.168.123.1/24 brd 192.168.123.255 scope global tck-testbr
-    inet 172.28.255.241/28 brd 172.28.255.255 scope global tck-testbr
-#ip route show dev tck-testbr
-172.28.255.240/28  proto kernel  scope link  src 172.28.255.241 
-10.1.2.0/24  proto kernel  scope link  src 10.1.2.1 
-192.168.123.0/24  proto kernel  scope link  src 192.168.123.1 
+#ip -o addr show dev tck-testbr | gawk '{print $4" "$6}'
+10.1.2.1/24 10.1.2.255
+192.168.123.1/24 192.168.123.255
+172.28.255.241/28 172.28.255.255
+2001:db8:ac10:fd01::1/64 global
+2001:db8:ac10:fe01::1/64 global
+#ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
+10.1.2.0/24 10.1.2.1
+172.28.255.240/28 172.28.255.241
+192.168.123.0/24 192.168.123.1
 #virsh net-list | grep tck-testnet
-tck-testnet          active     no        
+ tck-testnet          active     no   no

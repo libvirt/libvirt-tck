@@ -35,6 +35,7 @@ sub new {
 	type => $domain,
 	ostype => $ostype,
 	boot => { type => "disk" },
+	arch => $params{arch} ? $params{arch} : undef,
 	emulator => undef,
 	lifecycle => {},
 	features => {},
@@ -336,7 +337,11 @@ sub as_xml {
     }
 
     $w->startTag("os");
-    $w->dataElement("type", $self->{ostype});
+    if ($self->{arch}) {
+	$w->dataElement("type", $self->{ostype}, arch => $self->{arch});
+    } else {
+	$w->dataElement("type", $self->{ostype});
+    }
 
     if ($self->{boot}->{type} eq "disk") {
 	$w->emptyTag("boot", dev => "hd");

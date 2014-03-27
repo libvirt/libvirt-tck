@@ -67,6 +67,12 @@ sub new {
     return $self;
 }
 
+sub root_password {
+    my $self = shift;
+
+    return $self->{config}->get("rootpassword", "123456");
+}
+
 sub setup_conn {
     my $self = shift;
     my $uri = shift;
@@ -299,6 +305,7 @@ sub download_scratch {
     my $target = shift;
     my $uncompress = shift;
 
+    print "# downloading $source\n";
     my $ua = LWP::UserAgent->new;
     $ua->timeout(10);
     $ua->env_proxy;
@@ -332,6 +339,7 @@ sub copy_scratch {
     my $target = shift;
     my $uncompress = shift;
 
+    print "# copying $source\n";
     if (defined $uncompress) {
 	if ($uncompress eq "gzip") {
 	    gunzip $source => $target;
@@ -365,6 +373,28 @@ sub create_sparse_disk {
     return $target;
 }
 
+
+sub create_virt_builder_disk {
+    my $self = shift;
+    my $bucket = shift;
+    my $name = shift;
+    my $osname = shift;
+
+    my $dir = $self->bucket_dir($bucket);
+
+    my $target = catfile($dir, $name);
+
+    my $password = $self->root_password;
+
+    if (-f $target) {
+	return $target;
+    }
+
+    print "# running virt-builder $osname\n";
+    `virt-builder --root-password 'password:$password' --output $target $osname`;
+
+    return $target;
+}
 
 sub create_empty_dir {
     my $self = shift;
@@ -489,7 +519,31 @@ EOF
     return ($target, catfile(rootdir, "sbin", "init"));
 }
 
-sub match_kernel {
+sub best_domain {
+    my $self = shift;
+    my $caps = shift;
+    my $ostype = shift;
+
+    for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
+	if ($caps->guest_os_type($i) eq $ostype &&
+	    $caps->guest_arch_name($i) eq $caps->host_cpu_arch()) {
+
+	    my @domains = $caps->guest_domain_types($i);
+	    next unless int(@domains);
+
+	    # Prefer kvm if multiple domain types are returned
+	    my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
+
+	    return ($domain,
+		    $caps->host_cpu_arch());
+	}
+    }
+
+    return ();
+}
+
+
+sub match_guest_domain {
     my $self = shift;
     my $caps = shift;
     my $arch = shift;
@@ -521,11 +575,14 @@ sub best_kernel {
     my $wantostype = shift;
 
     my $kernels = $self->config("kernels", []);
+    my $hostarch = $caps->host_cpu_arch();
 
     for (my $i = 0 ; $i <= $#{$kernels} ; $i++) {
 	my $arch = $kernels->[$i]->{arch};
 	my $ostype = $kernels->[$i]->{ostype};
 	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+
+	next unless $arch eq $hostarch;
 
 	foreach $ostype (@ostype) {
 	    if ((defined $wantostype) &&
@@ -534,7 +591,7 @@ sub best_kernel {
 	    }
 
 	    my ($domain, $emulator, $loader) =
-		$self->match_kernel($caps, $arch, $ostype);
+		$self->match_guest_domain($caps, $arch, $ostype);
 
 	    if (defined $domain) {
 		return ($i, $domain, $arch, $ostype, $emulator, $loader)
@@ -544,6 +601,64 @@ sub best_kernel {
 
     return ();
 }
+
+
+# Find an image matching the host arch and requested ostype
+sub best_image {
+    my $self = shift;
+    my $caps = shift;
+    my $wantostype = shift;
+
+    my $images = $self->config("images", []);
+    my $hostarch = $caps->host_cpu_arch();
+
+    for (my $i = 0 ; $i <= $#{$images} ; $i++) {
+	my $arch = $images->[$i]->{arch};
+	my $ostype = $images->[$i]->{ostype};
+	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+
+	next unless $arch eq $hostarch;
+
+	foreach $ostype (@ostype) {
+	    if ((defined $wantostype) &&
+		($wantostype ne $ostype)) {
+		next;
+	    }
+
+	    my ($domain, $emulator, $loader) =
+		$self->match_guest_domain($caps, $arch, $ostype);
+
+	    if (defined $domain) {
+		return ($i, $domain, $arch, $ostype, $emulator, $loader)
+	    }
+	}
+    }
+
+    return ();
+}
+
+sub get_disk_dev {
+    my $self = shift;
+    my $ostype = shift;
+    my $domain = shift;
+
+    my $dev;
+    if ($ostype eq "xen") {
+	$dev = "xvda";
+    } elsif ($ostype eq "uml") {
+	$dev = "ubda";
+    } elsif ($ostype eq "hvm") {
+	if ($domain eq "kvm" ||
+	    $domain eq "qemu" ||
+	    $domain eq "kqemu") {
+	    $dev = "vda";
+	} else {
+	    $dev = "hda";
+	}
+    }
+    return $dev;
+}
+
 
 sub get_kernel {
     my $self = shift;
@@ -575,20 +690,7 @@ sub get_kernel {
 
     chmod 0755, $kfile;
 
-    my $dev;
-    if ($ostype eq "xen") {
-	$dev = "xvda";
-    } elsif ($ostype eq "uml") {
-	$dev = "ubda";
-    } elsif ($ostype eq "hvm") {
-	if ($domain eq "kvm" ||
-	    $domain eq "qemu" ||
-	    $domain eq "kqemu") {
-	    $dev = "vda";
-	} else {
-	    $dev = "hda";
-	}
-    }
+    my $dev = $self->get_disk_dev($ostype, $domain);
 
     return (
 	domain => $domain,
@@ -604,32 +706,97 @@ sub get_kernel {
 }
 
 
+sub get_image {
+    my $self = shift;
+    my $caps = shift;
+    my $wantostype = shift;
+
+    my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
+	$self->best_image($caps, $wantostype);
+
+    if (!defined $cfgindex) {
+	die "cannot find any supported image configuration";
+    }
+
+    my $kernels = $self->config("images", []);
+
+    my $osname = $kernels->[$cfgindex]->{osname};
+
+    my $bucket = "os-$arch-$ostype";
+
+    my $dfile = $self->create_virt_builder_disk($bucket, "disk-$osname.img", $osname);
+
+    my $dev = $self->get_disk_dev($ostype, $domain);
+
+    return (
+	domain => $domain,
+	arch => $arch,
+	ostype => $ostype,
+	emulator => $emulator,
+	loader => $loader,
+	root => $dfile,
+	dev => $dev,
+    );
+}
+
+
 
 sub generic_machine_domain {
     my $self = shift;
     my %params = @_;
     my $name = exists $params{name} ? $params{name} : "tck";
-    my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
+    my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
+    my $fullos = exists $params{fullos} ? $params{fullos} : 0;
 
-    my %config = $self->get_kernel($caps, $ostype);
+    if ($fullos) {
+	my %config = $self->get_image($caps, $ostype);
 
-    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
-					       name => $name,
-					       domain => $config{domain},
-					       ostype => $config{ostype});
-    $b->memory(64 * 1024);
-    $b->with_acpi();
-    $b->with_apic();
+        my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
+						   name => $name,
+						   arch => $config{arch},
+						   domain => $config{domain},
+						   ostype => $config{ostype});
+	$b->memory(1024 * 1024);
+	$b->with_acpi();
+	$b->with_apic();
 
-    # XXX boot CDROM or vroot for other HVs
-    $b->boot_kernel($config{kernel}, $config{initrd});
+	$b->boot_disk();
 
-    $b->disk(src => $config{root},
-	     dst => $config{dev},
-	     type => "file");
+	$b->graphics(type => "vnc",
+		     port => "-1",
+		     autoport => "yes",
+		     listen => "127.0.0.1");
 
-    return $b;
+	$b->disk(src => $config{root},
+		 dst => $config{dev},
+		 type => "file");
+	return $b;
+    } else {
+	my %config = $self->get_kernel($caps, $ostype);
+
+	my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
+						   name => $name,
+						   arch => $config{arch},
+						   domain => $config{domain},
+						   ostype => $config{ostype});
+	$b->memory(1024 * 1024);
+	$b->with_acpi();
+	$b->with_apic();
+
+	# XXX boot CDROM or vroot for other HVs
+	$b->boot_kernel($config{kernel}, $config{initrd});
+
+	$b->graphics(type => "vnc",
+		     port => "-1",
+		     autoport => "yes",
+		     listen => "127.0.0.1");
+
+	$b->disk(src => $config{root},
+		 dst => $config{dev},
+		 type => "file");
+	return $b;
+    }
 }
 
 
@@ -683,6 +850,7 @@ sub generic_domain {
 
     my $name = exists $params{name} ? $params{name} : "tck";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
+    my $fullos = exists $params{fullos} ? $params{fullos} : 0;
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
@@ -692,13 +860,16 @@ sub generic_domain {
 	unless $ostype && $ostype ne "exe";
 
     if ($container) {
+	die "Full provisioned OS not supported with containers yet" if $fullos;
+
 	return $self->generic_container_domain(name => $name,
 					       caps => $caps,
 					       domain => $container);
     } else {
 	return $self->generic_machine_domain(name => $name,
 					     caps => $caps,
-					     ostype => $ostype);
+					     ostype => $ostype,
+					     fullos => $fullos);
     }
 }
 

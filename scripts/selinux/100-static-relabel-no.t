@@ -53,7 +53,7 @@ SKIP: {
 
     selinux_set_file_context($disk, $origimagelabel);
 
-    my $xml = $tck->generic_domain("tck")
+    my $xml = $tck->generic_domain(name => "tck")
 	->seclabel(model => "selinux", type => "static", relabel => "no", label => $origdomainlabel)
 	->disk(src => $disk, dst => "vdb", type => "file")
 	->as_xml;

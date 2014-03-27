@@ -47,7 +47,7 @@ SKIP:{
     skip "Only relevant to QEMU driver", 10 unless $conn->get_type() eq "QEMU";
 
     # scenario 1 - get/define xml from transient domain save image
-    my $xml = $tck->generic_domain("tck")->as_xml;
+    my $xml = $tck->generic_domain(name => "tck")->as_xml;
     diag "Creating a new transient domain";
     my $dom;
     ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");

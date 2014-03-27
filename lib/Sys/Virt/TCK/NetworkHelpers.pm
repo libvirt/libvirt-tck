@@ -58,7 +58,7 @@ sub build_domain{
 
     my ($cdrom, $ksurl) = build_cdrom_ks_image($tck);
 
-    my $guest = $tck->generic_domain($domain_name);
+    my $guest = $tck->generic_domain(name => $domain_name);
 
     # change the type of network connection for 802.1Qbg tests
     if ($mode eq  "vepa") {

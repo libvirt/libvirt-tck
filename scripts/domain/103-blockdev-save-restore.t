@@ -42,7 +42,7 @@ END {
 }
 
 
-my $xml = $tck->generic_domain("tck")->as_xml;
+my $xml = $tck->generic_domain(name => "tck")->as_xml;
 
 my $dev = $tck->get_host_block_device();
 

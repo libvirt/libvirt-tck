@@ -39,7 +39,7 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 
-my $xml = $tck->generic_domain("tck")->as_xml;
+my $xml = $tck->generic_domain(name => "tck")->as_xml;
 
 diag "Defining an inactive domain config";
 my $dom;

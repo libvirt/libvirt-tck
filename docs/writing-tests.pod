@@ -159,7 +159,7 @@ the exact config, just wanting a minimal generic domain config that is
 highly likely to work without error. For such cases, a nice simple
 API is provided:
 
-   my $xml = $tck->generic_domain("test")->as_xml;
+   my $xml = $tck->generic_domain(name => "test")->as_xml;
 
 This creates an XML document for a guest that is of the correct OS and
 domain type to be able to run on the current hypervisor, with a name
@@ -167,7 +167,7 @@ of 'test', and a single disk. It is possible to set further parameters
 if required. For example, to set an explicit UUID, give 3 virtual CPUs
 and turn on ACPI:
 
-  my $xml = $tck->generic_domain("test")->vcpus(3)
+  my $xml = $tck->generic_domain(name => "test")->vcpus(3)
              ->uuid("11111111-1111-2222-3333-444444444444")
              ->with_acpi()->as_xml()
 
@@ -357,7 +357,7 @@ Taking this into account, the complete example script looks like
     END { $tck->cleanup if $tck; }
 
 
-    my $xml = $tck->generic_domain("test")->as_xml;
+    my $xml = $tck->generic_domain(name => "test")->as_xml;
 
     my $dom;
     diag "Defining inactive domain config again";

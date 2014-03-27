@@ -42,7 +42,7 @@ END {
 }
 
 
-my $xml = $tck->generic_domain("tck")->as_xml;
+my $xml = $tck->generic_domain(name => "tck")->as_xml;
 
 diag "Creating a new persistent domain";
 my $dom;

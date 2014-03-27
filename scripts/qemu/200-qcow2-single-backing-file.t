@@ -107,7 +107,7 @@ SKIP: {
     # We point the guest at a qcow2 image, but tell it that is
     # is raw. Thus *nothing* should ever try to open the backing
     # store in this qcow2 image.
-    $xml = $tck->generic_domain("tck")
+    $xml = $tck->generic_domain(name => "tck")
 	->disk(format => { name => "qemu", type => "raw" },
 	       type => "file",
 	       src => $pathmain,

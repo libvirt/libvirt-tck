@@ -100,7 +100,7 @@ my ($conn, $otherconn) = eval { $tck->setup(dualhost => 1); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
-my $xml = $tck->generic_domain("tck")->uuid("050072e8-7bce-3515-992a-8431d74f371f")->as_xml;
+my $xml = $tck->generic_domain(name => "tck")->uuid("050072e8-7bce-3515-992a-8431d74f371f")->as_xml;
 
 use Sys::Virt::Domain;
 use IO::File;

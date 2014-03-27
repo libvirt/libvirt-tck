@@ -38,7 +38,7 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 
-my $cfg = $tck->generic_domain("tck")->uuid("11111111-1111-1111-1111-111111111111");
+my $cfg = $tck->generic_domain(name => "tck")->uuid("11111111-1111-1111-1111-111111111111");
 $cfg->on_reboot("restart");
 my $xml1 = $cfg->as_xml;
 $cfg->on_reboot("destroy");

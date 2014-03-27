@@ -46,7 +46,7 @@ my $path2 = $tck->create_sparse_disk("207-disk-media-change", "extra2.img", 100)
 my $xml;
 
 eval {
-    $xml = $tck->generic_domain("tck", "hvm")
+    $xml = $tck->generic_domain(name => "tck", ostype => "hvm")
 	->disk(src => $path1, dst => "hdc", type => "file", device => "cdrom")
 	->as_xml;
 };

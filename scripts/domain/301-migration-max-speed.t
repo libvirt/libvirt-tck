@@ -42,7 +42,7 @@ END {
     $tck->cleanup if $tck;
 }
 
-my $xml = $tck->generic_domain("tck")->as_xml;
+my $xml = $tck->generic_domain(name => "tck")->as_xml;
 
 my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "Create domain");

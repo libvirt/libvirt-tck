@@ -85,7 +85,7 @@ my $disktype = "raw";
 my $dst = "vda";
 my $dst2 = "vdb";
 my $dst3 = "vdc";
-my $guest = $tck->generic_domain("tck");
+my $guest = $tck->generic_domain(name => "tck");
 $guest->rmdisk();
 
 $guest->disk(format => { name => "qemu", type => $disktype }, type => "file", src => $path, dst => $dst);

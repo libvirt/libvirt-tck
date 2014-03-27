@@ -52,7 +52,7 @@ SKIP: {
     my $origdomainlabel = $SELINUX_DOMAIN_CONTEXT . $origmcs;
     my $origimagelabel = selinux_restore_file_context($disk);
 
-    my $xml = $tck->generic_domain("tck")
+    my $xml = $tck->generic_domain(name => "tck")
 	->seclabel(model => "selinux", type => "static", relabel => "yes", label => $origdomainlabel)
 	->disk(src => $disk, dst => "vdb", type => "file")
 	->as_xml;

@@ -607,14 +607,14 @@ sub get_kernel {
 
 sub generic_machine_domain {
     my $self = shift;
-    my $name = shift;
-    my $caps = shift;
-    my $ostype = shift;
-    my $conn = @_ ? shift : $self->conn;
+    my %params = @_;
+    my $name = exists $params{name} ? $params{name} : "tck";
+    my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
+    my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
 
     my %config = $self->get_kernel($caps, $ostype);
 
-    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn,
+    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
 					       name => $name,
 					       domain => $config{domain},
 					       ostype => $config{ostype});
@@ -652,14 +652,14 @@ sub best_container_domain {
 
 sub generic_container_domain {
     my $self = shift;
-    my $name = shift;
-    my $caps = shift;
-    my $domain = shift;
-    my $conn = @_ ? shift : $self->conn;
+    my %params = @_;
+    my $name = exists $params{name} ? $params{name} : "tck";
+    my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
+    my $domain = exists $params{domain} ? $params{domain} : die "domain parameter is required";
 
     my $bucket = "os-exe";
 
-    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $conn,
+    my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
 					       name => $name,
 					       domain => $domain,
 					       ostype => "exe");
@@ -679,11 +679,12 @@ sub generic_container_domain {
 
 sub generic_domain {
     my $self = shift;
-    my $name = @_ ? shift : "tck";
-    my $ostype = @_ ? shift : undef;
-    my $conn = shift || $self->conn;
+    my %params = @_;
 
-    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $conn->get_capabilities);
+    my $name = exists $params{name} ? $params{name} : "tck";
+    my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
+
+    my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
     my $container;
 
@@ -691,9 +692,13 @@ sub generic_domain {
 	unless $ostype && $ostype ne "exe";
 
     if ($container) {
-	return $self->generic_container_domain($name, $caps, $container);
+	return $self->generic_container_domain(name => $name,
+					       caps => $caps,
+					       domain => $container);
     } else {
-	return $self->generic_machine_domain($name, $caps, $ostype);
+	return $self->generic_machine_domain(name => $name,
+					     caps => $caps,
+					     ostype => $ostype);
     }
 }
 

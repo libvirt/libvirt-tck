@@ -47,7 +47,7 @@ END {
 my $live = $conn->is_alive();
 ok($live > 0, "Connection is alive");
 
-my $xml = $tck->generic_domain("tck")
+my $xml = $tck->generic_domain(name => "tck")
               ->interface(type => "network", source => "default", model => "virtio", mac => "52:54:00:22:22:22")
               ->as_xml;
 

@@ -64,9 +64,9 @@ my $uuid1 = "11111111-1111-1111-1111-111111111111";
 my $uuid2 = "22222222-1111-1111-1111-111111111111";
 
 # The initial config
-my $xml1 = $tck->generic_domain($name)->uuid($uuid1)->as_xml;
+my $xml1 = $tck->generic_domain(name => $name)->uuid($uuid1)->as_xml;
 # One with a different UUID, matching name
-my $xml2 = $tck->generic_domain($name)->uuid($uuid2)->as_xml;
+my $xml2 = $tck->generic_domain(name => $name)->uuid($uuid2)->as_xml;
 
 diag "Creating & destroying initial guest with $name, $uuid1";
 my $dom1;

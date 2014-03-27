@@ -54,13 +54,13 @@ my $uuid1 = "11111111-1111-1111-1111-111111111111";
 my $uuid2 = "22222222-1111-1111-1111-111111111111";
 
 # The initial config
-my $xml = $tck->generic_domain($name1)->uuid($uuid1)->as_xml;
+my $xml = $tck->generic_domain(name => $name1)->uuid($uuid1)->as_xml;
 # One with a different UUID, matching name
-my $xml_diffuuid = $tck->generic_domain($name1)->uuid($uuid2)->as_xml;
+my $xml_diffuuid = $tck->generic_domain(name => $name1)->uuid($uuid2)->as_xml;
 # One with a matching UUID, different name
-my $xml_diffname = $tck->generic_domain($name2)->uuid($uuid1)->as_xml;
+my $xml_diffname = $tck->generic_domain(name => $name2)->uuid($uuid1)->as_xml;
 # One with a different UUID, different name
-my $xml_diffboth = $tck->generic_domain($name2)->uuid($uuid2)->as_xml;
+my $xml_diffboth = $tck->generic_domain(name => $name2)->uuid($uuid2)->as_xml;
 
 
 diag "Defining persistent domain config";

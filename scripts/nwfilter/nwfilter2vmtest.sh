@@ -68,7 +68,7 @@ EOF
 
 
 tap_fail() {
-  txt=$(echo "$2" | gawk '{print substr($0,1,66)}')
+  txt=$(echo "$2")
   echo "not ok $1 - ${txt}"
   TAP_FAIL_LIST="$TAP_FAIL_LIST $1 "
   TAP_FAIL_CTR=$(($TAP_FAIL_CTR + 1))
@@ -76,7 +76,7 @@ tap_fail() {
 }
 
 tap_pass() {
-  txt=$(echo "$2" | gawk '{print substr($0,1,70)}')
+  txt=$(echo "$2")
   echo "ok $1 - ${txt}"
   TAP_TOT_CTR=$(($TAP_TOT_CTR + 1))
 }

@@ -51,8 +51,8 @@ SKIP: {
     my $origdomainlabel = $SELINUX_DOMAIN_CONTEXT . $origmcs;
     my $origimagelabel = $SELINUX_IMAGE_CONTEXT . $origmcs;
 
+    diag "Setting image '$disk' to '$origimagelabel'";
     selinux_set_file_context($disk, $origimagelabel);
-
     my $xml = $tck->generic_domain(name => "tck")
 	->seclabel(model => "selinux", type => "static", relabel => "no", label => $origdomainlabel)
 	->disk(src => $disk, dst => "vdb", type => "file")

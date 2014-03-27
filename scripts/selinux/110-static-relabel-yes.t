@@ -28,7 +28,7 @@ and files can be relabelled
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::SELinux;
@@ -48,8 +48,8 @@ SKIP: {
 
     my $disk = $tck->create_sparse_disk("selinux", "tck", 50);
 
-    my $origmcs = ":c1,c2";
-    my $origdomainlabel = $SELINUX_DOMAIN_CONTEXT . $origmcs;
+    my $origmcs = "c1,c2";
+    my $origdomainlabel = $SELINUX_DOMAIN_CONTEXT . ":" . $origmcs;
     my $origimagelabel = selinux_restore_file_context($disk);
 
     my $xml = $tck->generic_domain(name => "tck")
@@ -66,9 +66,12 @@ SKIP: {
     diag "domainlabel $domainlabel";
     my $imagelabel = xpath($dom, "string(/domain/seclabel/imagelabel)");
     diag "imagelabel $imagelabel";
+    my $imagetype = selinux_get_type($imagelabel);
+    my $imagemcs = selinux_get_mcs($imagelabel);
 
     is($origdomainlabel, $domainlabel, "static label is $domainlabel");
-    is($imagelabel, $SELINUX_IMAGE_CONTEXT . $origmcs, "image label is $SELINUX_DOMAIN_CONTEXT$origmcs");
+    is($imagetype, $SELINUX_IMAGE_TYPE, "image label type is $SELINUX_DOMAIN_TYPE");
+    is($imagemcs, $origmcs, "image label mcs is $origmcs");
 
     is(selinux_get_file_context($disk), $imagelabel, "$disk label is $imagelabel");
 

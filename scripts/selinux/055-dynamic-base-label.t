@@ -64,12 +64,14 @@ SKIP: {
     diag "domainlabel $domainlabel";
     my $imagelabel = xpath($dom, "string(/domain/seclabel/imagelabel)");
     diag "imagelabel $imagelabel";
+    my $domaintype = selinux_get_type($domainlabel);
+    my $imagetype = selinux_get_type($imagelabel);
 
-    is(index($domainlabel, $SELINUX_OTHER_CONTEXT), 0, "dynamic domain label prefix is $SELINUX_OTHER_CONTEXT");
-    is(index($imagelabel, $SELINUX_IMAGE_CONTEXT), 0, "dynamic image label prefix is $SELINUX_IMAGE_CONTEXT");
+    is($domaintype, $SELINUX_OTHER_TYPE, "dynamic domain label type is $SELINUX_OTHER_TYPE");
+    is($imagetype, $SELINUX_IMAGE_TYPE, "dynamic image label type is $SELINUX_IMAGE_TYPE");
 
-    my $domainmcs = substr $domainlabel, length($SELINUX_OTHER_CONTEXT);
-    my $imagemcs = substr $imagelabel, length($SELINUX_IMAGE_CONTEXT);
+    my $domainmcs = selinux_get_mcs($domainlabel);
+    my $imagemcs = selinux_get_mcs($imagelabel);
 
     is($domainmcs, $imagemcs, "Domain MCS $domainmcs == Image MCS $imagemcs");
 

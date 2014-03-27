@@ -18,19 +18,43 @@ use warnings;
 use base qw(Exporter);
 
 use vars qw($SELINUX_GENERIC_CONTEXT $SELINUX_DOMAIN_CONTEXT
- $SELINUX_IMAGE_CONTEXT $SELINUX_OTHER_CONTEXT);
+ $SELINUX_IMAGE_CONTEXT $SELINUX_OTHER_CONTEXT
+ $SELINUX_GENERIC_TYPE $SELINUX_DOMAIN_TYPE
+ $SELINUX_IMAGE_TYPE $SELINUX_OTHER_TYPE);
 
 our @EXPORT = qw(selinux_get_file_context
  selinux_set_file_context
  selinux_restore_file_context
+ selinux_get_type
+ selinux_get_mcs
  $SELINUX_GENERIC_CONTEXT $SELINUX_DOMAIN_CONTEXT
- $SELINUX_IMAGE_CONTEXT $SELINUX_OTHER_CONTEXT);
+ $SELINUX_IMAGE_CONTEXT $SELINUX_OTHER_CONTEXT
+ $SELINUX_GENERIC_TYPE $SELINUX_DOMAIN_TYPE
+ $SELINUX_IMAGE_TYPE $SELINUX_OTHER_TYPE);
 
-$SELINUX_OTHER_CONTEXT = "system_u:object_r:virt_t:s0";
+$SELINUX_OTHER_TYPE = "svirt_tcg_t";
+$SELINUX_GENERIC_TYPE = "virt_image_t";
+$SELINUX_DOMAIN_TYPE = "svirt_t";
+$SELINUX_IMAGE_TYPE = "svirt_image_t";
+
+$SELINUX_OTHER_CONTEXT = "system_u:system_r:svirt_tcg_t:s0";
 $SELINUX_GENERIC_CONTEXT = "system_u:object_r:virt_image_t:s0";
 $SELINUX_DOMAIN_CONTEXT = "system_u:system_r:svirt_t:s0";
 $SELINUX_IMAGE_CONTEXT = "system_u:object_r:svirt_image_t:s0";
 
+sub selinux_get_type {
+    my $context = shift;
+
+    my @bits = split /:/, $context;
+    return $bits[2];
+}
+
+sub selinux_get_mcs {
+    my $context = shift;
+
+    my @bits = split /:/, $context;
+    return $bits[4];
+}
 
 sub selinux_get_file_context {
     my $path = shift;

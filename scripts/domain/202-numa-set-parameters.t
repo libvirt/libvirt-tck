@@ -28,7 +28,7 @@ after the API call to set NUMA parameters for a domain.
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -80,13 +80,18 @@ diag "Set numa parameters, affects next boot";
 lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_CONFIG)}, "set_numa_parameters");
 
 diag "Get numa parameters";
-my $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_CONFIG);
 ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
 ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
 diag "Make sure the domain can be started after setting numa parameters";
 $dom->create;
 ok($dom->get_id > 0, "running domain with ID > 0");
+
+diag "Get numa parameters";
+$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
+ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
 diag "Destroying the persistent domain";
 $dom->destroy;

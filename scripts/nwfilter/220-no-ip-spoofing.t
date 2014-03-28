@@ -64,7 +64,8 @@ my $guestip = get_ip_from_leases($mac);
 diag "ip is $guestip";
 
 # check ebtables entry
-my $ebtable = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
+my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
+my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
 diag $ebtable;
 # check if IP address is listed
 ok($ebtable =~ "$guestip", "check ebtables entry");

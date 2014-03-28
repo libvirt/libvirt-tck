@@ -110,7 +110,6 @@ my $b = $class->new(
     },
     conf_files => {
 	'conf/default.cfg' => 'conf/default.cfg',
-	'conf/ks.cfg' => 'conf/ks.cfg',
     },
     PL_files => [ 'perl-Sys-Virt-TCK.spec.PL' ],
     );

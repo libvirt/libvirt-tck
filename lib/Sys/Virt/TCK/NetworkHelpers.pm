@@ -11,7 +11,7 @@ sub get_first_macaddress {
 
 sub get_ip_from_leases{
     my $mac = shift;
-    my $tmp = `grep $mac /var/lib/dnsmasq/dnsmasq.leases`;
+    my $tmp = `grep $mac /var/lib/libvirt/dnsmasq/default.leases`;
     my @fields = split(/ /, $tmp);
     my $ip = $fields[2];
     return $ip;

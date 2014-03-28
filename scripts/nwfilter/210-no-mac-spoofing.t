@@ -26,7 +26,7 @@ The test case validates that MAC spoofing is prevented
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -43,57 +43,60 @@ END {
 }
 
 # create first domain and start it
+my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+			       netmode => "network")->as_xml();
 
-my $dom_name ="tcknwtest";
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-my $dom1;
-$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
-$dom1->create();
-ok($dom1->get_id() > 0, "running domain has an ID > 0");
-my $xml = $dom1->get_xml_description;
-diag $xml;
+diag "Start domain";
+$dom->create;
+ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-
-# ping guest1 first nic
-my $mac1 =  get_first_macaddress($dom1);
-diag "mac is $mac1";
-
+diag "Waiting 30 seconds for guest to finish booting";
 sleep(30);
-my $guestip1 = get_ip_from_leases($mac1);
-diag "ip is $guestip1";
+
+# ping guest first nic
+my $mac =  get_first_macaddress($dom);
+diag "mac is $mac";
+
+my $guestip = get_ip_from_leases($mac);
+diag "ip is $guestip";
 
 # check ebtables entry
-my $ebtable1 = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
-diag $ebtable1;
+my $ebtable = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
+diag $ebtable;
 # ebtables shortens :00: to :0: so we need to do that too
-$_ = $mac1;
+$_ = $mac;
 s/00/0/g; 
-ok($ebtable1 =~ $_, "check ebtables entry");
+ok($ebtable =~ $_, "check ebtables entry");
 
 my $gateway = "192.168.122.1";
 my $macfalse = "52:54:00:f9:21:22";
-my $ping1 = `ping -c 10 $guestip1`;
-diag $ping1;
-ok($ping1 =~ "10 received", "ping $guestip1 test");
+my $ping = `ping -c 10 $guestip`;
+diag $ping;
+ok($ping =~ "10 received", "ping $guestip test");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip1);
-$ssh->login("root", "foobar");
+my $ssh = Net::SSH::Perl->new($guestip);
+diag "ssh'ing into $guestip";
+$ssh->login("root", $tck->root_password());
 
 # now bring eth0 down, change MAC and bring it up again
 diag "fiddling with mac";
-my $cmdfile = "echo '" . 
-    "/sbin/ifconfig eth0\n".
-    "/sbin/ifconfig eth0 down\n".
-    "/sbin/ifconfig eth0 hw ether ${macfalse}\n".
-    "/sbin/ifconfig eth0 up\n".
-    "/sbin/ifconfig eth0\n".
-    "ping -c 10 ${gateway}\n".
-    "/sbin/ifconfig eth0 down\n".
-    "/sbin/ifconfig eth0 hw ether ${mac1}\n".
-    "/sbin/ifconfig eth0 up\n".
-    "/sbin/ifconfig eth0\n".
-    "' > /test.sh";
+my $cmdfile = <<EOF;
+echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
+/sbin/ip addr show dev \\\$DEV
+/sbin/ip link set \\\$DEV down
+/sbin/ip link set \\\$DEV address ${macfalse}
+/sbin/ip link set \\\$DEV up
+/sbin/ip addr show dev \\\$DEV
+/bin/ping -c 10 ${gateway}
+/sbin/ip link set \\\$DEV down
+/sbin/ip link set \\\$DEV address ${mac}
+/sbin/ip link set \\\$DEV up
+/sbin/ip addr show dev \\\$DEV" > /test.sh
+EOF
 diag $cmdfile;
 my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);
 diag $stdout;
@@ -107,12 +110,18 @@ diag $exit;
 diag $stdout;
 diag $stderr;
 diag $exit;
+($stdout, $stderr, $exit)  = $ssh->cmd("cat /test.sh");
+diag $stdout;
+diag $stderr;
+diag $exit;
 ($stdout, $stderr, $exit)  = $ssh->cmd("cat /test.log");
 diag $stdout;
 diag $stderr;
 diag $exit;
 ok($stdout =~ "100% packet loss", "packet loss expected");
 
-shutdown_vm_gracefully($dom1);
+shutdown_vm_gracefully($dom);
+
+$dom->undefine();
 
 exit 0;

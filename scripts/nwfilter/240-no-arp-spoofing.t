@@ -26,7 +26,7 @@ The test case validates that ARP spoofing is prevented
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -43,45 +43,51 @@ END {
     $tck->cleanup if $tck;
 }
 
-# creating domain
-my $dom1;
-my $dom_name ="tcknwtest";
+# create first domain and start it
+my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+			       netmode => "network")->as_xml();
 
-$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
-$dom1->create();
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-ok($dom1->get_id() > 0, "running domain has an ID > 0");
-my $xml = $dom1->get_xml_description;
-diag $xml;
-my $mac1 =  get_first_macaddress($dom1);
-diag "mac is $mac1";
+diag "Start domain";
+$dom->create;
+ok($dom->get_id() > 0, "running domain has an ID > 0");
 
+diag "Waiting 30 seconds for guest to finish booting";
 sleep(30);
-my $guestip1 = get_ip_from_leases($mac1);
-diag "ip is $guestip1";
+
+# ping guest first nic
+my $mac =  get_first_macaddress($dom);
+diag "mac is $mac";
+
+my $guestip = get_ip_from_leases($mac);
+diag "ip is $guestip";
 
 # check ebtables entry
-my $ebtable1 = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
-diag $ebtable1;
-# check if mac address is listed
-ok($ebtable1 =~ "$guestip1", "check ebtables entry");
+my $ebtable = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
+diag $ebtable;
+# check if IP address is listed
+ok($ebtable =~ "$guestip", "check ebtables entry");
 
 # prepare tcpdump
 diag "prepare tcpdump";
 system("/usr/sbin/tcpdump -v -i virbr0 not ip  > /tmp/tcpdump.log &");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip1);
-$ssh->login("root", "foobar");
+my $ssh = Net::SSH::Perl->new($guestip);
+diag "ssh'ing into $guestip";
+$ssh->login("root", $tck->root_password());
 
 # now generate a arp spoofing packets 
 diag "generate arpspoof";
-my $cmdfile = "echo '" . 
-    "/usr/bin/yum -y install dsniff\n".
-    "/usr/sbin/arpspoof ${spoofid} &\n".
-    "/bin/sleep 10\n".
-    "kill -15 `/sbin/pidof arpspoof`\n".
-    "' > /test.sh";
+my $cmdfile = <<EOF;
+echo '/usr/bin/yum -y install dsniff
+/usr/sbin/arpspoof ${spoofid} &
+/bin/sleep 10
+kill -15 `/sbin/pidof arpspoof`' > /test.sh
+EOF
+
 diag "content of cmdfile:";
 diag $cmdfile;
 diag "creating cmdfile";
@@ -111,6 +117,8 @@ my $tcpdumplog = `cat /tmp/tcpdump.log`;
 diag($tcpdumplog);
 ok($tcpdumplog !~ "${spoofid} is-at", "tcpdump expected to capture no arp reply packets");
 
-shutdown_vm_gracefully($dom1);
+shutdown_vm_gracefully($dom);
+
+$dom->undefine;
 
 exit 0;

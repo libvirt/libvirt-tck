@@ -242,9 +242,9 @@ runTest()
 
   [ $? -ne 0 ] && rm -rf "${tmpdir}" && return 1;
 
-  # Test runs for a maximum of 3 minutes
+  # Test runs for a maximum of 5 minutes
   now=`date +%s`
-  test_end=$(($now + 3 * 60))
+  test_end=$(($now + 5 * 60))
 
   while :;
   do

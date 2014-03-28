@@ -28,10 +28,9 @@ its value of current memory, max memory.
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 
 use Sys::Virt::TCK;
-use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
@@ -41,7 +40,6 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 diag "Define a new real domain, default memory is 1048576";
-my $dom_name ="tckmemballoon";
 my $default_mem = 1048576;
 my $max_mem1 = 1572864;
 my $max_mem2 = 1148576;
@@ -50,7 +48,9 @@ my $live_mem = 824288;
 my $current_mem = 724288;
 
 # Install a guest with default memory size
-my $dom = prepare_test_disk_and_vm($tck, $conn, $dom_name);
+my $xml = $tck->generic_domain(name => "tck", fullos => 1)->as_xml;
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
 
 diag "Set max memory for inactive domain";
@@ -62,6 +62,8 @@ is($dom->get_max_memory(), $max_mem1, "Get max memory $max_mem1");
 diag "Start domain";
 $dom->create;
 ok($dom->get_id() > 0, "running domain has an ID > 0");
+
+diag "Waiting 30 seconds for guest to finish booting";
 sleep(30);
 
 diag "Get max memory for domain when domain is active";

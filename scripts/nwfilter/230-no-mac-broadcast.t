@@ -26,7 +26,7 @@ The test case validates that MAC broadcasts are prevented
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -42,41 +42,48 @@ END {
 }
 
 # create first domain and start it
-my $dom1;
-my $dom_name ="tcknwtest";
+my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+			       netmode => "network")->as_xml();
 
-$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
-$dom1->create();
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-ok($dom1->get_id() > 0, "running domain has an ID > 0");
-my $xml = $dom1->get_xml_description;
-diag $xml;
-my $mac1 =  get_first_macaddress($dom1);
-diag "mac is $mac1";
+diag "Start domain";
+$dom->create;
+ok($dom->get_id() > 0, "running domain has an ID > 0");
 
+diag "Waiting 30 seconds for guest to finish booting";
 sleep(30);
-my $guestip1 = get_ip_from_leases($mac1);
-diag "ip is $guestip1";
+
+# ping guest first nic
+my $mac =  get_first_macaddress($dom);
+diag "mac is $mac";
+
+my $guestip = get_ip_from_leases($mac);
+diag "ip is $guestip";
 
 # check ebtables entry
-my $ebtable1 = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
-diag $ebtable1;
-# fixme to include mac adress
-ok($ebtable1 =~ "vnet0", "check ebtables entry");
+my $ebtable = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
+diag $ebtable;
+# ebtables shortens :00: to :0: so we need to do that too
+$_ = $mac;
+s/00/0/g;
+ok($ebtable =~ $_, "check ebtables entry");
 
 # prepare tcpdump
 diag "prepare tcpdump";
 system("/usr/sbin/tcpdump -v -i virbr0 -n host 255.255.255.255 2> /tmp/tcpdump.log &");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip1);
-$ssh->login("root", "foobar");
+my $ssh = Net::SSH::Perl->new($guestip);
+diag "ssh'ing into $guestip";
+$ssh->login("root", $tck->root_password());
 
 # now generate a mac broadcast paket 
 diag "generate mac broadcast";
-my $cmdfile = "echo '" . 
-    "/bin/ping -c 1 192.168.122.255 -b\n".
-    "' > /test.sh";
+my $cmdfile = <<EOF;
+echo '/bin/ping -c 1 192.168.122.255 -b' > /test.sh
+EOF
 diag $cmdfile;
 my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);
 diag $stdout;
@@ -102,6 +109,8 @@ my $tcpdumplog = `cat /tmp/tcpdump.log`;
 diag($tcpdumplog);
 ok($tcpdumplog =~ "0 packets captured", "tcpdump expected to capture no packets");
 
-shutdown_vm_gracefully($dom1);
+shutdown_vm_gracefully($dom);
+
+$dom->undefine;
 
 exit 0;

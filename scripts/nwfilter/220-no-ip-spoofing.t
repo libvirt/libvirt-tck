@@ -26,7 +26,7 @@ The test case validates that IP spoofing is prevented
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -42,54 +42,66 @@ END {
     $tck->cleanup if $tck;
 }
 
-# looking up domain
-my $dom1;
-my $dom_name ="tcknwtest";
+# create first domain and start it
+my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+			       netmode => "network")->as_xml();
 
-$dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name);
-$dom1->create();
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-ok($dom1->get_id() > 0, "running domain has an ID > 0");
-my $xml = $dom1->get_xml_description;
-diag $xml;
-my $mac1 =  get_first_macaddress($dom1);
-diag "mac is $mac1";
+diag "Start domain";
+$dom->create;
+ok($dom->get_id() > 0, "running domain has an ID > 0");
 
+diag "Waiting 30 seconds for guest to finish booting";
 sleep(30);
-my $guestip1 = get_ip_from_leases($mac1);
-diag "ip is $guestip1";
+
+# ping guest first nic
+my $mac =  get_first_macaddress($dom);
+diag "mac is $mac";
+
+my $guestip = get_ip_from_leases($mac);
+diag "ip is $guestip";
 
 # check ebtables entry
-my $ebtable1 = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
-diag $ebtable1;
+my $ebtable = `/sbin/ebtables -L;/sbin/ebtables -t nat -L`;
+diag $ebtable;
 # check if IP address is listed
-ok($ebtable1 =~ "$guestip1", "check ebtables entry");
+ok($ebtable =~ "$guestip", "check ebtables entry");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip1);
-$ssh->login("root", "foobar");
+my $ssh = Net::SSH::Perl->new($guestip);
+diag "ssh'ing into $guestip";
+$ssh->login("root", $tck->root_password());
 
 # now bring eth0 down, change IP and bring it up again
 diag "preparing ip spoof";
-my $cmdfile = "echo '" . 
-    "/bin/sleep 1\n".
-    "/sbin/ifconfig eth0\n".
-    "/sbin/ifconfig eth0 down\n".
-    "/sbin/ifconfig eth0 192.168.122.183 netmask 255.255.255.0 up\n".
-    "/sbin/ifconfig eth0\n".
-    "/bin/sleep 1\n".
-    "/bin/ping -c 1 192.168.122.1\n".
-    "/sbin/ifconfig eth0 down\n".
-    "/sbin/ifconfig eth0 ${guestip1} netmask 255.255.255.0 up\n".
-    "/sbin/ifconfig eth0 \n".
-    "/bin/sleep 1\n".
-    "' > /test.sh";
+my $cmdfile = <<EOF;
+echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
+/sbin/ip addr show \\\$DEV
+/sbin/ip link set \\\$DEV down
+/sbin/ip addr flush dev \\\$DEV
+/sbin/ip addr add 192.168.122.183/24 dev \\\$DEV
+/sbin/ip link set \\\$DEV up
+/sbin/ip addr show \\\$DEV
+/bin/sleep 1
+/bin/ping -c 1 192.168.122.1
+/sbin/ip link set \\\$DEV down
+/sbin/ip addr flush dev \\\$DEV
+/sbin/ip addr add ${guestip}/24 dev \\\$DEV
+/sbin/ip link set \\\$DEV up
+/sbin/ip link \\\$DEV" > /test.sh
+EOF
 diag $cmdfile;
 my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);
 diag $stdout;
 diag $stderr;
 diag $exit;
 ($stdout, $stderr, $exit)  = $ssh->cmd("chmod +x /test.sh");
+diag $stdout;
+diag $stderr;
+diag $exit;
+($stdout, $stderr, $exit)  = $ssh->cmd("cat /test.sh");
 diag $stdout;
 diag $stderr;
 diag $exit;
@@ -101,6 +113,8 @@ diag $exit;
 diag "checking result";
 ok($stdout =~ "100% packet loss", "packet loss expected");
 
-shutdown_vm_gracefully($dom1);
+shutdown_vm_gracefully($dom);
+
+$dom->undefine;
 
 exit 0;

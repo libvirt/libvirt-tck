@@ -26,7 +26,7 @@ The test case validates that the corrrect VSI is set in the adjacent switch
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -42,33 +42,37 @@ END {
 }
 
 SKIP: {
-     skip "lldptool not present", 3  unless -e "/usr/sbin/lldptool";
+     skip "lldptool not present", 4  unless -e "/usr/sbin/lldptool";
+     skip "No host net device", 4 unless $tck->get_host_network_device();
 
-# creating domain
-     my $dom1;
-     my $dom_name ="tck8021Qbgtest";
+     # create first domain and start it
+     my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+				    netmode => "vepa")->as_xml();
 
-# speficy mode="vepa" for a direct interface
-     $dom1 = prepare_test_disk_and_vm($tck, $conn, $dom_name, "vepa");
-     $dom1->create();
+     my $dom;
+     ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-     ok($dom1->get_id() > 0, "running domain has an ID > 0");
-     my $xml = $dom1->get_xml_description;
-     diag $xml;
-     my $mac1 =  get_first_macaddress($dom1);
-     diag "mac is $mac1";
+     diag "Start domain";
+     $dom->create;
+     ok($dom->get_id() > 0, "running domain has an ID > 0");
 
+     diag "Waiting 30 seconds for guest to finish booting";
      sleep(30);
 
-# check vsi information
+     # ping guest first nic
+     my $mac =  get_first_macaddress($dom);
+     diag "mac is $mac";
+
+     # check vsi information
      diag "Verifying VSI information using lldptool";
      my $lldptool = `/usr/sbin/lldptool -t -i eth2 -V vdp mode`;
      diag $lldptool;
-# check if instance is listed
+     # check if instance is listed
      ok($lldptool =~ "instance", "check instance");
-     ok($lldptool =~ $mac1, "check mac as well");
+     ok($lldptool =~ $mac, "check mac as well");
 
-     shutdown_vm_gracefully($dom1);
-     exit 0;
+     shutdown_vm_gracefully($dom);
 
+     $dom->undefine();
 };
+exit 0;

@@ -851,6 +851,7 @@ sub generic_domain {
     my $name = exists $params{name} ? $params{name} : "tck";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
+    my $netmode = exists $params{netmode} ? $params{netmode} : undef;
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
@@ -859,18 +860,35 @@ sub generic_domain {
     $container = $self->best_container_domain($caps)
 	unless $ostype && $ostype ne "exe";
 
+    my $b;
     if ($container) {
 	die "Full provisioned OS not supported with containers yet" if $fullos;
 
-	return $self->generic_container_domain(name => $name,
-					       caps => $caps,
-					       domain => $container);
-    } else {
-	return $self->generic_machine_domain(name => $name,
+	$b = $self->generic_container_domain(name => $name,
 					     caps => $caps,
-					     ostype => $ostype,
-					     fullos => $fullos);
+					     domain => $container);
+    } else {
+	$b = $self->generic_machine_domain(name => $name,
+					   caps => $caps,
+					   ostype => $ostype,
+					   fullos => $fullos);
     }
+    if ($netmode) {
+	if ($netmode eq "vepa") {
+	    $b->interface(type => "direct",
+			  source => "default",
+			  mac => "52:54:00:11:11:11",
+			  dev => $self->get_host_network_device(),
+			  mode => "vepa",
+			  virtualport => "802.1Qbg");
+	} else {
+	    $b->interface(type => "network",
+			  source => "default",
+			  mac => "52:54:00:11:11:11",
+			  filterref => "clean-traffic");
+	}
+    }
+    return $b;
 }
 
 sub generic_pool {
@@ -1130,6 +1148,13 @@ sub get_host_block_device {
     close BLK;
 
     return $match ? $device : undef;
+}
+
+sub get_host_network_device {
+    my $self = shift;
+    my $devindex = @_ ? shift : 0;
+
+    return $self->config("host_network_devices/[$devindex]", undef);
 }
 
 1;

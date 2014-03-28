@@ -277,7 +277,6 @@ sub interface {
 
     die "type parameter is required" unless $params{type};
     die "source parameter is required" unless $params{source};
-    die "model parameter is required" unless $params{model};
 
     push @{$self->{interfaces}}, \%params;
 
@@ -430,7 +429,7 @@ sub as_xml {
 	$w->emptyTag("mac",
 		     address =>  $interface->{mac});
 
-	if( $interface->{dev}) {
+	if ($interface->{dev}) {
 	    $w->emptyTag("source",
 			 dev => $interface->{dev},
 			 mode => $interface->{mode});
@@ -438,7 +437,7 @@ sub as_xml {
 	    $w->emptyTag("source",
 			 network => $interface->{source});
 	}
-	if( $interface->{virtualport}) {
+	if ($interface->{virtualport}) {
 	    $w->startTag("virtualport",
 			 type => $interface->{virtualport});
 	    $w->emptyTag("parameters",
@@ -448,9 +447,11 @@ sub as_xml {
 			 instanceid => '40000000-0000-0000-0000-000000000000');
 	    $w->endTag("virtualport");
 	}
-	$w->emptyTag("model",
-		     type => $interface->{model});
-	if( $interface->{filterref}) {
+	if ($interface->{model}) {
+	    $w->emptyTag("model",
+			 type => $interface->{model});
+	}
+	if ($interface->{filterref}) {
 	    $w->emptyTag("filterref",
 			 filter => $interface->{filterref});
 	}

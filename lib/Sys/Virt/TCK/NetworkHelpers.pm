@@ -118,13 +118,15 @@ sub build_domain{
 
     return ($guest, $install);
 }
-sub shutdown_vm_gracefully{
+sub shutdown_vm_gracefully {
     my $dom = shift;
 
+    my $target = time() + 30;
     $dom->shutdown;
-    while($dom->is_active()) {
+    while ($dom->is_active()) {
 	sleep(1);
 	diag ".. waiting for virtual machine to shutdown.. ";
+	$dom->destroy() if time() > $target;
     }
     sleep(1);
     diag ".. shutdown complete.. ";

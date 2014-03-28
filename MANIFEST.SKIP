@@ -16,3 +16,4 @@ results/
 ^cover_db/
 ^libvirt-tck/
 ^MYMETA.yml$
+^MYMETA\.json$

@@ -26,7 +26,15 @@ The test case validates that the corrrect VSI is set in the adjacent switch
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More;
+
+if ( ! -e '/usr/sbin/lldptool' ) {
+    eval "use Test::More skip_all => \"lldptool is not available\";";
+} elsif (!$tck->get_host_network_device()) {
+    eval "use Test::More skip_all => \"no host net device configured\";";
+} else {
+    eval "use Test::More tests => 4";
+}
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
@@ -41,38 +49,34 @@ END {
     $tck->cleanup if $tck;
 }
 
-SKIP: {
-     skip "lldptool not present", 4  unless -e "/usr/sbin/lldptool";
-     skip "No host net device", 4 unless $tck->get_host_network_device();
+# create first domain and start it
+my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+			       netmode => "vepa")->as_xml();
 
-     # create first domain and start it
-     my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-				    netmode => "vepa")->as_xml();
+my $dom;
+ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-     my $dom;
-     ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
+diag "Start domain";
+$dom->create;
+ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-     diag "Start domain";
-     $dom->create;
-     ok($dom->get_id() > 0, "running domain has an ID > 0");
+diag "Waiting 30 seconds for guest to finish booting";
+sleep(30);
 
-     diag "Waiting 30 seconds for guest to finish booting";
-     sleep(30);
+# ping guest first nic
+my $mac =  get_first_macaddress($dom);
+diag "mac is $mac";
 
-     # ping guest first nic
-     my $mac =  get_first_macaddress($dom);
-     diag "mac is $mac";
+# check vsi information
+diag "Verifying VSI information using lldptool";
+my $lldptool = `/usr/sbin/lldptool -t -i eth2 -V vdp mode`;
+diag $lldptool;
+# check if instance is listed
+ok($lldptool =~ "instance", "check instance");
+ok($lldptool =~ $mac, "check mac as well");
 
-     # check vsi information
-     diag "Verifying VSI information using lldptool";
-     my $lldptool = `/usr/sbin/lldptool -t -i eth2 -V vdp mode`;
-     diag $lldptool;
-     # check if instance is listed
-     ok($lldptool =~ "instance", "check instance");
-     ok($lldptool =~ $mac, "check mac as well");
+shutdown_vm_gracefully($dom);
 
-     shutdown_vm_gracefully($dom);
+$dom->undefine();
 
-     $dom->undefine();
-};
 exit 0;

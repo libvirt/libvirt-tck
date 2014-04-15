@@ -28,7 +28,7 @@ and files can be relabelled
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 5;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::SELinux;

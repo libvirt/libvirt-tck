@@ -28,7 +28,7 @@ after the API call to set NUMA parameters for a domain.
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -57,8 +57,12 @@ my %params = (
     Sys::Virt::Domain::NUMA_NODESET => '0',
 );
 
-diag "Set numa parameters, affects live config";
-lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_LIVE)}, "set_numa_parameters");
+diag "Set numa parameters, affects live and config";
+lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_LIVE | Sys::Virt::Domain::AFFECT_CONFIG)}, "set_numa_parameters");
+
+diag "Get numa parameters";
+my $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
 diag "Destroy the domain";
 $dom->destroy;
@@ -68,7 +72,7 @@ $dom->create;
 ok($dom->get_id > 0, "running domain with ID > 0");
 
 diag "Get numa parameters";
-my $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
 ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
 diag "Destroy the domain";

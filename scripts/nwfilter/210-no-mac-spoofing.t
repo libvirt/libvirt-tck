@@ -92,7 +92,7 @@ echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
 /sbin/ip link set \\\$DEV address ${macfalse}
 /sbin/ip link set \\\$DEV up
 /sbin/ip addr show dev \\\$DEV
-/bin/ping -c 10 ${gateway}
+/bin/ping -c 10 ${gateway} 2>&1
 /sbin/ip link set \\\$DEV down
 /sbin/ip link set \\\$DEV address ${mac}
 /sbin/ip link set \\\$DEV up
@@ -119,7 +119,7 @@ diag $exit;
 diag $stdout;
 diag $stderr;
 diag $exit;
-ok($stdout =~ "100% packet loss", "packet loss expected");
+ok($stdout =~ /100% packet loss|Network is unreachable/, "packet loss expected");
 
 shutdown_vm_gracefully($dom);
 

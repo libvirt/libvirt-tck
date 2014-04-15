@@ -79,19 +79,20 @@ $ssh->login("root", $tck->root_password());
 diag "preparing ip spoof";
 my $cmdfile = <<EOF;
 echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
+MASK=`ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q'`
 /sbin/ip addr show \\\$DEV
 /sbin/ip link set \\\$DEV down
 /sbin/ip addr flush dev \\\$DEV
-/sbin/ip addr add 192.168.122.183/24 dev \\\$DEV
+/sbin/ip addr add 192.168.122.183/\\\$MASK dev \\\$DEV
 /sbin/ip link set \\\$DEV up
 /sbin/ip addr show \\\$DEV
 /bin/sleep 1
 /bin/ping -c 1 192.168.122.1
 /sbin/ip link set \\\$DEV down
 /sbin/ip addr flush dev \\\$DEV
-/sbin/ip addr add ${guestip}/24 dev \\\$DEV
+/sbin/ip addr add ${guestip}/\\\$MASK dev \\\$DEV
 /sbin/ip link set \\\$DEV up
-/sbin/ip link \\\$DEV" > /test.sh
+/sbin/ip addr show \\\$DEV" > /test.sh
 EOF
 diag $cmdfile;
 my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);

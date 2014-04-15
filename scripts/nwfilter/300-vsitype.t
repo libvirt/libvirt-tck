@@ -28,14 +28,6 @@ use warnings;
 
 use Test::More;
 
-if ( ! -e '/usr/sbin/lldptool' ) {
-    eval "use Test::More skip_all => \"lldptool is not available\";";
-} elsif (!$tck->get_host_network_device()) {
-    eval "use Test::More skip_all => \"no host net device configured\";";
-} else {
-    eval "use Test::More tests => 4";
-}
-
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
@@ -47,6 +39,16 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END {
     $tck->cleanup if $tck;
+}
+
+if ( ! -e '/usr/sbin/lldptool' ) {
+    $tck->cleanup if $tck;
+    eval "use Test::More skip_all => \"lldptool is not available\";";
+} elsif (!$tck->get_host_network_device()) {
+    $tck->cleanup if $tck;
+    eval "use Test::More skip_all => \"no host net device configured\";";
+} else {
+    eval "use Test::More tests => 4";
 }
 
 # create first domain and start it

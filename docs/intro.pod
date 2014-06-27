@@ -47,7 +47,7 @@ hypervisor and libvirt release is configured correctly
 =back
 
 Thus the libvirt TCK will allow developers, administrators and users
-to determine the level of compatability of their platform, and
+to determine the level of compatibility of their platform, and
 evaluate whether it will meet their needs, and get awareness of any
 regressions that may have occurred since a previous test run
 
@@ -249,7 +249,7 @@ running domain, replacing it with -1.
 
 =item *
 
-QEMU refuseed to boot kernel+initrd unless at least one disk
+QEMU refused to boot kernel+initrd unless at least one disk
 image is provided
 
 =back
@@ -261,7 +261,7 @@ The libvirt-tck tool outputs results in a number of formats. The
 default format is a simple plain test summary listing each test
 case, and the pass/fail state, and details of each check failure
 
-A more verbose text format otputs the full Perl TAP (Test Anything
+A more verbose text format outputs the full Perl TAP (Test Anything
 Protocol) format results as described in 'man 3 TAP' or
 'man 3 Test::Harness::TAP'.
 
@@ -301,7 +301,7 @@ flag
 
 The code as it stands is the bare minimum to get a proof of concept working
 for testing of domain APIs for Xen and QEMU drivers. The test suite though
-is intended to be independant of any driver, and also allow for coverage of
+is intended to be independent of any driver, and also allow for coverage of
 all the libvirt APIs.
 
 Of the top of my head, some important things that need doing
@@ -389,7 +389,7 @@ Fix up all the horribly broken areas of libvirt that this
 uncovers. This will entail deciding that the semantics for
 various edge cases are with each API. Deciding what errors
 codes need to be formally defined for each API. Figuring
-out how to implement/fix the neccessary semantics in the
+out how to implement/fix the necessary semantics in the
 drivers.
 
 =item Failure recording

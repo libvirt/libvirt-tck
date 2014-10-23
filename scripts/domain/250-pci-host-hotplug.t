@@ -52,6 +52,8 @@ my $xml = $tck->generic_domain(name => "tck")->as_xml;
 diag "Creating a new transient domain";
 my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
+diag "Waiting 10 seconds for guest to initialize";
+sleep(10);
 
 
 my ($domain, $bus, $slot, $function) = $tck->get_host_pci_device();
@@ -86,7 +88,7 @@ SKIP: {
 
     ok(defined $nodedev, "found PCI device $domain:$bus:$slot.$function on host");
 
-    lives_ok(sub { $nodedev->dettach() }, "detached device from host OS");
+    lives_ok(sub { $nodedev->dettach(undef, 0) }, "detached device from host OS");
     lives_ok(sub { $nodedev->reset() }, "reset the host PCI device");
 
     my $devxml =
@@ -112,6 +114,6 @@ SKIP: {
 
     my $finalxml = $dom->get_xml_description;
 
-    is($initialxml, $finalxml, "final XML has removed the disk")
+    is($initialxml, $finalxml, "final XML has removed the PCI device")
 }
 

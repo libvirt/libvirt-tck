@@ -1,4 +1,4 @@
 <filter name='tck-testcase'>
-  <uuid>83011800-f663-96d6-8841-fd836b4318c6</uuid>
+  <uuid>5c6d49af-b071-6127-b4ec-6f8ed4b55335</uuid>
   <filterref filter='clean-traffic'/>
 </filter>

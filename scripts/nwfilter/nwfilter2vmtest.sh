@@ -502,6 +502,7 @@ EOF
 
   cat >${tmpfile} << EOF
 <filter name="tck-testcase">
+  <uuid>5c6d49af-b071-6127-b4ec-6f8ed4b55335</uuid>
 </filter>
 EOF
   res=$(${VIRSH} nwfilter-define ${tmpfile})

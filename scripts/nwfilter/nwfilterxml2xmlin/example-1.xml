@@ -1,5 +1,5 @@
 <filter name='tck-testcase'>
-  <uuid>0a5288ea-612c-834a-6bbf-82a03a1a3244</uuid>
+  <uuid>5c6d49af-b071-6127-b4ec-6f8ed4b55335</uuid>
 
   <!-- allow incoming ssh connections -->
   <rule action='accept' direction='in' priority='100'>

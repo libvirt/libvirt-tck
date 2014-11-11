@@ -1,5 +1,5 @@
 <filter name='tck-testcase'>
-  <uuid>01a992d2-f8c8-7c27-f69b-ab0a9d377379</uuid>
+  <uuid>5c6d49af-b071-6127-b4ec-6f8ed4b55335</uuid>
 
   <rule action='accept' direction='in'>
     <mac protocolid='0x1234'/>

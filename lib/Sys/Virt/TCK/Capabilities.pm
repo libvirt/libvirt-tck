@@ -115,8 +115,10 @@ sub _parse_host_migration {
 
     $mig->{transports} = [];
     my $trans = $node->first_child("uri_transports");
-    foreach my $child ($trans->children("uri_transport")) {
-	push @{$mig->{transports}}, $child->text;
+    if (defined $trans) {
+	foreach my $child ($trans->children("uri_transport")) {
+	    push @{$mig->{transports}}, $child->text;
+	}
     }
 
     $self->{host}->{migration} = $mig;

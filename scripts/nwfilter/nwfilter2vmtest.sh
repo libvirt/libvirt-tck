@@ -429,7 +429,7 @@ EOF
       echo "Press enter."
       read enter
     fi
-    $(${VIRSH} undefine ${vmname})
+    ${VIRSH} undefine ${vmname}
     return 1
   fi
 
@@ -649,6 +649,7 @@ main() {
   createVM "${vm1}" "tck-testcase" "10.2.2.2" "52:54:0:0:0:1" "${flags}"
   if [ $? -ne 0 ]; then
   	echo "Could not create VM ${vm1}. Exiting."
+	deleteTestFilter "${flags}"
   	exit 1
   fi
 
@@ -657,6 +658,7 @@ main() {
   if [ $? -ne 0 ]; then
   	echo "Could not create VM ${vm2}. Exiting."
   	destroyVM "${vm1}" "${flags}"
+	deleteTestFilter "${flags}"
   	exit 1
   fi
 

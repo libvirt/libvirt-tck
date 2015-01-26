@@ -163,5 +163,9 @@ SKIP: {
     ok(`service libvirtd status` =~ /running/, "libvirtd is running");
 
     $hook->cleanup();
+
+    # Restarting libvirtd broke the tck connection, so ignore the sigpipe and remove $tck
+    $SIG{PIPE} = 'IGNORE';
+    undef $tck;
 };
 

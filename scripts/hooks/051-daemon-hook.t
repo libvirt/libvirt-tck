@@ -43,7 +43,7 @@ END { $tck->cleanup if $tck; }
 SKIP: {
     my $uri = $conn->get_uri();
 
-    skip 12, "NOT using QEMU/LXC driver" unless
+    skip "NOT using QEMU/LXC driver", 12 unless
         $uri eq "qemu:///system" or $uri eq "lxc:///";
 
     my $hook = Sys::Virt::TCK::Hooks->new(type => 'daemon',

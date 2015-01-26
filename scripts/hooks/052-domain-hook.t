@@ -46,7 +46,7 @@ END { $tck->cleanup if $tck; }
 SKIP: {
     my $uri = $conn->get_uri();
 
-    skip 12, "Not using QEMU/LXC driver" unless
+    skip "NOT using QEMU/LXC driver", 12 unless
         $uri eq "qemu:///system" or $uri eq "lxc:///";
 
     my $xml = $tck->generic_domain(name => "tck")->as_xml;

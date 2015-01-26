@@ -145,7 +145,8 @@ sub reset_snapshots {
     my $self = shift;
     my $dom = shift;
 
-    my @domss = $dom->list_snapshots;
+    # Use eval as not all drivers support snapshots
+    my @domss = eval { $dom->list_snapshots };
     foreach my $domss (@domss) {
 	$domss->delete;
     }

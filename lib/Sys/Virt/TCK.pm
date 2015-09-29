@@ -738,6 +738,7 @@ sub get_image {
 
     my $bucket = "os-$arch-$ostype";
 
+    my $needs_firstboot = ! $self->has_disk_image($bucket, "disk-$osname.img", $osname);
     my $dfile = $self->create_virt_builder_disk($bucket, "disk-$osname.img", $osname);
 
     my $dev = $self->get_disk_dev($ostype, $domain);
@@ -750,6 +751,7 @@ sub get_image {
 	loader => $loader,
 	root => $dfile,
 	dev => $dev,
+    firstboot => $needs_firstboot,
     );
 }
 
@@ -785,6 +787,41 @@ sub generic_machine_domain {
 	$b->disk(src => $config{root},
 		 dst => $config{dev},
 		 type => "file");
+
+    if ($config{firstboot}) {
+        print "# Running the first boot\n";
+
+        $b->interface(type => "network",
+                      source => "default",
+                      mac => "52:54:00:11:11:11",
+                      filterref => "clean-traffic");
+        my $xml = $b->as_xml();
+        # Cleanup the temporary interface
+        $b->rminterface();
+
+        my $dom = $self->conn->define_domain($xml);
+        $dom->create();
+
+        # Wait for the first boot to reach network setting
+        my $stats;
+        my $tries = 0;
+        do {
+            sleep(10);
+            $stats  = $dom->interface_stats("vnet0");
+            $tries++;
+        } while ($stats->{"tx_packets"} < 10 && $tries < 10);
+
+        # Safe to shutdown domain now
+        my $target = time() + 30;
+        $dom->shutdown;
+        while ($dom->is_active()) {
+             sleep(1);
+             $dom->destroy() if time() > $target;
+        }
+        sleep(1);
+        $dom->undefine();
+    }
+
 	return $b;
     } else {
 	my %config = $self->get_kernel($caps, $ostype);

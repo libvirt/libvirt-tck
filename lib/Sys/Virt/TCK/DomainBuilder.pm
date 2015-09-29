@@ -271,6 +271,13 @@ sub disk {
     return $self;
 }
 
+
+sub rminterface {
+    my $self = shift;
+
+    return pop @{$self->{interfaces}};
+}
+
 sub interface {
     my $self = shift;
     my %params = @_;

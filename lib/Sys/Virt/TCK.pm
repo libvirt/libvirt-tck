@@ -375,6 +375,19 @@ sub create_sparse_disk {
 }
 
 
+sub has_disk_image {
+    my $self = shift;
+    my $bucket = shift;
+    my $name = shift;
+    my $osname = shift;
+
+    my $dir = $self->bucket_dir($bucket);
+
+    my $target = catfile($dir, $name);
+
+    return -f $target
+}
+
 sub create_virt_builder_disk {
     my $self = shift;
     my $bucket = shift;
@@ -387,7 +400,7 @@ sub create_virt_builder_disk {
 
     my $password = $self->root_password;
 
-    if (-f $target) {
+    if ($self->has_disk_image($bucket, $name, $osname)) {
 	return $target;
     }
 

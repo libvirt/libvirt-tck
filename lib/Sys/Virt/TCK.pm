@@ -405,7 +405,7 @@ sub create_virt_builder_disk {
     }
 
     print "# running virt-builder $osname\n";
-    `virt-builder --root-password 'password:$password' --output $target $osname`;
+    `virt-builder --install dsniff --root-password 'password:$password' --output $target $osname`;
 
     return $target;
 }

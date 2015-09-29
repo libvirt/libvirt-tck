@@ -92,7 +92,6 @@ $ssh->login("root", $tck->root_password());
 # now generate a arp spoofing packets 
 diag "generate arpspoof";
 my $cmdfile = <<EOF;
-echo '/usr/bin/yum -y install dsniff
 /usr/sbin/arpspoof ${spoofid} &
 /bin/sleep 10
 kill -15 `/sbin/pidof arpspoof`' > /test.sh

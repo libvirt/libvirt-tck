@@ -73,6 +73,7 @@ my $b = $class->new(
 	'Digest::MD5' => 0,
 	'File::Copy' => 0,
 	'File::Path' => 0,
+	'File::Slurp' => 0,
 	'File::Spec::Functions' => 0,
 	'LWP::UserAgent' => 0,
 	'IO::String' => 0,
@@ -90,7 +91,6 @@ my $b = $class->new(
 	'XML::Twig' => 0,
 	'XML::Writer' => 0,
 	'XML::XPath' => 0,
-	'Slurp' => 0,
     },
     build_requires => {
 	'Test::Pod' => '0',

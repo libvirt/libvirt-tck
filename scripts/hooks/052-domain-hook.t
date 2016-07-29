@@ -31,7 +31,7 @@ failed, 'stop' is fine.
 use strict;
 use warnings;
 
-use Slurp;
+use File::Slurp;
 
 use Test::More tests => 12;
 
@@ -83,13 +83,13 @@ SKIP: {
     $domain_state = $dom->get_info()->{state};
     ok($domain_state eq &Sys::Virt::Domain::STATE_RUNNING, "domain is running");
 
-    my $hook_data = slurp($hook->{name});
+    my $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    my $actual_log_data = slurp($hook->{log_name});
+    my $actual_log_data = read_file($hook->{log_name});
     diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expect log:\n $hook->{expect_log}";
@@ -114,13 +114,13 @@ SKIP: {
     $domain_state = $dom->get_info()->{state};
     ok($domain_state eq &Sys::Virt::Domain::STATE_SHUTOFF, "domain is shut off");
 
-    $hook_data = slurp($hook->{name});
+    $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    $actual_log_data = slurp($hook->{log_name});
+    $actual_log_data = read_file($hook->{log_name});
     diag "acutal log: $hook->{log_name} '$actual_log_data'";
 
     diag "expect log:\n $hook->{expect_log}";
@@ -158,13 +158,13 @@ SKIP: {
     $domain_state = $dom->get_info()->{state};
     ok($domain_state eq &Sys::Virt::Domain::STATE_SHUTOFF, "domain is not started ");
 
-    $hook_data = slurp($hook->{name});
+    $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    $actual_log_data = slurp($hook->{log_name});
+    $actual_log_data = read_file($hook->{log_name});
     diag "acutal log: $hook->{log_name} '$actual_log_data'";
 
     diag "expect log:\n $hook->{expect_log}";

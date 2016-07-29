@@ -18,7 +18,7 @@ use warnings;
 
 use Fcntl ':mode';
 use POSIX qw(strftime);
-use Slurp;
+use File::Slurp;
 
 my $HOOKS_CONF_DIR="/etc/libvirt/hooks";
 
@@ -253,7 +253,7 @@ sub compare_log {
     my $expect_log = $self->{expect_log};
     my $log_name = $self->{log_name};
 
-    my $actual_log = slurp($log_name);
+    my $actual_log = read_file($log_name);
     chomp $actual_log;
 
     return 0 unless defined($actual_log);

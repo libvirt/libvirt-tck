@@ -28,7 +28,7 @@ start, stop, or reload daemon.
 use strict;
 use warnings;
 
-use Slurp;
+use File::Slurp;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::Hooks;
@@ -69,14 +69,14 @@ SKIP: {
     diag "$hook->{action} libvirtd";
     $hook->service_libvirtd();
 
-    my $hook_data = slurp($hook->{name});
+    my $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     sleep 3;
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    my $actual_log_data = slurp($hook->{log_name});
+    my $actual_log_data = read_file($hook->{log_name});
     diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expected log:\n$hook->{expect_log}";
@@ -94,14 +94,14 @@ SKIP: {
     diag "$hook->{action} libvirtd";
     $hook->service_libvirtd();
 
-    $hook_data = slurp($hook->{name});
+    $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     sleep 3;
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    $actual_log_data = slurp($hook->{log_name});
+    $actual_log_data = read_file($hook->{log_name});
     diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expected log: \n$hook->{expect_log}";
@@ -119,14 +119,14 @@ SKIP: {
     diag "$hook->{action} libvirtd";
     $hook->service_libvirtd();
 
-    $hook_data = slurp($hook->{name});
+    $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     sleep 3;
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    $actual_log_data = slurp($hook->{log_name});
+    $actual_log_data = read_file($hook->{log_name});
     diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expected log: \n$hook->{expect_log}";
@@ -144,14 +144,14 @@ SKIP: {
     diag "$hook->{action} libvirtd";
     $hook->service_libvirtd();
 
-    $hook_data = slurp($hook->{name});
+    $hook_data = read_file($hook->{name});
     diag "hook script: $hook->{name} '$hook_data'";
 
     sleep 3;
     diag "check if $hook->{name} is invoked";
     ok(-f "$hook->{name}", "$hook->{name} is invoked");
 
-    $actual_log_data = slurp($hook->{log_name});
+    $actual_log_data = read_file($hook->{log_name});
     diag "actual log: $hook->{log_name} '$actual_log_data'";
 
     diag "expected log: \n$hook->{expect_log}";

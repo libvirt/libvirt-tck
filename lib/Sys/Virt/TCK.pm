@@ -790,39 +790,39 @@ sub generic_machine_domain {
 		 dst => $config{dev},
 		 type => "file");
 
-    if ($config{firstboot}) {
-        print "# Running the first boot\n";
+	if ($config{firstboot}) {
+	    print "# Running the first boot\n";
 
-        $b->interface(type => "network",
-                      source => "default",
-                      mac => "52:54:00:11:11:11",
-                      filterref => "clean-traffic");
-        my $xml = $b->as_xml();
-        # Cleanup the temporary interface
-        $b->rminterface();
+	    $b->interface(type => "network",
+			  source => "default",
+			  mac => "52:54:00:11:11:11",
+			  filterref => "clean-traffic");
+	    my $xml = $b->as_xml();
+	    # Cleanup the temporary interface
+	    $b->rminterface();
 
-        my $dom = $self->conn->define_domain($xml);
-        $dom->create();
+	    my $dom = $self->conn->define_domain($xml);
+	    $dom->create();
 
-        # Wait for the first boot to reach network setting
-        my $stats;
-        my $tries = 0;
-        do {
-            sleep(10);
-            $stats  = $dom->interface_stats("vnet0");
-            $tries++;
-        } while ($stats->{"tx_packets"} < 10 && $tries < 10);
+	    # Wait for the first boot to reach network setting
+	    my $stats;
+	    my $tries = 0;
+	    do {
+		sleep(10);
+		$stats  = $dom->interface_stats("vnet0");
+		$tries++;
+	    } while ($stats->{"tx_packets"} < 10 && $tries < 10);
 
-        # Safe to shutdown domain now
-        my $target = time() + 30;
-        $dom->shutdown;
-        while ($dom->is_active()) {
-             sleep(1);
-             $dom->destroy() if time() > $target;
-        }
-        sleep(1);
-        $dom->undefine();
-    }
+	    # Safe to shutdown domain now
+	    my $target = time() + 30;
+	    $dom->shutdown;
+	    while ($dom->is_active()) {
+		sleep(1);
+		$dom->destroy() if time() > $target;
+	    }
+	    sleep(1);
+	    $dom->undefine();
+	}
 
 	return $b;
     } else {

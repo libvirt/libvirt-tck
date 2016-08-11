@@ -43,7 +43,7 @@ our @EXPORT = qw(ok_error ok_domain ok_domain_snapshot ok_pool
                  ok_volume ok_network ok_interface ok_node_device
                  xpath err_not_implemented);
 
-our $VERSION = '0.1.0';
+our $VERSION = 'v0.1.0';
 
 sub new {
     my $proto = shift;

@@ -9,7 +9,7 @@ die unless (scalar @ARGV == 1);
 my $VERSION;
 open PM, 'lib/Sys/Virt/TCK.pm';
 while (<PM>) {
-    if (/\$VERSION\s*=\s*'(.*)'/) {
+    if (/\$VERSION\s*=\s*'v(.*)'/) {
         $VERSION=$1;
     }
 }

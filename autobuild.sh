@@ -21,6 +21,8 @@ set -e
 
 rm -rf MANIFEST blib _build Build
 
+test -z "$AUTOBUILD_INSTALL_ROOT" && AUTOBUILD_INSTALL_ROOT=$HOME/builder
+
 perl Build.PL install_base=$AUTOBUILD_INSTALL_ROOT
 
 ./Build

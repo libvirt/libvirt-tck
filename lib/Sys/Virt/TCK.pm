@@ -405,7 +405,7 @@ sub create_virt_builder_disk {
     }
 
     print "# running virt-builder $osname\n";
-    system "virt-builder", "--install", "dsniff", "--root-password", "password:$password", "--output", $target, $osname;
+    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--output", $target, $osname;
 
     die "cannot run virt-builder: $?" if $? != 0;
 

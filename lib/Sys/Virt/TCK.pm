@@ -781,11 +781,6 @@ sub generic_machine_domain {
 
 	$b->boot_disk();
 
-	$b->graphics(type => "vnc",
-		     port => "-1",
-		     autoport => "yes",
-		     listen => "127.0.0.1");
-
 	$b->disk(src => $config{root},
 		 dst => $config{dev},
 		 type => "file");
@@ -795,6 +790,7 @@ sub generic_machine_domain {
 
 	    $b->interface(type => "network",
 			  source => "default",
+                          model => "virtio",
 			  mac => "52:54:00:11:11:11",
 			  filterref => "clean-traffic");
 	    my $xml = $b->as_xml();
@@ -839,11 +835,6 @@ sub generic_machine_domain {
 
 	# XXX boot CDROM or vroot for other HVs
 	$b->boot_kernel($config{kernel}, $config{initrd});
-
-	$b->graphics(type => "vnc",
-		     port => "-1",
-		     autoport => "yes",
-		     listen => "127.0.0.1");
 
 	$b->disk(src => $config{root},
 		 dst => $config{dev},
@@ -930,6 +921,7 @@ sub generic_domain {
 	if ($netmode eq "vepa") {
 	    $b->interface(type => "direct",
 			  source => "default",
+                          model => "virtio",
 			  mac => "52:54:00:11:11:11",
 			  dev => $self->get_host_network_device(),
 			  mode => "vepa",
@@ -937,6 +929,7 @@ sub generic_domain {
 	} else {
 	    $b->interface(type => "network",
 			  source => "default",
+                          model => "virtio",
 			  mac => "52:54:00:11:11:11",
 			  filterref => "clean-traffic");
 	}

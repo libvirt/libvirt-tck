@@ -73,12 +73,9 @@ diag "ip is $guestip";
 
 # check ebtables entry
 my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+my $ebtable = `$ebtables -t nat -L`;
 diag $ebtable;
-# ebtables shortens :00: to :0: so we need to do that too
-$_ = $mac;
-s/00/0/g;
-ok($ebtable =~ $_, "check ebtables entry");
+ok($ebtable =~ "-d Broadcast -j DROP", "check ebtables entry for \"-d Broadcast -j DROP\"");
 
 # prepare tcpdump
 diag "prepare tcpdump";

@@ -83,6 +83,7 @@ my $cmdfile = <<EOF;
 echo "DEV=\\\$(ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://')
 MASK=\\\$(ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q')
 ip addr show \\\$DEV
+kill \\\$(pidof dhclient)
 ip link set \\\$DEV down
 ip addr flush dev \\\$DEV
 ip addr add 192.168.122.183/\\\$MASK dev \\\$DEV

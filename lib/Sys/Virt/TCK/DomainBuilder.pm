@@ -31,24 +31,24 @@ sub new {
     my $ostype = $params{ostype} ? $params{ostype} : die "ostype parameter is required";
 
     my $self = {
-	name => $params{name} ? $params{name} : "tck" ,
-	type => $domain,
-	ostype => $ostype,
-	boot => { type => "disk" },
-	arch => $params{arch} ? $params{arch} : undef,
-	emulator => undef,
-	lifecycle => {},
-	features => {},
-	disks => [],
-	filesystems => [],
-	interfaces => [],
-	serials => [],
-	parallels => [],
-	consoles => [],
-	inputs => [],
-	graphics => [],
-	hostdevs => [],
-	seclabel => {},
+        name => $params{name} ? $params{name} : "tck" ,
+        type => $domain,
+        ostype => $ostype,
+        boot => { type => "disk" },
+        arch => $params{arch} ? $params{arch} : undef,
+        emulator => undef,
+        lifecycle => {},
+        features => {},
+        disks => [],
+        filesystems => [],
+        interfaces => [],
+        serials => [],
+        parallels => [],
+        consoles => [],
+        inputs => [],
+        graphics => [],
+        hostdevs => [],
+        seclabel => {},
     };
 
     bless $self, $class;
@@ -61,7 +61,7 @@ sub memory {
     my $mem = shift;
 
     $self->{memory} = $mem
-	unless defined $self->{memory};
+        unless defined $self->{memory};
     $self->{currentMemory} = $mem;
 
     return $self;
@@ -95,7 +95,7 @@ sub boot_network {
     my $self = shift;
 
     $self->{boot} = {
-	type => "network"
+        type => "network"
     };
 
     return $self;
@@ -105,7 +105,7 @@ sub boot_disk {
     my $self = shift;
 
     $self->{boot} = {
-	type => "disk"
+        type => "disk"
     };
 
     return $self;
@@ -115,7 +115,7 @@ sub boot_cdrom {
     my $self = shift;
 
     $self->{boot} = {
-	type => "cdrom"
+        type => "cdrom"
     };
 
     return $self;
@@ -125,7 +125,7 @@ sub boot_floppy {
     my $self = shift;
 
     $self->{boot} = {
-	type => "floppy"
+        type => "floppy"
     };
 
     return $self;
@@ -140,10 +140,10 @@ sub boot_kernel {
     die "kernel parameter is required" unless $kernel;
 
     $self->{boot} = {
-	type => "kernel",
-	kernel => $kernel,
-	($initrd ? (initrd => $initrd) : ()),
-	($cmdline ? (cmdline => $cmdline) : ()),
+        type => "kernel",
+        kernel => $kernel,
+        ($initrd ? (initrd => $initrd) : ()),
+        ($cmdline ? (cmdline => $cmdline) : ()),
     };
 
     return $self;
@@ -154,8 +154,8 @@ sub boot_bootloader {
     my $path = shift;
 
     $self->{boot} = {
-	type => "bootloader",
-	bootloader => $path
+        type => "bootloader",
+        bootloader => $path
     };
 
     return $self;
@@ -167,8 +167,8 @@ sub boot_init {
     my $path = shift;
 
     $self->{boot} = {
-	type => "init",
-	init => $path
+        type => "init",
+        init => $path
     };
 
     return $self;
@@ -182,10 +182,10 @@ sub boot_cmdline {
     my $initrd = $self->{boot}->{initrd};
 
     $self->{boot} = {
-	type => "kernel",
-	kernel => $kernel,
-	initrd => $initrd,
-	cmdline => $cmdline
+        type => "kernel",
+        kernel => $kernel,
+        initrd => $initrd,
+        cmdline => $cmdline
     };
 
     return $self;
@@ -195,10 +195,10 @@ sub clear_kernel_initrd_cmdline {
     my $self = shift;
 
     $self->{boot} = {
-	type => "kernel",
-	kernel => "",
-	initrd => "",
-	cmdline => ""
+        type => "kernel",
+        kernel => "",
+        initrd => "",
+        cmdline => ""
     };
     return $self;
 }
@@ -334,168 +334,168 @@ sub as_xml {
     my $data;
     my $fh = IO::String->new(\$data);
     my $w = XML::Writer->new(OUTPUT => $fh,
-			     DATA_MODE => 1,
-			     DATA_INDENT => 2);
+                             DATA_MODE => 1,
+                             DATA_INDENT => 2);
     $w->startTag("domain",
-		 "type" => $self->{type});
+                 "type" => $self->{type});
     foreach (qw(name uuid memory currentMemory vcpu)) {
-	$w->dataElement("$_" => $self->{$_}) if $self->{$_};
+        $w->dataElement("$_" => $self->{$_}) if $self->{$_};
     }
 
     $w->startTag("os");
     if ($self->{arch}) {
-	$w->dataElement("type", $self->{ostype}, arch => $self->{arch});
+        $w->dataElement("type", $self->{ostype}, arch => $self->{arch});
     } else {
-	$w->dataElement("type", $self->{ostype});
+        $w->dataElement("type", $self->{ostype});
     }
 
     if ($self->{boot}->{type} eq "disk") {
-	$w->emptyTag("boot", dev => "hd");
+        $w->emptyTag("boot", dev => "hd");
     } elsif ($self->{boot}->{type} eq "floppy") {
-	$w->emptyTag("boot", dev => "fd");
+        $w->emptyTag("boot", dev => "fd");
     } elsif ($self->{boot}->{type} eq "cdrom") {
-	$w->emptyTag("boot", dev => "cdrom");
+        $w->emptyTag("boot", dev => "cdrom");
     } elsif ($self->{boot}->{type} eq "network") {
-	$w->emptyTag("boot", dev => "network");
+        $w->emptyTag("boot", dev => "network");
     } elsif ($self->{boot}->{type} eq "kernel") {
-	foreach (qw(kernel initrd cmdline)) {
-	    $w->dataElement($_, $self->{boot}->{$_}) if $self->{boot}->{$_};
-	}
+        foreach (qw(kernel initrd cmdline)) {
+            $w->dataElement($_, $self->{boot}->{$_}) if $self->{boot}->{$_};
+        }
     } elsif ($self->{boot}->{type} eq "init") {
-	$w->dataElement("init", $self->{boot}->{init});
+        $w->dataElement("init", $self->{boot}->{init});
     }
 
     if (exists $self->{boot}->{loader}) {
-	$w->dataElement("loader" => $self->{boot}->{loader});
+        $w->dataElement("loader" => $self->{boot}->{loader});
     }
 
     $w->endTag("os");
 
     if ($self->{boot}->{type} eq "bootloader") {
-	$w->dataElement("bootloader" => $self->{boot}->{bootloader});
+        $w->dataElement("bootloader" => $self->{boot}->{bootloader});
     }
 
     foreach (qw(on_reboot on_poweroff on_crash)) {
-	$w->dataElement($_ => $self->{lifecycle}->{$_}) if $self->{lifecycle}->{$_};
+        $w->dataElement($_ => $self->{lifecycle}->{$_}) if $self->{lifecycle}->{$_};
     }
 
     if (%{$self->{features}}) {
-	$w->startTag("features");
-	foreach (qw(pae acpi apic)) {
-	    $w->emptyTag($_) if $self->{features}->{$_};
-	}
-	$w->endTag("features");
+        $w->startTag("features");
+        foreach (qw(pae acpi apic)) {
+            $w->emptyTag($_) if $self->{features}->{$_};
+        }
+        $w->endTag("features");
     }
 
     $w->startTag("devices");
     if ($self->{emulator}) {
-	$w->dataElement("emulator" => $self->{emulator});
+        $w->dataElement("emulator" => $self->{emulator});
     }
     foreach my $disk (@{$self->{disks}}) {
-	$w->startTag("disk",
-		     type => $disk->{type},
-		     $disk->{device} ? (device => $disk->{device}) : ());
+        $w->startTag("disk",
+                     type => $disk->{type},
+                     $disk->{device} ? (device => $disk->{device}) : ());
 
-	if ($disk->{format}) {
-	    $w->emptyTag("driver",
-			 name => $disk->{format}->{name},
-			 type => $disk->{format}->{type});
-	}
+        if ($disk->{format}) {
+            $w->emptyTag("driver",
+                         name => $disk->{format}->{name},
+                         type => $disk->{format}->{type});
+        }
 
-	if ($disk->{type} eq "block") {
-	    $w->emptyTag("source",
-			 dev => $disk->{src});
-	} else {
-	    $w->emptyTag("source",
-			 file => $disk->{src});
-	}
-	$w->emptyTag("target",
-		     dev => $disk->{dst},
-		     $disk->{bus} ? (bus => $disk->{bus}) : ());
-	if ($disk->{secret}) {
-	    $w->startTag("encryption", format => "qcow");
-	    $w->emptyTag("secret", type => "passphrase", uuid => $disk->{secret});
-	    $w->endTag("encryption");
-	}
-	$w->endTag("disk");
+        if ($disk->{type} eq "block") {
+            $w->emptyTag("source",
+                         dev => $disk->{src});
+        } else {
+            $w->emptyTag("source",
+                         file => $disk->{src});
+        }
+        $w->emptyTag("target",
+                     dev => $disk->{dst},
+                     $disk->{bus} ? (bus => $disk->{bus}) : ());
+        if ($disk->{secret}) {
+            $w->startTag("encryption", format => "qcow");
+            $w->emptyTag("secret", type => "passphrase", uuid => $disk->{secret});
+            $w->endTag("encryption");
+        }
+        $w->endTag("disk");
     }
     foreach my $fs (@{$self->{filesystems}}) {
-	$w->startTag("filesystem",
-		     type => $fs->{type});
+        $w->startTag("filesystem",
+                     type => $fs->{type});
 
-	$w->emptyTag("source",
-		     dir => $fs->{src});
-	$w->emptyTag("target",
-		     dir => $fs->{dst});
-	$w->endTag("filesystem");
+        $w->emptyTag("source",
+                     dir => $fs->{src});
+        $w->emptyTag("target",
+                     dir => $fs->{dst});
+        $w->endTag("filesystem");
     }
     foreach my $interface (@{$self->{interfaces}}) {
-	$w->startTag("interface",
-		     type => $interface->{type});
+        $w->startTag("interface",
+                     type => $interface->{type});
 
-	$w->emptyTag("mac",
-		     address =>  $interface->{mac});
+        $w->emptyTag("mac",
+                     address =>  $interface->{mac});
 
-	if ($interface->{dev}) {
-	    $w->emptyTag("source",
-			 dev => $interface->{dev},
-			 mode => $interface->{mode});
-	} else {
-	    $w->emptyTag("source",
-			 network => $interface->{source});
-	}
-	if ($interface->{virtualport}) {
-	    $w->startTag("virtualport",
-			 type => $interface->{virtualport});
-	    $w->emptyTag("parameters",
-			 managerid => '1',
-			 typeid => '2',
-			 typeidversion => '3',
-			 instanceid => '40000000-0000-0000-0000-000000000000');
-	    $w->endTag("virtualport");
-	}
-	if ($interface->{model}) {
-	    $w->emptyTag("model",
-			 type => $interface->{model});
-	}
-	if ($interface->{filterref}) {
-	    $w->emptyTag("filterref",
-			 filter => $interface->{filterref});
-	}
-	$w->endTag("interface");
+        if ($interface->{dev}) {
+            $w->emptyTag("source",
+                         dev => $interface->{dev},
+                         mode => $interface->{mode});
+        } else {
+            $w->emptyTag("source",
+                         network => $interface->{source});
+        }
+        if ($interface->{virtualport}) {
+            $w->startTag("virtualport",
+                         type => $interface->{virtualport});
+            $w->emptyTag("parameters",
+                         managerid => '1',
+                         typeid => '2',
+                         typeidversion => '3',
+                         instanceid => '40000000-0000-0000-0000-000000000000');
+            $w->endTag("virtualport");
+        }
+        if ($interface->{model}) {
+            $w->emptyTag("model",
+                         type => $interface->{model});
+        }
+        if ($interface->{filterref}) {
+            $w->emptyTag("filterref",
+                         filter => $interface->{filterref});
+        }
+        $w->endTag("interface");
     }
     foreach my $graphic (@{$self->{graphics}}) {
-	$w->startTag("graphics",
-		     type => $graphic->{type});
+        $w->startTag("graphics",
+                     type => $graphic->{type});
 
-	$w->emptyTag("port",
-		     port => $graphic->{port});
-	$w->emptyTag("autoport",
-		     autoport => $graphic->{autoport});
-	$w->emptyTag("listen",
-		     listen => $graphic->{listen},
-		     $graphic->{listen_type} ? (type => $graphic->{listen_type}) : type => "address");
-	$w->emptyTag("keymap",
-		     keymap => $graphic->{keymap});
-	$w->endTag("graphics");
+        $w->emptyTag("port",
+                     port => $graphic->{port});
+        $w->emptyTag("autoport",
+                     autoport => $graphic->{autoport});
+        $w->emptyTag("listen",
+                     listen => $graphic->{listen},
+                     $graphic->{listen_type} ? (type => $graphic->{listen_type}) : type => "address");
+        $w->emptyTag("keymap",
+                     keymap => $graphic->{keymap});
+        $w->endTag("graphics");
     }
     $w->emptyTag("console", type => "pty");
     $w->endTag("devices");
     if ($self->{seclabel}->{model}) {
-	$w->startTag("seclabel",
-		     model => $self->{seclabel}->{model},
-		     type => $self->{seclabel}->{type},
-		     relabel => $self->{seclabel}->{relabel});
-	if ($self->{seclabel}->{label}) {
-	    $w->dataElement("label", $self->{seclabel}->{label});
-	}
-	if ($self->{seclabel}->{imagelabel}) {
-	    $w->dataElement("imagelabel", $self->{seclabel}->{imagelabel});
-	}
-	if ($self->{seclabel}->{baselabel}) {
-	    $w->dataElement("baselabel", $self->{seclabel}->{baselabel});
-	}
-	$w->endTag("seclabel");
+        $w->startTag("seclabel",
+                     model => $self->{seclabel}->{model},
+                     type => $self->{seclabel}->{type},
+                     relabel => $self->{seclabel}->{relabel});
+        if ($self->{seclabel}->{label}) {
+            $w->dataElement("label", $self->{seclabel}->{label});
+        }
+        if ($self->{seclabel}->{imagelabel}) {
+            $w->dataElement("imagelabel", $self->{seclabel}->{imagelabel});
+        }
+        if ($self->{seclabel}->{baselabel}) {
+            $w->dataElement("baselabel", $self->{seclabel}->{baselabel});
+        }
+        $w->endTag("seclabel");
     }
     $w->endTag("domain");
 

@@ -61,9 +61,9 @@ sub selinux_get_file_context {
 
     my @attr = split /\n/, `getfattr -n security.selinux $path 2>/dev/null`;
     foreach (@attr) {
-	if (/security.selinux=\"(.*)\"/) {
-	    return $1;
-	}
+        if (/security.selinux=\"(.*)\"/) {
+            return $1;
+        }
     }
     return undef;
 }

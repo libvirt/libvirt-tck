@@ -52,14 +52,14 @@ sub new {
     my %params = @_;
 
     $self->{config} = $params{config} ? $params{config} :
-	Config::Record->new(file => ($ENV{LIBVIRT_TCK_CONFIG} || "/etc/tck.conf"));
+        Config::Record->new(file => ($ENV{LIBVIRT_TCK_CONFIG} || "/etc/tck.conf"));
 
     $self->{autoclean} = $params{autoclean} ? $params{autoclean} :
-	($ENV{LIBVIRT_TCK_AUTOCLEAN} || 0);
+        ($ENV{LIBVIRT_TCK_AUTOCLEAN} || 0);
 
     if ($ENV{LIBVIRT_TCK_DEBUG}) {
-	$SIG{__WARN__} = sub { Carp::cluck $_[0]; };
-	$SIG{__DIE__} = sub { Carp::confess $_[0]; };
+        $SIG{__WARN__} = sub { Carp::cluck $_[0]; };
+        $SIG{__DIE__} = sub { Carp::confess $_[0]; };
     }
 
     bless $self, $class;
@@ -112,32 +112,32 @@ sub sanity_check {
 
     my @doms = grep { $_->get_name =~ /^tck/ } $conn->list_domains;
     if (@doms) {
-	die "there is/are " . int(@doms) . " pre-existing active domain(s) in this driver";
+        die "there is/are " . int(@doms) . " pre-existing active domain(s) in this driver";
     }
 
     @doms = grep { $_->get_name =~ /^tck/ } $conn->list_defined_domains;
     if (@doms) {
-	die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
+        die "there is/are " . int(@doms) . " pre-existing inactive domain(s) in this driver";
     }
 
     my @nets = grep { $_->get_name =~ /^tck/ } $conn->list_networks;
     if (@nets) {
-	die "there is/are " . int(@nets) . " pre-existing active network(s) in this driver";
+        die "there is/are " . int(@nets) . " pre-existing active network(s) in this driver";
     }
 
     @nets = grep { $_->get_name =~ /^tck/ } $conn->list_defined_networks;
     if (@nets) {
-	die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
+        die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
     }
 
     my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     if (@pools) {
-	die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
+        die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
     }
 
     @pools = grep { $_->get_name =~ /^tck/ } $conn->list_defined_storage_pools;
     if (@pools) {
-	die "there is/are " . int(@pools) . " pre-existing inactive storage_pool(s) in this driver";
+        die "there is/are " . int(@pools) . " pre-existing inactive storage_pool(s) in this driver";
     }
 }
 
@@ -148,7 +148,7 @@ sub reset_snapshots {
     # Use eval as not all drivers support snapshots
     my @domss = eval { $dom->list_snapshots };
     foreach my $domss (@domss) {
-	$domss->delete;
+        $domss->delete;
     }
 }
 
@@ -158,16 +158,16 @@ sub reset_domains {
 
     my @doms = grep { $_->get_name =~ /^tck/ } $conn->list_domains;
     foreach my $dom (@doms) {
-	$self->reset_snapshots($dom);
-	if ($dom->get_id != 0) {
-	    $dom->destroy;
-	}
+        $self->reset_snapshots($dom);
+        if ($dom->get_id != 0) {
+            $dom->destroy;
+        }
     }
 
     @doms = grep { $_->get_name =~ /^tck/ } $conn->list_defined_domains();
     foreach my $dom (@doms) {
-	$self->reset_snapshots($dom);
-	$dom->undefine;
+        $self->reset_snapshots($dom);
+        $dom->undefine;
     }
 }
 
@@ -177,14 +177,14 @@ sub reset_networks {
 
     my @nets = grep { $_->get_name =~ /^tck/ } $conn->list_networks;
     foreach my $net (@nets) {
-	if ($net->is_active()) {
-	    $net->destroy;
-	}
+        if ($net->is_active()) {
+            $net->destroy;
+        }
     }
 
     @nets = grep { $_->get_name =~ /^tck/ } $conn->list_defined_networks();
     foreach my $net (@nets) {
-	$net->undefine;
+        $net->undefine;
     }
 }
 
@@ -194,19 +194,19 @@ sub reset_storage_pools {
 
     my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     foreach my $pool (@pools) {
-	my @vols = $pool->list_volumes;
-	foreach my $vol (@vols) {
-	    eval { $vol->delete(0) };
-	}
-	$pool->destroy;
+        my @vols = $pool->list_volumes;
+        foreach my $vol (@vols) {
+            eval { $vol->delete(0) };
+        }
+        $pool->destroy;
     }
 
     @pools = grep { $_->get_name =~ /^tck/ } $conn->list_defined_storage_pools();
     foreach my $pool (@pools) {
-	eval {
-	    $pool->delete(0);
-	};
-	$pool->undefine;
+        eval {
+            $pool->delete(0);
+        };
+        $pool->undefine;
     }
 }
 
@@ -224,7 +224,7 @@ sub cleanup {
     my $self = shift;
 
     foreach my $conn (@{$self->{conns}}) {
-	$self->reset($conn);
+        $self->reset($conn);
     }
 
     delete $self->{conns};
@@ -234,10 +234,10 @@ sub config {
     my $self = shift;
     my $key = shift;
     if (@_) {
-	my $default = shift;
-	return $self->{config}->get($key, $default);
+        my $default = shift;
+        return $self->{config}->get($key, $default);
     } else {
-	return $self->{config}->get($key);
+        return $self->{config}->get($key);
     }
 }
 
@@ -253,8 +253,8 @@ sub scratch_dir {
     my $self = shift;
 
     my $scratch = $self->config("scratch_dir", $< > 0 ?
-				catdir(cwd(), "libvirt-tck") :
-				catdir(rootdir(), "var", "cache", "libvirt-tck"));
+                                catdir(cwd(), "libvirt-tck") :
+                                catdir(rootdir(), "var", "cache", "libvirt-tck"));
 
     mkpath($scratch) unless -e $scratch;
 
@@ -286,14 +286,14 @@ sub get_scratch_resource {
 
     my $uncompress = undef;
     if (ref($source)) {
-	$uncompress = $source->{uncompress};
-	$source = $source->{source};
+        $uncompress = $source->{uncompress};
+        $source = $source->{source};
     }
 
     if ($source =~ m,^/,) {
-	$self->copy_scratch($source, $target, $uncompress);
+        $self->copy_scratch($source, $target, $uncompress);
     } else {
-	$self->download_scratch($source, $target, $uncompress);
+        $self->download_scratch($source, $target, $uncompress);
     }
 
     return $target;
@@ -314,22 +314,22 @@ sub download_scratch {
     my $response = $ua->get($source);
 
     if ($response->is_success) {
-	open TGT, ">$target" or die "cannot create $target: $!";
-	if (defined $uncompress) {
-	    my $data = $response->content;
-	    if ($uncompress eq "gzip") {
-		gunzip \$data => \*TGT;
-	    } elsif ($uncompress eq "bzip2") {
-		bunzip2 \$data => \*TGT;
-	    } else {
-		die "unknown compression method '$uncompress'";
-	    }
-	} else {
-	    print TGT $response->content or die "cannot write $target: $!";
-	}
-	close TGT or die "cannot save $target: $!";
+        open TGT, ">$target" or die "cannot create $target: $!";
+        if (defined $uncompress) {
+            my $data = $response->content;
+            if ($uncompress eq "gzip") {
+                gunzip \$data => \*TGT;
+            } elsif ($uncompress eq "bzip2") {
+                bunzip2 \$data => \*TGT;
+            } else {
+                die "unknown compression method '$uncompress'";
+            }
+        } else {
+            print TGT $response->content or die "cannot write $target: $!";
+        }
+        close TGT or die "cannot save $target: $!";
     } else {
-	die "cannot download $source: " . $response->status_line;
+        die "cannot download $source: " . $response->status_line;
     }
 
 }
@@ -342,15 +342,15 @@ sub copy_scratch {
 
     print "# copying $source\n";
     if (defined $uncompress) {
-	if ($uncompress eq "gzip") {
-	    gunzip $source => $target;
-	} elsif ($uncompress eq "bzip2") {
-	    bunzip2 $source => $target;
-	} else {
-	    die "unknown compression method '$uncompress'";
-	}
+        if ($uncompress eq "gzip") {
+            gunzip $source => $target;
+        } elsif ($uncompress eq "bzip2") {
+            bunzip2 $source => $target;
+        } else {
+            die "unknown compression method '$uncompress'";
+        }
     } else {
-	copy ($source, $target) or die "cannot copy $source to $target: $!";
+        copy ($source, $target) or die "cannot copy $source to $target: $!";
     }
 }
 
@@ -401,7 +401,7 @@ sub create_virt_builder_disk {
     my $password = $self->root_password;
 
     if ($self->has_disk_image($bucket, $name, $osname)) {
-	return $target;
+        return $target;
     }
 
     print "# running virt-builder $osname\n";
@@ -448,9 +448,9 @@ sub create_minimal_vroot {
     my @dirs = qw(sbin bin dev proc sys tmp);
 
     foreach my $dir (@dirs) {
-	my $fulldir = catdir($target, $dir);
-	next if -e $fulldir;
-	mkpath($fulldir);
+        my $fulldir = catdir($target, $dir);
+        next if -e $fulldir;
+        mkpath($fulldir);
     }
 
     my $dst = catfile($target, "sbin", "busybox");
@@ -514,10 +514,10 @@ dumpleases  iptunnel     pidof       sum
 echo        kbd_mode     ping        sv);
 
     foreach my $file (@links) {
-	my $fullfile = catfile($target, "bin", $file);
-	next if -e $fullfile;
-	symlink "../sbin/busybox", $fullfile
-	    or die "cannot symlink $fullfile to ../sbin/busybox: $!";
+        my $fullfile = catfile($target, "bin", $file);
+        next if -e $fullfile;
+        symlink "../sbin/busybox", $fullfile
+            or die "cannot symlink $fullfile to ../sbin/busybox: $!";
     }
 
     my $init = catfile($target, "sbin", "init");
@@ -541,18 +541,18 @@ sub best_domain {
     my $ostype = shift;
 
     for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
-	if ($caps->guest_os_type($i) eq $ostype &&
-	    $caps->guest_arch_name($i) eq $caps->host_cpu_arch()) {
+        if ($caps->guest_os_type($i) eq $ostype &&
+            $caps->guest_arch_name($i) eq $caps->host_cpu_arch()) {
 
-	    my @domains = $caps->guest_domain_types($i);
-	    next unless int(@domains);
+            my @domains = $caps->guest_domain_types($i);
+            next unless int(@domains);
 
-	    # Prefer kvm if multiple domain types are returned
-	    my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
+            # Prefer kvm if multiple domain types are returned
+            my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
 
-	    return ($domain,
-		    $caps->host_cpu_arch());
-	}
+            return ($domain,
+                    $caps->host_cpu_arch());
+        }
     }
 
     return ();
@@ -566,19 +566,19 @@ sub match_guest_domain {
     my $ostype = shift;
 
     for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
-	if ($caps->guest_os_type($i) eq $ostype &&
-	    $caps->guest_arch_name($i) eq $arch) {
+        if ($caps->guest_os_type($i) eq $ostype &&
+            $caps->guest_arch_name($i) eq $arch) {
 
-	    my @domains = $caps->guest_domain_types($i);
-	    next unless int(@domains);
+            my @domains = $caps->guest_domain_types($i);
+            next unless int(@domains);
 
-	    # Prefer kvm if multiple domain types are returned
-	    my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
+            # Prefer kvm if multiple domain types are returned
+            my $domain = (grep /^kvm$/, @domains) ? "kvm" : $domains[0];
 
-	    return ($domain,
-		    $caps->guest_domain_emulator($i, $domain),
-		    $caps->guest_domain_loader($i, $domain));
-	}
+            return ($domain,
+                    $caps->guest_domain_emulator($i, $domain),
+                    $caps->guest_domain_loader($i, $domain));
+        }
     }
 
     return ();
@@ -594,25 +594,25 @@ sub best_kernel {
     my $hostarch = $caps->host_cpu_arch();
 
     for (my $i = 0 ; $i <= $#{$kernels} ; $i++) {
-	my $arch = $kernels->[$i]->{arch};
-	my $ostype = $kernels->[$i]->{ostype};
-	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+        my $arch = $kernels->[$i]->{arch};
+        my $ostype = $kernels->[$i]->{ostype};
+        my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
 
-	next unless $arch eq $hostarch;
+        next unless $arch eq $hostarch;
 
-	foreach $ostype (@ostype) {
-	    if ((defined $wantostype) &&
-		($wantostype ne $ostype)) {
-		next;
-	    }
+        foreach $ostype (@ostype) {
+            if ((defined $wantostype) &&
+                ($wantostype ne $ostype)) {
+                next;
+            }
 
-	    my ($domain, $emulator, $loader) =
-		$self->match_guest_domain($caps, $arch, $ostype);
+            my ($domain, $emulator, $loader) =
+                $self->match_guest_domain($caps, $arch, $ostype);
 
-	    if (defined $domain) {
-		return ($i, $domain, $arch, $ostype, $emulator, $loader)
-	    }
-	}
+            if (defined $domain) {
+                return ($i, $domain, $arch, $ostype, $emulator, $loader)
+            }
+        }
     }
 
     return ();
@@ -629,25 +629,25 @@ sub best_image {
     my $hostarch = $caps->host_cpu_arch();
 
     for (my $i = 0 ; $i <= $#{$images} ; $i++) {
-	my $arch = $images->[$i]->{arch};
-	my $ostype = $images->[$i]->{ostype};
-	my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+        my $arch = $images->[$i]->{arch};
+        my $ostype = $images->[$i]->{ostype};
+        my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
 
-	next unless $arch eq $hostarch;
+        next unless $arch eq $hostarch;
 
-	foreach $ostype (@ostype) {
-	    if ((defined $wantostype) &&
-		($wantostype ne $ostype)) {
-		next;
-	    }
+        foreach $ostype (@ostype) {
+            if ((defined $wantostype) &&
+                ($wantostype ne $ostype)) {
+                next;
+            }
 
-	    my ($domain, $emulator, $loader) =
-		$self->match_guest_domain($caps, $arch, $ostype);
+            my ($domain, $emulator, $loader) =
+                $self->match_guest_domain($caps, $arch, $ostype);
 
-	    if (defined $domain) {
-		return ($i, $domain, $arch, $ostype, $emulator, $loader)
-	    }
-	}
+            if (defined $domain) {
+                return ($i, $domain, $arch, $ostype, $emulator, $loader)
+            }
+        }
     }
 
     return ();
@@ -660,17 +660,17 @@ sub get_disk_dev {
 
     my $dev;
     if ($ostype eq "xen") {
-	$dev = "xvda";
+        $dev = "xvda";
     } elsif ($ostype eq "uml") {
-	$dev = "ubda";
+        $dev = "ubda";
     } elsif ($ostype eq "hvm") {
-	if ($domain eq "kvm" ||
-	    $domain eq "qemu" ||
-	    $domain eq "kqemu") {
-	    $dev = "vda";
-	} else {
-	    $dev = "hda";
-	}
+        if ($domain eq "kvm" ||
+            $domain eq "qemu" ||
+            $domain eq "kqemu") {
+            $dev = "vda";
+        } else {
+            $dev = "hda";
+        }
     }
     return $dev;
 }
@@ -682,10 +682,10 @@ sub get_kernel {
     my $wantostype = shift;
 
     my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
-	$self->best_kernel($caps, $wantostype);
+        $self->best_kernel($caps, $wantostype);
 
     if (!defined $cfgindex) {
-	die "cannot find any supported kernel configuration";
+        die "cannot find any supported kernel configuration";
     }
 
     my $kernels = $self->config("kernels", []);
@@ -701,7 +701,7 @@ sub get_kernel {
     my $dfile = $disk ? $self->get_scratch_resource($disk, $bucket, "disk.img") : undef;
 
     unless (defined $dfile) {
-	$dfile = $self->create_sparse_disk($bucket, "disk.img", 100);
+        $dfile = $self->create_sparse_disk($bucket, "disk.img", 100);
     }
 
     chmod 0755, $kfile;
@@ -709,15 +709,15 @@ sub get_kernel {
     my $dev = $self->get_disk_dev($ostype, $domain);
 
     return (
-	domain => $domain,
-	arch => $arch,
-	ostype => $ostype,
-	emulator => $emulator,
-	loader => $loader,
-	kernel => $kfile,
-	initrd => $ifile,
-	root => $dfile,
-	dev => $dev,
+        domain => $domain,
+        arch => $arch,
+        ostype => $ostype,
+        emulator => $emulator,
+        loader => $loader,
+        kernel => $kfile,
+        initrd => $ifile,
+        root => $dfile,
+        dev => $dev,
     );
 }
 
@@ -728,10 +728,10 @@ sub get_image {
     my $wantostype = shift;
 
     my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
-	$self->best_image($caps, $wantostype);
+        $self->best_image($caps, $wantostype);
 
     if (!defined $cfgindex) {
-	die "cannot find any supported image configuration";
+        die "cannot find any supported image configuration";
     }
 
     my $kernels = $self->config("images", []);
@@ -746,13 +746,13 @@ sub get_image {
     my $dev = $self->get_disk_dev($ostype, $domain);
 
     return (
-	domain => $domain,
-	arch => $arch,
-	ostype => $ostype,
-	emulator => $emulator,
-	loader => $loader,
-	root => $dfile,
-	dev => $dev,
+        domain => $domain,
+        arch => $arch,
+        ostype => $ostype,
+        emulator => $emulator,
+        loader => $loader,
+        root => $dfile,
+        dev => $dev,
     firstboot => $needs_firstboot,
     );
 }
@@ -769,78 +769,78 @@ sub generic_machine_domain {
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
 
     if ($fullos) {
-	my %config = $self->get_image($caps, $ostype);
+        my %config = $self->get_image($caps, $ostype);
 
         my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
-						   name => $name,
-						   arch => $config{arch},
-						   domain => $config{domain},
-						   ostype => $config{ostype});
-	$b->memory(1024 * 1024);
-	$b->with_acpi();
-	$b->with_apic();
+                                                   name => $name,
+                                                   arch => $config{arch},
+                                                   domain => $config{domain},
+                                                   ostype => $config{ostype});
+        $b->memory(1024 * 1024);
+        $b->with_acpi();
+        $b->with_apic();
 
-	$b->boot_disk();
+        $b->boot_disk();
 
-	$b->disk(src => $config{root},
-		 dst => $config{dev},
-		 type => "file");
+        $b->disk(src => $config{root},
+                 dst => $config{dev},
+                 type => "file");
 
-	if ($config{firstboot}) {
-	    print "# Running the first boot\n";
+        if ($config{firstboot}) {
+            print "# Running the first boot\n";
 
-	    $b->interface(type => "network",
-			  source => "default",
+            $b->interface(type => "network",
+                          source => "default",
                           model => "virtio",
-			  mac => "52:54:00:11:11:11",
-			  filterref => $filterref);
-	    my $xml = $b->as_xml();
-	    # Cleanup the temporary interface
-	    $b->rminterface();
+                          mac => "52:54:00:11:11:11",
+                          filterref => $filterref);
+            my $xml = $b->as_xml();
+            # Cleanup the temporary interface
+            $b->rminterface();
 
-	    my $dom = $self->conn->define_domain($xml);
-	    $dom->create();
+            my $dom = $self->conn->define_domain($xml);
+            $dom->create();
 
-	    # Wait for the first boot to reach network setting
-	    my $stats;
-	    my $tries = 0;
-	    do {
-		sleep(10);
-		$stats  = $dom->interface_stats("vnet0");
-		$tries++;
-	    } while ($stats->{"tx_packets"} < 10 && $tries < 10);
+            # Wait for the first boot to reach network setting
+            my $stats;
+            my $tries = 0;
+            do {
+                sleep(10);
+                $stats  = $dom->interface_stats("vnet0");
+                $tries++;
+            } while ($stats->{"tx_packets"} < 10 && $tries < 10);
 
-	    # Safe to shutdown domain now
-	    my $target = time() + 30;
-	    $dom->shutdown;
-	    while ($dom->is_active()) {
-		sleep(1);
-		$dom->destroy() if time() > $target;
-	    }
-	    sleep(1);
-	    $dom->undefine();
-	}
+            # Safe to shutdown domain now
+            my $target = time() + 30;
+            $dom->shutdown;
+            while ($dom->is_active()) {
+                sleep(1);
+                $dom->destroy() if time() > $target;
+            }
+            sleep(1);
+            $dom->undefine();
+        }
 
-	return $b;
+        return $b;
     } else {
-	my %config = $self->get_kernel($caps, $ostype);
+        my %config = $self->get_kernel($caps, $ostype);
 
-	my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
-						   name => $name,
-						   arch => $config{arch},
-						   domain => $config{domain},
-						   ostype => $config{ostype});
-	$b->memory(1024 * 1024);
-	$b->with_acpi();
-	$b->with_apic();
+        my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
+                                                   name => $name,
+                                                   arch => $config{arch},
+                                                   domain => $config{domain},
+                                                   ostype => $config{ostype});
+        $b->memory(1024 * 1024);
+        $b->with_acpi();
+        $b->with_apic();
 
-	# XXX boot CDROM or vroot for other HVs
-	$b->boot_kernel($config{kernel}, $config{initrd});
+        # XXX boot CDROM or vroot for other HVs
+        $b->boot_kernel($config{kernel}, $config{initrd});
 
-	$b->disk(src => $config{root},
-		 dst => $config{dev},
-		 type => "file");
-	return $b;
+        $b->disk(src => $config{root},
+                 dst => $config{dev},
+                 type => "file");
+        return $b;
     }
 }
 
@@ -850,12 +850,12 @@ sub best_container_domain {
     my $caps = shift;
 
     for (my $i = 0 ; $i < $caps->num_guests ; $i++) {
-	if ($caps->guest_os_type($i) eq "exe") {
-	    my @domains = $caps->guest_domain_types($i);
-	    next unless int(@domains);
+        if ($caps->guest_os_type($i) eq "exe") {
+            my @domains = $caps->guest_domain_types($i);
+            next unless int(@domains);
 
-	    return $domains[0];
-	}
+            return $domains[0];
+        }
     }
 
     return undef;
@@ -872,9 +872,9 @@ sub generic_container_domain {
     my $bucket = "os-exe";
 
     my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
-					       name => $name,
-					       domain => $domain,
-					       ostype => "exe");
+                                               name => $name,
+                                               domain => $domain,
+                                               ostype => "exe");
     $b->memory(64 * 1024);
 
     my ($root, $init) = $self->create_minimal_vroot($bucket, $name);
@@ -882,8 +882,8 @@ sub generic_container_domain {
     $b->boot_init($init);
 
     $b->filesystem(src => $root,
-		   dst => "/",
-		   type => "mount");
+                   dst => "/",
+                   type => "mount");
 
     return $b;
 }
@@ -904,38 +904,38 @@ sub generic_domain {
     my $container;
 
     $container = $self->best_container_domain($caps)
-	unless $ostype && $ostype ne "exe";
+        unless $ostype && $ostype ne "exe";
 
     my $b;
     if ($container) {
-	die "Full provisioned OS not supported with containers yet" if $fullos;
+        die "Full provisioned OS not supported with containers yet" if $fullos;
 
-	$b = $self->generic_container_domain(name => $name,
-					     caps => $caps,
-					     domain => $container);
+        $b = $self->generic_container_domain(name => $name,
+                                             caps => $caps,
+                                             domain => $container);
     } else {
-	$b = $self->generic_machine_domain(name => $name,
-					   caps => $caps,
-					   ostype => $ostype,
+        $b = $self->generic_machine_domain(name => $name,
+                                           caps => $caps,
+                                           ostype => $ostype,
                                            fullos => $fullos,
                                            filterref => $filterref);
     }
     if ($netmode) {
-	if ($netmode eq "vepa") {
-	    $b->interface(type => "direct",
-			  source => "default",
+        if ($netmode eq "vepa") {
+            $b->interface(type => "direct",
+                          source => "default",
                           model => "virtio",
-			  mac => "52:54:00:11:11:11",
-			  dev => $self->get_host_network_device(),
-			  mode => "vepa",
-			  virtualport => "802.1Qbg");
-	} else {
-	    $b->interface(type => "network",
-			  source => "default",
+                          mac => "52:54:00:11:11:11",
+                          dev => $self->get_host_network_device(),
+                          mode => "vepa",
+                          virtualport => "802.1Qbg");
+        } else {
+            $b->interface(type => "network",
+                          source => "default",
                           model => "virtio",
-			  mac => "52:54:00:11:11:11",
-			  filterref => $filterref);
-	}
+                          mac => "52:54:00:11:11:11",
+                          filterref => $filterref);
+        }
     }
     return $b;
 }
@@ -948,7 +948,7 @@ sub generic_pool {
     my $bucket = $self->bucket_dir("storage-fs");
 
     my $b = Sys::Virt::TCK::StoragePoolBuilder->new(name => $name,
-						    type => $type);
+                                                    type => $type);
 
     $b->target(catdir($bucket, $name));
 
@@ -994,7 +994,7 @@ sub _quiet_caller (;$) { ## no critic Prototypes
     else {
         return CORE::caller($height);
     }
-		   }
+                   }
 
 sub _try_as_caller {
     my $coderef = shift;
@@ -1018,26 +1018,26 @@ sub ok_object($$$;$) {
     my $name = shift;
 
     die "must pass coderef, class, description and (optional) expected name"
-	unless defined $description;
+        unless defined $description;
 
     my ($ret, $exception) = _try_as_caller($coderef, 4);
 
     my $ok = "$exception" eq "" &&
-	$ret && ref($ret) && $ret->isa($class) &&
-	(!defined $name || ($ret->get_name() eq $name));
+        $ret && ref($ret) && $ret->isa($class) &&
+        (!defined $name || ($ret->get_name() eq $name));
 
     $Tester->ok($ok, $description);
     unless ($ok) {
-	$Tester->diag("expected $class object" . ($name ? " with name $name" : ""));
-	if ($exception) {
-	    $Tester->diag("found '$exception'");
-	} else {
-	    if ($ret && ref($ret) && $ret->isa($class)) {
-		$Tester->diag("found $class object with name " . $ret->get_name);
-	    } else {
-		$Tester->diag("found '$ret'");
-	    }
-	}
+        $Tester->diag("expected $class object" . ($name ? " with name $name" : ""));
+        if ($exception) {
+            $Tester->diag("found '$exception'");
+        } else {
+            if ($ret && ref($ret) && $ret->isa($class)) {
+                $Tester->diag("found $class object with name " . $ret->get_name);
+            } else {
+                $Tester->diag("found '$ret'");
+            }
+        }
     }
 }
 
@@ -1104,17 +1104,17 @@ sub ok_error(&$;$) {
     my $code = shift;
 
     die "must pass coderef, description and (optional) expected error code"
-	unless defined $description;
+        unless defined $description;
 
     my ($ret, $exception) = _try_as_caller($coderef, 3);
 
     my $ok = ref($exception) && $exception->isa("Sys::Virt::Error") &&
-	(!defined $code || ($exception->code() == $code));
+        (!defined $code || ($exception->code() == $code));
 
     $Tester->ok($ok, $description);
     unless ($ok) {
-	$Tester->diag("expecting Sys::Virt::Error object" . ($code ?  " with code $code" : ""));
-	$Tester->diag("found '$exception'");
+        $Tester->diag("expecting Sys::Virt::Error object" . ($code ?  " with code $code" : ""));
+        $Tester->diag("found '$exception'");
     }
     $@ = $exception;
     return $ok;
@@ -1125,10 +1125,10 @@ sub err_not_implemented {
     my $exception = shift;
 
     if ($exception &&
-	ref($exception) &&
-	$exception->isa("Sys::Virt::Error") &&
-	$exception->code() == 3) {
-	return 1;
+        ref($exception) &&
+        $exception->isa("Sys::Virt::Error") &&
+        $exception->code() == 3) {
+        return 1;
     }
     return 0;
 }
@@ -1151,7 +1151,7 @@ sub get_host_usb_device {
     my $devs = $self->config("host_usb_devices", []);
 
     if ($devindex > $#{$devs}) {
-	return ();
+        return ();
     }
 
     my $bus = $self->config("host_usb_devices/[$devindex]/bus", undef);
@@ -1169,7 +1169,7 @@ sub get_host_pci_device {
     my $devs = $self->config("host_pci_devices", []);
 
     if ($devindex > $#{$devs}) {
-	return ();
+        return ();
     }
 
     my $domain = $self->config("host_pci_devices/[$devindex]/domain", 0);
@@ -1185,7 +1185,7 @@ sub get_host_block_device {
     my $devindex = @_ ? shift : 0;
 
     my $device = ($self->config("host_block_devices/[$devindex]/path", undef)
-		  || $self->config("host_block_devices/[$devindex]", undef));
+                  || $self->config("host_block_devices/[$devindex]", undef));
     return undef unless $device;
 
     my $kb_blocks = $self->config("host_block_devices/[$devindex]/size", 0);
@@ -1193,7 +1193,7 @@ sub get_host_block_device {
     # Filter out devices that the current user can't open.
     sysopen(BLK, $device, O_RDONLY) or return undef;
     my $match = ($kb_blocks ? sysseek(BLK, 0, SEEK_END) == $kb_blocks * 1024
-		 : 1);
+                 : 1);
     close BLK;
 
     return $match ? $device : undef;

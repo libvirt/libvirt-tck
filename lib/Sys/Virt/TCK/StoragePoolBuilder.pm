@@ -26,10 +26,10 @@ sub new {
     my %params = @_;
 
     my $self = {
-	name => $params{name} ? $params{name} : "tck" ,
-	type => $params{type} ? $params{type} : "dir",
-	source => {},
-	perms => {},
+        name => $params{name} ? $params{name} : "tck" ,
+        type => $params{type} ? $params{type} : "dir",
+        source => {},
+        perms => {},
     };
 
     bless $self, $class;
@@ -138,44 +138,44 @@ sub as_xml {
     my $data;
     my $fh = IO::String->new(\$data);
     my $w = XML::Writer->new(OUTPUT => $fh,
-			     DATA_MODE => 1,
-			     DATA_INDENT => 2);
+                             DATA_MODE => 1,
+                             DATA_INDENT => 2);
     $w->startTag("pool", type => $self->{type});
     foreach (qw(name uuid)) {
-	$w->dataElement("$_" => $self->{$_}) if $self->{$_};
+        $w->dataElement("$_" => $self->{$_}) if $self->{$_};
     }
 
     $w->startTag("source");
     if ($self->{source}->{host}) {
-	$w->emptyTag("host", name => $self->{source}->{host});
+        $w->emptyTag("host", name => $self->{source}->{host});
     }
     if ($self->{source}->{dir}) {
-	$w->emptyTag("dir", path => $self->{source}->{dir});
+        $w->emptyTag("dir", path => $self->{source}->{dir});
     }
     if ($self->{source}->{device}) {
-	foreach my $dev (@{$self->{source}->{device}}) {
-	    $w->emptyTag("device", path => $dev);
-	}
+        foreach my $dev (@{$self->{source}->{device}}) {
+            $w->emptyTag("device", path => $dev);
+        }
     }
     if ($self->{source}->{adapter}) {
-	$w->emptyTag("adapter", name => $self->{source}->{adapter});
+        $w->emptyTag("adapter", name => $self->{source}->{adapter});
     }
     if ($self->{source}->{name}) {
-	$w->dataElement("name", $self->{source}->{name});
+        $w->dataElement("name", $self->{source}->{name});
     }
     if ($self->{format}) {
-	$w->emptyTag("format", type => $self->{format});
+        $w->emptyTag("format", type => $self->{format});
     }
     $w->endTag("source");
 
     $w->startTag("target");
     $w->dataElement("path", $self->{target});
     if (int(keys %{$self->{perms}})) {
-	$w->startTag("permissions");
-	foreach (qw(mode user group)) {
-	    $w->dataElement("$_" => $self->{perms}->{$_}) if $self->{perms}->{$_};
-	}
-	$w->endTag("permissions");
+        $w->startTag("permissions");
+        foreach (qw(mode user group)) {
+            $w->dataElement("$_" => $self->{perms}->{$_}) if $self->{perms}->{$_};
+        }
+        $w->endTag("permissions");
     }
     $w->endTag("target");
 

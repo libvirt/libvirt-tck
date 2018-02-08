@@ -33,9 +33,9 @@ sub shutdown_vm_gracefully {
     my $target = time() + 30;
     $dom->shutdown;
     while ($dom->is_active()) {
-	sleep(1);
-	diag ".. waiting for virtual machine to shutdown.. ";
-	$dom->destroy() if time() > $target;
+        sleep(1);
+        diag ".. waiting for virtual machine to shutdown.. ";
+        $dom->destroy() if time() > $target;
     }
     sleep(1);
     diag ".. shutdown complete.. ";

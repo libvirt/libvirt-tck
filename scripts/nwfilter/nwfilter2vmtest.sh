@@ -139,7 +139,7 @@ checkExpectedOutput() {
 
     skip=0
     if [ "x${skipregex}x" != "xx" ]; then
-    	skip=$(printf %s\\n ${cmd} | grep -c -E ${skipregex})
+        skip=$(printf %s\\n ${cmd} | grep -c -E ${skipregex})
     fi
 
     eval ${cmd} 2>&1 | tee ${tmpfile} 1>/dev/null
@@ -157,12 +157,12 @@ checkExpectedOutput() {
 
       if [ "x${letter}x" = "x#x" ] || [ "x${line}x" = "xx"  ]; then
 
-	if [ ${skip} -ne 0 ]; then
-	  break
-	fi
+        if [ ${skip} -ne 0 ]; then
+          break
+        fi
 
-	if [ -n "${skiptest}" ]; then
-	  # treat all skips as passes
+        if [ -n "${skiptest}" ]; then
+          # treat all skips as passes
           passctr=$(($passctr + 1))
           [ $(($flags & $FLAG_VERBOSE)) -ne 0 ] && \
               echo "SKIP ${xmlfile} : ${cmd}"
@@ -171,7 +171,7 @@ checkExpectedOutput() {
           [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ] && \
               tap_pass $(($passctr + $failctr)) "SKIP: ${xmlfile} : ${skiptest}"
           break
-	fi
+        fi
 
         if [ $IPTABLES_CTDIR_CORRECTED -ne 0 ]; then
           #change --ctdir ORIGINAL to --ctdir REPLY
@@ -196,8 +196,8 @@ checkExpectedOutput() {
           failctr=$(($failctr + 1))
           if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
                 echo "tmp files: $tmpfile, $tmpfile2"
-          	echo "Press enter"
-          	read enter
+                echo "Press enter"
+                read enter
           fi
           [ $(($flags & $FLAG_LIBVIRT_TEST)) -ne 0 ] && \
               test_result $(($passctr + $failctr)) "" 1
@@ -239,15 +239,15 @@ doTest() {
   skiptest=""
 
   if [ ! -r "${xmlfile}" ]; then
-    echo "FAIL : Cannot access filter XML file ${xmlfile}."
-    return 1
+      echo "FAIL : Cannot access filter XML file ${xmlfile}."
+      return 1
   fi
 
   # Check whether we can run this test at all
   cmd=$(sed -n '1 s/^<\!--[	 ]*#\(.*\)#[	 ]*-->/\1/p' "${xmlfile}")
   if [ -n "${cmd}" ]; then
-    eval "${cmd}" 2>/dev/null 1>/dev/null
-    [ $? -ne 0 ] && skiptest="${cmd}"
+      eval "${cmd}" 2>/dev/null 1>/dev/null
+      [ $? -ne 0 ] && skiptest="${cmd}"
   fi
 
   [ -z "${skiptest}" ] && ${VIRSH} nwfilter-define "${xmlfile}" > /dev/null
@@ -643,23 +643,23 @@ main() {
 
   createTestFilters "${flags}"
   if [ $? -ne 0 ]; then
-  	exit 1;
+      exit 1;
   fi
 
   createVM "${vm1}" "tck-testcase" "10.2.2.2" "52:54:0:0:0:1" "${flags}"
   if [ $? -ne 0 ]; then
-  	echo "Could not create VM ${vm1}. Exiting."
-	deleteTestFilter "${flags}"
-  	exit 1
+      echo "Could not create VM ${vm1}. Exiting."
+      deleteTestFilter "${flags}"
+      exit 1
   fi
 
   createVM "${vm2}" "${TESTFILTERNAME}" "10.1.1.1" "52:54:0:9f:33:da" \
            "${flags}"
   if [ $? -ne 0 ]; then
-  	echo "Could not create VM ${vm2}. Exiting."
-  	destroyVM "${vm1}" "${flags}"
-	deleteTestFilter "${flags}"
-  	exit 1
+      echo "Could not create VM ${vm2}. Exiting."
+      destroyVM "${vm1}" "${flags}"
+      deleteTestFilter "${flags}"
+      exit 1
   fi
 
   runTests "${vm1}" "${vm2}" "${xmldir}" "${fwalldir}" "${flags}"

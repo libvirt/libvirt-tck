@@ -35,8 +35,8 @@ sub _initialize {
     $self->verbosity(0);
 
     my $w = XML::Writer->new(OUTPUT => \*STDOUT,
-			     DATA_MODE => 1,
-			     DATA_INDENT => 2);
+                             DATA_MODE => 1,
+                             DATA_INDENT => 2);
     $self->xml($w);
 
     return $self;
@@ -64,13 +64,13 @@ sub summary {
     my $agg = shift;
 
     $self->xml->startTag("summary",
-			 total => int($agg->total),
-			 passed => int($agg->passed),
-			 failed => int($agg->failed),
-			 todo => int($agg->todo),
-			 unexpected => int($agg->todo_passed),
-			 skipped => int($agg->skipped),
-			 errors => int($agg->parse_errors));
+                         total => int($agg->total),
+                         passed => int($agg->passed),
+                         failed => int($agg->failed),
+                         todo => int($agg->todo),
+                         unexpected => int($agg->todo_passed),
+                         skipped => int($agg->skipped),
+                         errors => int($agg->parse_errors));
 
 
     $self->xml->endTag("summary");

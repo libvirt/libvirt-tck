@@ -59,7 +59,7 @@ sub _parse_capabilities {
     $self->_parse_host($host) if $host;
 
     foreach my $child ($node->children("guest")) {
-	$self->_parse_guest($child);
+        $self->_parse_guest($child);
     }
 }
 
@@ -92,11 +92,11 @@ sub _parse_host_cpu {
 
     my $feat = $node->first_child("features");
     if (defined $feat) {
-	$cpu->{features} = {};
-	foreach my $child ($feat->children()) {
-	    my $name = $child->name;
-	    $cpu->{features}->{$name} = 1;
-	}
+        $cpu->{features} = {};
+        foreach my $child ($feat->children()) {
+            my $name = $child->name;
+            $cpu->{features}->{$name} = 1;
+        }
     }
 
     $self->{host}->{cpu} = $cpu;
@@ -116,9 +116,9 @@ sub _parse_host_migration {
     $mig->{transports} = [];
     my $trans = $node->first_child("uri_transports");
     if (defined $trans) {
-	foreach my $child ($trans->children("uri_transport")) {
-	    push @{$mig->{transports}}, $child->text;
-	}
+        foreach my $child ($trans->children("uri_transport")) {
+            push @{$mig->{transports}}, $child->text;
+        }
     }
 
     $self->{host}->{migration} = $mig;
@@ -136,16 +136,16 @@ sub _parse_host_topology {
 
     my @cells;
     foreach my $cell ($cells->children("cell")) {
-	my $topcell = [];
-	push @{$top}, $topcell;
+        my $topcell = [];
+        push @{$top}, $topcell;
 
-	my $cpus = $cell->first_child("cpus");
-	next unless $cpus;
+        my $cpus = $cell->first_child("cpus");
+        next unless $cpus;
 
-	foreach my $cpu ($cpus->children("cpu")) {
-	    my $id = $cpu->att("id");
-	    push @{$topcell}, $id;
-	}
+        foreach my $cpu ($cpus->children("cpu")) {
+            my $id = $cpu->att("id");
+            push @{$topcell}, $id;
+        }
     }
 
     $self->{host}->{topology} = $top;
@@ -156,8 +156,8 @@ sub _parse_host_secmodel {
     my $node = shift;
 
     my $sec = {
-	model => $node->first_child_text("model"),
-	doi => $node->first_child_text("doi"),
+        model => $node->first_child_text("model"),
+        doi => $node->first_child_text("doi"),
     };
 
     $self->{host}->{secmodel} = $sec;
@@ -175,44 +175,44 @@ sub _parse_guest {
     my $wordsize = $arch->first_child_text("wordsize");
 
     $guest->{arch} = {
-	name => $arch->att("name"),
-	wordsize => $wordsize,
-	domains => {},
+        name => $arch->att("name"),
+        wordsize => $wordsize,
+        domains => {},
     };
 
     my $defemu = $arch->first_child("emulator") ? $arch->first_child_text("emulator") : undef;
     my $defload = $arch->first_child("loader") ? $arch->first_child_text("loader") : undef;
     my @defmachines = ();
     foreach my $child ($arch->children("machine")) {
-	push @defmachines, $child->text;
+        push @defmachines, $child->text;
     }
 
     foreach my $dom ($arch->children("domain")) {
-	my $emu = $dom->first_child("emulator") ? $dom->first_child_text("emulator") : undef;
-	my $load = $dom->first_child("loader") ? $dom->first_child_text("loader") : undef;
-	my @machines = ();
-	foreach my $child ($dom->children("machine")) {
-	    push @machines, $child->text;
-	}
-	$emu = $defemu unless $emu;
-	$load = $defload unless $load;
-	@machines = @defmachines unless @machines;
+        my $emu = $dom->first_child("emulator") ? $dom->first_child_text("emulator") : undef;
+        my $load = $dom->first_child("loader") ? $dom->first_child_text("loader") : undef;
+        my @machines = ();
+        foreach my $child ($dom->children("machine")) {
+            push @machines, $child->text;
+        }
+        $emu = $defemu unless $emu;
+        $load = $defload unless $load;
+        @machines = @defmachines unless @machines;
 
-	my $type = $dom->att("type");
-	$guest->{arch}->{domains}->{$type} = {
-	    emulator => $emu,
-	    loader => $load,
-	    machines => \@machines,
-	};
+        my $type = $dom->att("type");
+        $guest->{arch}->{domains}->{$type} = {
+            emulator => $emu,
+            loader => $load,
+            machines => \@machines,
+        };
     }
 
 
     $guest->{features} = {};
     my $features = $node->first_child("features");
     if ($features) {
-	foreach my $child ($features->children) {
-	    $guest->{features}->{$child->name} = 1;
-	}
+        foreach my $child ($features->children) {
+            $guest->{features}->{$child->name} = 1;
+        }
     }
 
     push @{$self->{guests}}, $guest;

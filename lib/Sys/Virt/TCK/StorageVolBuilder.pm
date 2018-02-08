@@ -26,7 +26,7 @@ sub new {
     my %params = @_;
 
     my $self = {
-	name => $params{name} ? $params{name} : "tck" ,
+        name => $params{name} ? $params{name} : "tck" ,
     };
 
     bless $self, $class;
@@ -87,8 +87,8 @@ sub as_xml {
     my $data;
     my $fh = IO::String->new(\$data);
     my $w = XML::Writer->new(OUTPUT => $fh,
-			     DATA_MODE => 1,
-			     DATA_INDENT => 2);
+                             DATA_MODE => 1,
+                             DATA_INDENT => 2);
     $w->startTag("volume");
     $w->dataElement("name" => $self->{name});
 
@@ -96,30 +96,30 @@ sub as_xml {
     $w->dataElement("allocation", $self->{allocation});
 
     if ($self->{format} || $self->{secret}) {
-	$w->startTag("target");
-	if ($self->{format}) {
-	    $w->emptyTag("format", type => $self->{format});
-	}
-	if ($self->{secret}) {
-	    $w->startTag("encryption", format => "qcow");
-	    $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
-	    $w->endTag("encryption");
-	}
-	$w->endTag("target");
+        $w->startTag("target");
+        if ($self->{format}) {
+            $w->emptyTag("format", type => $self->{format});
+        }
+        if ($self->{secret}) {
+            $w->startTag("encryption", format => "qcow");
+            $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
+            $w->endTag("encryption");
+        }
+        $w->endTag("target");
     }
 
     if ($self->{backingFile}) {
-	$w->startTag("backingStore");
-	$w->dataElement("path", $self->{backingFile});
-	if ($self->{backingFormat}) {
-	    $w->emptyTag("format", type => $self->{backingFormat});
-	}
-	if ($self->{secret}) {
-	    $w->startTag("encryption", format => "qcow");
-	    $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
-	    $w->endTag("encryption");
-	}
-	$w->endTag("backingStore");
+        $w->startTag("backingStore");
+        $w->dataElement("path", $self->{backingFile});
+        if ($self->{backingFormat}) {
+            $w->emptyTag("format", type => $self->{backingFormat});
+        }
+        if ($self->{secret}) {
+            $w->startTag("encryption", format => "qcow");
+            $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
+            $w->endTag("encryption");
+        }
+        $w->endTag("backingStore");
     }
 
     $w->endTag("volume");

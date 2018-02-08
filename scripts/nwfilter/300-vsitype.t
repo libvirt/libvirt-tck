@@ -52,7 +52,7 @@ if ( ! -e '/usr/sbin/lldptool' ) {
 
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-			       netmode => "vepa")->as_xml();
+                               netmode => "vepa")->as_xml();
 
 my $dom;
 ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");

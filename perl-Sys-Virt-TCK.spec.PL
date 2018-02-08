@@ -73,6 +73,7 @@ Requires: perl(Test::Exception)
 Requires: perl(TAP::Formatter::HTML)
 Requires: perl(TAP::Formatter::JUnit)
 Requires: perl(TAP::Harness::Archive)
+Requires: perl(Net::OpenSSH)
 Requires: /usr/bin/mkisofs
 BuildArchitectures: noarch
 

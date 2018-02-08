@@ -31,7 +31,7 @@ use Test::More tests => 4;
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
-use Net::SSH::Perl;
+use Net::OpenSSH;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
 my $tck = Sys::Virt::TCK->new();
@@ -85,9 +85,10 @@ diag "prepare tcpdump";
 system("/usr/sbin/tcpdump -v -i virbr0 -n host 255.255.255.255 2> /tmp/tcpdump.log &");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip);
 diag "ssh'ing into $guestip";
-$ssh->login("root", $tck->root_password());
+my $ssh = Net::OpenSSH->new($guestip,
+                            user => "root",
+                            password => $tck->root_password());
 
 # now generate a mac broadcast paket 
 diag "generate mac broadcast";
@@ -95,22 +96,22 @@ my $cmdfile = <<EOF;
 echo '/bin/ping -c 1 192.168.122.255 -b' > /test.sh
 EOF
 diag $cmdfile;
-my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);
+my ($stdout, $stderr) = $ssh->capture2($cmdfile);
 diag $stdout;
 diag $stderr;
-diag $exit;
-($stdout, $stderr, $exit)  = $ssh->cmd("chmod +x /test.sh");
+diag "Exit Code: $?";
+($stdout, $stderr) = $ssh->capture2("chmod +x /test.sh");
 diag $stdout;
 diag $stderr;
-diag $exit;
-($stdout, $stderr, $exit)  = $ssh->cmd("/test.sh > /test.log");
+diag "Exit Code: $?";
+($stdout, $stderr) = $ssh->capture2("/test.sh > /test.log");
 diag $stdout;
 diag $stderr;
-diag $exit;
-($stdout, $stderr, $exit)  = $ssh->cmd("cat /test.log");
+diag "Exit Code: $?";
+($stdout, $stderr) = $ssh->capture2("cat /test.log");
 diag $stdout;
 diag $stderr;
-diag $exit;
+diag "Exit Code: $?";
 
 # now stop tcpdump and verify result
 diag "stopping tcpdump";

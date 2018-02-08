@@ -31,7 +31,6 @@ use Test::More;
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
-use Net::SSH::Perl;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
 my $tck = Sys::Virt::TCK->new();

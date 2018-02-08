@@ -31,7 +31,7 @@ use Test::More tests => 4;
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
-use Net::SSH::Perl;
+use Net::OpenSSH;
 
 use File::Spec::Functions qw(catfile catdir rootdir);
 
@@ -71,9 +71,10 @@ diag $ebtable;
 ok($ebtable =~ "$guestip", "check ebtables entry");
 
 # log into guest
-my $ssh = Net::SSH::Perl->new($guestip);
 diag "ssh'ing into $guestip";
-$ssh->login("root", $tck->root_password());
+my $ssh = Net::OpenSSH->new($guestip,
+                            user => "root",
+                            password => $tck->root_password());
 
 # now bring eth0 down, change IP and bring it up again
 diag "preparing ip spoof";
@@ -95,23 +96,23 @@ MASK=`ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\
 /sbin/ip addr show \\\$DEV" > /test.sh
 EOF
 diag $cmdfile;
-my ($stdout, $stderr, $exit)  = $ssh->cmd($cmdfile);
+my ($stdout, $stderr) = $ssh->capture2($cmdfile);
 diag $stdout;
 diag $stderr;
-diag $exit;
-($stdout, $stderr, $exit)  = $ssh->cmd("chmod +x /test.sh");
+diag "Exit Code: $?";
+($stdout, $stderr) = $ssh->capture2("chmod +x /test.sh");
 diag $stdout;
 diag $stderr;
-diag $exit;
-($stdout, $stderr, $exit)  = $ssh->cmd("cat /test.sh");
+diag "Exit Code: $?";
+($stdout, $stderr) = $ssh->capture2("cat /test.sh");
 diag $stdout;
 diag $stderr;
-diag $exit;
+diag "Exit Code: $?";
 diag "running ip spoof";
-($stdout, $stderr, $exit)  = $ssh->cmd("/test.sh");
+($stdout, $stderr) = $ssh->capture2("/test.sh");
 diag $stdout;
 diag $stderr;
-diag $exit;
+diag "Exit Code: $?";
 diag "checking result";
 ok($stdout =~ "100% packet loss", "packet loss expected");
 

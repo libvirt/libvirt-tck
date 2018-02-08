@@ -766,7 +766,7 @@ sub generic_machine_domain {
     my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
-    my $filterref = exists $params{filterref} ? $params{filterref} : "clean-traffic";
+    my $filterref = exists $params{filterref} ? $params{filterref} : undef;
 
     if ($fullos) {
 	my %config = $self->get_image($caps, $ostype);
@@ -897,7 +897,7 @@ sub generic_domain {
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
     my $netmode = exists $params{netmode} ? $params{netmode} : undef;
-    my $filterref = exists $params{filterref} ? $params{filterref} : "clean-traffic";
+    my $filterref = exists $params{filterref} ? $params{filterref} : undef;
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 

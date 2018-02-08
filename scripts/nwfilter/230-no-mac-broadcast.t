@@ -68,7 +68,7 @@ sleep(10);
 my $mac =  get_first_macaddress($dom);
 diag "mac is $mac";
 
-my $guestip = get_ip_from_leases($mac);
+my $guestip = get_ip_from_leases($conn, "default", $mac);
 diag "ip is $guestip";
 
 # check ebtables entry

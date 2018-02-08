@@ -10,7 +10,16 @@ sub get_first_macaddress {
 }
 
 sub get_ip_from_leases{
+    my $conn = shift;
+    my $netname = shift;
     my $mac = shift;
+
+    my $net = $conn->get_network_by_name($netname);
+    if ($net->can('get_dhcp_leases')) {
+        my @leases = $net->get_dhcp_leases($mac);
+        return @leases ? @leases[0]->{'ipaddr'} : undef;
+    }
+
     my $tmp = `grep $mac /var/lib/libvirt/dnsmasq/default.leases`;
     my @fields = split(/ /, $tmp);
     my $ip = $fields[2];

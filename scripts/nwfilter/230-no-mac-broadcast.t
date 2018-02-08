@@ -90,7 +90,7 @@ my $ssh = Net::OpenSSH->new($guestip,
 # now generate a mac broadcast paket 
 diag "generate mac broadcast";
 my $cmdfile = <<EOF;
-echo '/bin/ping -c 1 192.168.122.255 -b' > /test.sh
+echo 'ping -c 1 192.168.122.255 -b' > /test.sh
 EOF
 diag $cmdfile;
 my ($stdout, $stderr) = $ssh->capture2($cmdfile);

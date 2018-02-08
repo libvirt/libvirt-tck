@@ -97,16 +97,16 @@ my $ssh = Net::OpenSSH->new($guestip,
 diag "fiddling with mac";
 my $cmdfile = <<EOF;
 echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
-/sbin/ip addr show dev \\\$DEV
-/sbin/ip link set \\\$DEV down
-/sbin/ip link set \\\$DEV address ${macfalse}
-/sbin/ip link set \\\$DEV up
-/sbin/ip addr show dev \\\$DEV
-/bin/ping -c 10 ${gateway} 2>&1
-/sbin/ip link set \\\$DEV down
-/sbin/ip link set \\\$DEV address ${mac}
-/sbin/ip link set \\\$DEV up
-/sbin/ip addr show dev \\\$DEV" > /test.sh
+ip addr show dev \\\$DEV
+ip link set \\\$DEV down
+ip link set \\\$DEV address ${macfalse}
+ip link set \\\$DEV up
+ip addr show dev \\\$DEV
+ping -c 10 ${gateway} 2>&1
+ip link set \\\$DEV down
+ip link set \\\$DEV address ${mac}
+ip link set \\\$DEV up
+ip addr show dev \\\$DEV" > /test.sh
 EOF
 diag $cmdfile;
 my ($stdout, $stderr)  = $ssh->capture2($cmdfile);

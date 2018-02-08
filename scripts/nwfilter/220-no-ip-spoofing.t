@@ -79,21 +79,21 @@ my $ssh = Net::OpenSSH->new($guestip,
 # now bring eth0 down, change IP and bring it up again
 diag "preparing ip spoof";
 my $cmdfile = <<EOF;
-echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
-MASK=`ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q'`
-/sbin/ip addr show \\\$DEV
-/sbin/ip link set \\\$DEV down
-/sbin/ip addr flush dev \\\$DEV
-/sbin/ip addr add 192.168.122.183/\\\$MASK dev \\\$DEV
-/sbin/ip link set \\\$DEV up
-/sbin/ip addr show \\\$DEV
-/bin/sleep 1
-/bin/ping -c 1 192.168.122.1
-/sbin/ip link set \\\$DEV down
-/sbin/ip addr flush dev \\\$DEV
-/sbin/ip addr add ${guestip}/\\\$MASK dev \\\$DEV
-/sbin/ip link set \\\$DEV up
-/sbin/ip addr show \\\$DEV" > /test.sh
+echo "DEV=\\\$(ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://')
+MASK=\\\$(ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q')
+ip addr show \\\$DEV
+ip link set \\\$DEV down
+ip addr flush dev \\\$DEV
+ip addr add 192.168.122.183/\\\$MASK dev \\\$DEV
+ip link set \\\$DEV up
+ip addr show \\\$DEV
+sleep 1
+ping -c 1 192.168.122.1
+ip link set \\\$DEV down
+ip addr flush dev \\\$DEV
+ip addr add ${guestip}/\\\$MASK dev \\\$DEV
+ip link set \\\$DEV up
+ip addr show \\\$DEV" > /test.sh
 EOF
 diag $cmdfile;
 my ($stdout, $stderr) = $ssh->capture2($cmdfile);

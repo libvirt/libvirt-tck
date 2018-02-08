@@ -93,9 +93,9 @@ my $ssh = Net::OpenSSH->new($guestip,
 # now generate a arp spoofing packets 
 diag "generate arpspoof script";
 my $cmdfile = <<EOF;
-echo "/usr/sbin/arpspoof ${spoofid} &
-/bin/sleep 10
-kill -15 `/sbin/pidof arpspoof`" > /test.sh
+echo "arpspoof ${spoofid} &
+sleep 10
+kill -15 \\\$(pidof arpspoof)" > /test.sh
 EOF
 
 diag "content of cmdfile:";

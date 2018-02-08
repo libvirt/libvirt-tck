@@ -80,7 +80,7 @@ ok($ebtable =~ "-d Broadcast -j DROP", "check ebtables entry for \"-d Broadcast 
 
 # prepare tcpdump
 diag "prepare tcpdump";
-system("/usr/sbin/tcpdump -v -i virbr0 -n host 255.255.255.255 2> /tmp/tcpdump.log &");
+system("/usr/sbin/tcpdump -v -i virbr0 -n host 192.168.122.255 and ether host ff:ff:ff:ff:ff:ff 2> /tmp/tcpdump.log &");
 
 # log into guest
 diag "ssh'ing into $guestip";

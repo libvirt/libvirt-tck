@@ -766,6 +766,7 @@ sub generic_machine_domain {
     my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
+    my $filterref = exists $params{filterref} ? $params{filterref} : "clean-traffic";
 
     if ($fullos) {
 	my %config = $self->get_image($caps, $ostype);
@@ -792,7 +793,7 @@ sub generic_machine_domain {
 			  source => "default",
                           model => "virtio",
 			  mac => "52:54:00:11:11:11",
-			  filterref => "clean-traffic");
+			  filterref => $filterref);
 	    my $xml = $b->as_xml();
 	    # Cleanup the temporary interface
 	    $b->rminterface();
@@ -896,6 +897,7 @@ sub generic_domain {
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
     my $netmode = exists $params{netmode} ? $params{netmode} : undef;
+    my $filterref = exists $params{filterref} ? $params{filterref} : "clean-traffic";
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
@@ -915,7 +917,8 @@ sub generic_domain {
 	$b = $self->generic_machine_domain(name => $name,
 					   caps => $caps,
 					   ostype => $ostype,
-					   fullos => $fullos);
+                                           fullos => $fullos,
+                                           filterref => $filterref);
     }
     if ($netmode) {
 	if ($netmode eq "vepa") {
@@ -931,7 +934,7 @@ sub generic_domain {
 			  source => "default",
                           model => "virtio",
 			  mac => "52:54:00:11:11:11",
-			  filterref => "clean-traffic");
+			  filterref => $filterref);
 	}
     }
     return $b;

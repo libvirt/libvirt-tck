@@ -43,7 +43,8 @@ END {
 
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-			       netmode => "network")->as_xml();
+                               netmode => "network",
+                               filterref => "no-mac-broadcast")->as_xml();
 
 my $dom;
 ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");

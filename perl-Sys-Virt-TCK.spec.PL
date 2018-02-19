@@ -74,6 +74,7 @@ Requires: perl(TAP::Formatter::HTML)
 Requires: perl(TAP::Formatter::JUnit)
 Requires: perl(TAP::Harness::Archive)
 Requires: perl(Net::OpenSSH)
+Requires: perl(IO::Pty)
 Requires: /usr/bin/mkisofs
 BuildArchitectures: noarch
 

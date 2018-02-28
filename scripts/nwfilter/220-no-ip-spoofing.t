@@ -42,10 +42,18 @@ END {
     $tck->cleanup if $tck;
 }
 
+my $networkip = get_network_ip($conn, "default");
+my $networkipaddr = $networkip->addr();
+diag "network ip is $networkip, individual ip is $networkipaddr";
+
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
                                netmode => "network",
-                               filterref => "clean-traffic")->as_xml();
+                               filterref => "clean-traffic",
+                               filterparams => {
+                                   CTRL_IP_LEARNING => "dhcp",
+                                   DHCPSERVER => $networkipaddr
+                               })->as_xml();
 
 my $dom;
 ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");

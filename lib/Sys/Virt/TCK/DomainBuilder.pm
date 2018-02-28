@@ -459,8 +459,14 @@ sub as_xml {
                          type => $interface->{model});
         }
         if ($interface->{filterref}) {
-            $w->emptyTag("filterref",
+            $w->startTag("filterref",
                          filter => $interface->{filterref});
+            foreach my $paramname (keys %{$interface->{filterparams}}) {
+                $w->emptyTag("parameter",
+                             name => $paramname,
+                             value => $interface->{filterparams}->{$paramname});
+            }
+            $w->endTag("filterref");
         }
         $w->endTag("interface");
     }

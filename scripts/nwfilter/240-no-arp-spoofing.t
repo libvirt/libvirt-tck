@@ -34,14 +34,16 @@ use Test::Exception;
 use Net::OpenSSH;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
-my $spoofid = "192.168.122.183";
-
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END {
     $tck->cleanup if $tck;
 }
+
+my $networkip = get_network_ip($conn, "default");
+my $networkipaddr = $networkip->addr();
+diag "network ip is $networkip, individual ip is $networkipaddr";
 
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
@@ -72,7 +74,14 @@ my $mac =  get_first_macaddress($dom);
 diag "mac is $mac";
 
 my $guestip = get_ip_from_leases($conn, "default", $mac);
-diag "ip is $guestip";
+diag "guest ip is $guestip";
+
+my $spoofip = $networkip + 1;
+if ($spoofip->addr() eq $guestip) {
+    $spoofip++;
+}
+my $spoofipaddr = $spoofip->addr();
+diag "spoof ip is $spoofipaddr";
 
 # check ebtables entry
 my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
@@ -95,7 +104,7 @@ my $ssh = Net::OpenSSH->new($guestip,
 # now generate a arp spoofing packets 
 diag "generate arpspoof script";
 my $cmdfile = <<EOF;
-echo "arpspoof ${spoofid} &
+echo "arpspoof ${spoofipaddr} &
 sleep 10
 kill -15 \\\$(pidof arpspoof)" > /test.sh
 EOF
@@ -127,7 +136,7 @@ system("kill -15 `/sbin/pidof tcpdump`");
 diag "tcpdump.log:";
 my $tcpdumplog = `cat /tmp/tcpdump.log`;
 diag($tcpdumplog);
-ok($tcpdumplog !~ "${spoofid} is-at", "tcpdump expected to capture no arp reply packets");
+ok($tcpdumplog !~ "${spoofipaddr} is-at", "tcpdump expected to capture no arp reply packets");
 
 shutdown_vm_gracefully($dom);
 

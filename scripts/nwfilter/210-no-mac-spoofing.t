@@ -42,6 +42,10 @@ END {
     $tck->cleanup if $tck;
 }
 
+my $networkip = get_network_ip($conn, "default");
+my $networkipaddr = $networkip->addr();
+diag "network ip is $networkip, individual ip is $networkipaddr";
+
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
                                netmode => "network",
@@ -71,7 +75,7 @@ my $mac =  get_first_macaddress($dom);
 diag "mac is $mac";
 
 my $guestip = get_ip_from_leases($conn, "default", $mac);
-diag "ip is $guestip";
+diag "guest ip is $guestip";
 
 # check ebtables entry
 my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
@@ -82,7 +86,6 @@ $_ = $mac;
 s/00/0/g; 
 ok($ebtable =~ $_, "check ebtables entry");
 
-my $gateway = "192.168.122.1";
 my $macfalse = "52:54:00:f9:21:22";
 my $ping = `ping -c 10 $guestip`;
 diag $ping;
@@ -104,7 +107,7 @@ ip link set \\\$DEV down
 ip link set \\\$DEV address ${macfalse}
 ip link set \\\$DEV up
 ip addr show dev \\\$DEV
-ping -c 10 ${gateway} 2>&1
+ping -c 10 ${networkipaddr} 2>&1
 ip link set \\\$DEV down
 ip link set \\\$DEV address ${mac}
 ip link set \\\$DEV up

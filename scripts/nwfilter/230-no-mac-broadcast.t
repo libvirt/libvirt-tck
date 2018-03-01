@@ -41,6 +41,10 @@ END {
     $tck->cleanup if $tck;
 }
 
+my $networkip = get_network_ip($conn, "default");
+my $networkipbroadcast = $networkip->broadcast()->addr();
+diag "network ip is $networkip, broadcast address is $networkipbroadcast";
+
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
                                netmode => "network",
@@ -80,7 +84,7 @@ ok($ebtable =~ "-d Broadcast -j DROP", "check ebtables entry for \"-d Broadcast 
 
 # prepare tcpdump
 diag "prepare tcpdump";
-system("/usr/sbin/tcpdump -v -i virbr0 -n host 192.168.122.255 and ether host ff:ff:ff:ff:ff:ff 2> /tmp/tcpdump.log &");
+system("/usr/sbin/tcpdump -v -i virbr0 -n host $networkipbroadcast and ether host ff:ff:ff:ff:ff:ff 2> /tmp/tcpdump.log &");
 
 # log into guest
 diag "ssh'ing into $guestip";
@@ -92,7 +96,7 @@ my $ssh = Net::OpenSSH->new($guestip,
 # now generate a mac broadcast paket 
 diag "generate mac broadcast";
 my $cmdfile = <<EOF;
-echo 'ping -c 1 192.168.122.255 -b' > /test.sh
+echo 'ping -c 1 $networkipbroadcast -b' > /test.sh
 EOF
 diag $cmdfile;
 my ($stdout, $stderr) = $ssh->capture2($cmdfile);

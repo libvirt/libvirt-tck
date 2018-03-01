@@ -70,7 +70,14 @@ my $mac =  get_first_macaddress($dom);
 diag "mac is $mac";
 
 my $guestip = get_ip_from_leases($conn, "default", $mac);
-diag "ip is $guestip";
+diag "guest ip is $guestip";
+
+my $spoofip = $networkip + 1;
+if ($spoofip->addr() eq $guestip) {
+    $spoofip++;
+}
+my $spoofipaddr = $spoofip->addr();
+diag "spoof ip is $spoofipaddr";
 
 # check ebtables entry
 my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
@@ -95,11 +102,11 @@ ip addr show \\\$DEV
 kill \\\$(pidof dhclient)
 ip link set \\\$DEV down
 ip addr flush dev \\\$DEV
-ip addr add 192.168.122.183/\\\$MASK dev \\\$DEV
+ip addr add ${spoofipaddr}/\\\$MASK dev \\\$DEV
 ip link set \\\$DEV up
 ip addr show \\\$DEV
 sleep 1
-ping -c 1 192.168.122.1
+ping -c 1 ${networkipaddr}
 ip link set \\\$DEV down
 ip addr flush dev \\\$DEV
 ip addr add ${guestip}/\\\$MASK dev \\\$DEV

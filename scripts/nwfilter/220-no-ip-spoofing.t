@@ -75,7 +75,8 @@ ok($ebtable =~ "$guestip", "check ebtables entry");
 diag "ssh'ing into $guestip";
 my $ssh = Net::OpenSSH->new($guestip,
                             user => "root",
-                            password => $tck->root_password());
+                            password => $tck->root_password(),
+                            master_opts => [-o => "StrictHostKeyChecking=no"]);
 
 # now bring eth0 down, change IP and bring it up again
 diag "preparing ip spoof";

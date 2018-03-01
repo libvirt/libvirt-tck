@@ -92,7 +92,8 @@ ok($ping =~ "10 received", "ping $guestip test");
 diag "ssh'ing into $guestip";
 my $ssh = Net::OpenSSH->new($guestip,
                             user => "root",
-                            password => $tck->root_password());
+                            password => $tck->root_password(),
+                            master_opts => [-o => "StrictHostKeyChecking=no"]);
 
 # now bring eth0 down, change MAC and bring it up again
 diag "fiddling with mac";

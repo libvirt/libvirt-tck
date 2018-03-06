@@ -130,6 +130,11 @@ sub sanity_check {
         die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
     }
 
+    my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
+    if (@nwfilters) {
+        die "there is/are " . int(@nwfilters) . " pre-existing nwfilter(s) in this driver";
+    }
+
     my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     if (@pools) {
         die "there is/are " . int(@pools) . " pre-existing active storage_pool(s) in this driver";
@@ -188,6 +193,16 @@ sub reset_networks {
     }
 }
 
+sub reset_nwfilters {
+    my $self = shift;
+    my $conn = shift;
+
+    my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
+    foreach my $nwfilter (@nwfilters) {
+        $nwfilter->undefine;
+    }
+}
+
 sub reset_storage_pools {
     my $self = shift;
     my $conn = shift;
@@ -217,6 +232,7 @@ sub reset {
 
     $self->reset_domains($conn);
     $self->reset_networks($conn);
+    $self->reset_nwfilters($conn);
     $self->reset_storage_pools($conn);
 }
 

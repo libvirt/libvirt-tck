@@ -34,6 +34,7 @@ use Test::Exception;
 use Net::OpenSSH;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
+my $nwfilter;
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
@@ -42,13 +43,39 @@ END {
 }
 
 my $networkip = get_network_ip($conn, "default");
+my $networkipaddr = $networkip->addr();
 my $networkipbroadcast = $networkip->broadcast()->addr();
 diag "network ip is $networkip, broadcast address is $networkipbroadcast";
+
+# we are testing the no-mac-broadcast filter, but that filter by
+# itself makes for a completely unusable network connection. In order
+# to have enough networking to properly run the test, we need to allow
+# dhcp and arp broadcast traffic, which is done via the clean-traffic
+# and allow-arp filters; the no-mac-broadcast filter then forbids any
+# other packets with the broadcast address for destination.
+#
+my $nwfilter_xml = <<EOF;
+<filter name='tck-test-broadcast'>
+  <filterref filter='clean-traffic'/>
+  <filterref filter='allow-arp'/>
+  <filterref filter='no-mac-broadcast'/>
+</filter>
+EOF
+
+# define_nwfilter() was missing from perl bindings until libvirt 4.2.0,
+# so we go in the back door when it's not there.
+$nwfilter = $conn->can("define_nwfilter")
+    ? $conn->define_nwfilter($nwfilter_xml)
+    : Sys::Virt::NWFilter->_new(connection => $conn, xml => $nwfilter_xml);
 
 # create first domain and start it
 my $xml = $tck->generic_domain(name => "tck", fullos => 1,
                                netmode => "network",
-                               filterref => "no-mac-broadcast")->as_xml();
+                               filterref => "tck-test-broadcast",
+                                   filterparams => {
+                                   CTRL_IP_LEARNING => "dhcp",
+                                   DHCPSERVER => $networkipaddr
+                               })->as_xml();
 
 my $dom;
 ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");

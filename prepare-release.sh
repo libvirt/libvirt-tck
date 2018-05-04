@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-# This script is used to Test::AutoBuild (http://www.autobuild.org)
-# to perform automated builds of the Sys-Virt module
-#
 # Copyright (C) 2009 Red Hat, Inc.
 # Copyright (C) 2009 Daniel P. Berrange
 #
@@ -21,9 +18,7 @@ set -e
 
 rm -rf MANIFEST blib _build Build
 
-test -z "$AUTOBUILD_INSTALL_ROOT" && AUTOBUILD_INSTALL_ROOT=$HOME/builder
-
-perl Build.PL install_base=$AUTOBUILD_INSTALL_ROOT
+perl Build.PL install_base=$HOME/builder
 
 ./Build
 ./Build manifest
@@ -47,12 +42,8 @@ rm -f $NAME-*.tar.gz
 ./Build dist
 
 if [ -f /usr/bin/rpmbuild ]; then
-  if [ -n "$AUTOBUILD_COUNTER" ]; then
-    EXTRA_RELEASE=".auto$AUTOBUILD_COUNTER"
-  else
-    NOW=`date +"%s"`
-    EXTRA_RELEASE=".$USER$NOW"
-  fi
+  NOW=`date +"%s"`
+  EXTRA_RELEASE=".$USER$NOW"
   rpmbuild -ta --define "extra_release $EXTRA_RELEASE" --clean $NAME-*.tar.gz
 fi
 

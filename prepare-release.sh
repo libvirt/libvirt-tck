@@ -42,9 +42,7 @@ rm -f $NAME-*.tar.gz
 ./Build dist
 
 if [ -f /usr/bin/rpmbuild ]; then
-  NOW=`date +"%s"`
-  EXTRA_RELEASE=".$USER$NOW"
-  rpmbuild -ta --define "extra_release $EXTRA_RELEASE" --clean $NAME-*.tar.gz
+  rpmbuild -ta --clean $NAME-*.tar.gz
 fi
 
 exit 0

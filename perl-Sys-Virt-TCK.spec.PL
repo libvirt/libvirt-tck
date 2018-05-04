@@ -32,12 +32,11 @@ __DATA__
 %define perlversion %(perl -e 'use Config; print $Config{version}')
 
 %define appname Sys-Virt-TCK
-%define _extra_release %{?extra_release:%{extra_release}}
 
 Summary: Sys::Virt::TCK - libvirt Technology Compatibility Kit
 Name: perl-%{appname}
 Version: @VERSION@
-Release: 1%{_extra_release}
+Release: 1
 License: GPLv2
 Group: Development/Tools
 Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz

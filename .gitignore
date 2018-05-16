@@ -3,7 +3,6 @@
 *.orig
 *~
 Build
-MANIFEST
 META.yml
 Makefile
 Makefile.PL

@@ -21,7 +21,6 @@ rm -rf MANIFEST blib _build Build
 perl Build.PL install_base=$HOME/builder
 
 ./Build
-./Build manifest
 
 
 if [ -z "$USE_COVER" ]; then

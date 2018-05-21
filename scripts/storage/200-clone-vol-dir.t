@@ -31,7 +31,7 @@ checksummed and validated
 use strict;
 use warnings;
 
-use Test::More tests => 61;
+use Test::More tests => 52;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -103,7 +103,7 @@ my $srcdigest = &digest($path);
 
 diag "Now testing cloning of various formats";
 
-my @formats = qw(raw cow qcow qcow2 vmdk vpc);
+my @formats = qw(raw qcow qcow2 vmdk vpc);
 
 foreach my $format (@formats) {
     diag "Cloning source volume to $format format";

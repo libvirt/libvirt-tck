@@ -28,7 +28,7 @@ with a filesystem pool.
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 29;
 
 use Sys::Virt::TCK;
 use Test::Exception;
@@ -56,7 +56,6 @@ lives_ok(sub { $pool->create }, "started storage pool");
 
 my $volsparsexml = $tck->generic_volume("tck1", "raw", 1024*1024*50)->allocation(0)->as_xml;
 my $volallocxml = $tck->generic_volume("tck2", "raw", 1024*1024*50)->allocation(1024*1024*50)->as_xml;
-my $volcowxml = $tck->generic_volume("tck3", "cow", 1024*1024*50)->as_xml;
 my $volqcow1xml = $tck->generic_volume("tck4", "qcow", 1024*1024*50)->as_xml;
 my $volqcow2xml = $tck->generic_volume("tck5", "qcow2", 1024*1024*50)->as_xml;
 my $volvmdkxml = $tck->generic_volume("tck6", "vmdk", 1024*1024*50)->as_xml;
@@ -94,22 +93,6 @@ is($st->size, 1024*1024*50, "size is 50M");
 # In theory exact number blocks are allocated, but most FS have a couple of blocks
 # overhead for a file
 ok($st->blocks >= (1024*1024*50/512), "alot of blocks allocated");
-
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
-
-
-
-
-ok_volume { $vol = $pool->create_volume($volcowxml) } "create cow volume";
-
-$path = xpath($vol, "string(/volume/target/path)");
-$st = stat($path);
-
-ok($st, "path $path exists");
-
-# Don't know exactly how large a cow empty file is, but it
-# should be quite small :-)
-ok($st->size < 1024*1024, "basic cow header is allocated");
 
 lives_ok(sub { $vol->delete(0) }, "deleted volume");
 

@@ -49,17 +49,21 @@ SKIP: {
     skip "NOT using QEMU/LXC driver", 12 unless
         $uri eq "qemu:///system" or $uri eq "lxc:///";
 
+    my $hook_type = $uri eq "qemu:///system" ? 'qemu' : 'lxc';
+
+    my $hook = Sys::Virt::TCK::Hooks->new(type => $hook_type,
+                                          conf_dir => '/etc/libvirt/hooks',
+                                          expect_result => 0);
+    $hook->libvirtd_status();
+    skip "libvirtd is not running, Exit...", 12
+        if ($hook->{libvirtd_status} eq 'stopped');
+
     my $xml = $tck->generic_domain(name => "tck")->as_xml;
 
     diag "Creating a new persistent domain";
     my $dom;
     ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-    my $hook_type = $uri eq "qemu:///system" ? 'qemu' : 'lxc';
-
-    my $hook = Sys::Virt::TCK::Hooks->new(type => $hook_type,
-                                          conf_dir => '/etc/libvirt/hooks',
-                                          expect_result => 0);
     eval { $hook->prepare(); };
     BAIL_OUT "failed to setup hooks testing ENV: $@" if $@;
 

@@ -51,7 +51,7 @@ SKIP: {
                                           log_name => '/tmp/daemon.log');
 
     $hook->libvirtd_status();
-    BAIL_OUT "libvirtd is not running, Exit..."
+    skip "libvirtd is not running, Exit...", 12
         if ($hook->{libvirtd_status} eq 'stopped');
 
     eval { $hook->prepare(); };

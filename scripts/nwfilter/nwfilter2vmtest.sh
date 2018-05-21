@@ -16,7 +16,7 @@ VIRSH=virsh
 $ {
   x
   p
-}' < "$LIBVIRT_TCK_CONFIG")
+}' < "$LIBVIRT_TCK_CONFIG" | sed -e 's/"//g')
 : "${uri:=qemu:///system}"
 
 LIBVIRT_URI=${uri}

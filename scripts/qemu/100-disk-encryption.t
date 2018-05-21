@@ -42,6 +42,7 @@ END { $tck->cleanup if $tck; }
 
 SKIP: {
     skip "Only relevant to QEMU driver", 8 unless $conn->get_type() eq "QEMU";
+    skip "Libvirt LUKS support isn't ready", 8;
 
 my $dir = $tck->bucket_dir("300-disk-encryption");
 my $disk = catfile($dir, "demo.qcow2");

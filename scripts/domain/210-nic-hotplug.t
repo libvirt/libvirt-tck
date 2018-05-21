@@ -41,11 +41,14 @@ END {
 }
 
 
-my $xml = $tck->generic_domain(name => "tck")->as_xml;
+my $xml = $tck->generic_domain(name => "tck", fullos => 1)->as_xml;
 
 diag "Creating a new transient domain";
 my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
+
+diag "Waiting 30 seconds for guest to finish booting";
+sleep(30);
 
 my $mac = "00:11:22:33:44:55";
 my $model = "virtio";

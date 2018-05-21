@@ -62,9 +62,9 @@ SKIP: {
     my $dom;
     ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
-    my $domainlabel = xpath($dom, "string(/domain/seclabel/label)");
+    my $domainlabel = xpath($dom, "string(/domain/seclabel[\@model='selinux']/label)");
     diag "domainlabel $domainlabel";
-    my $imagelabel = xpath($dom, "string(/domain/seclabel/imagelabel)");
+    my $imagelabel = xpath($dom, "string(/domain/seclabel[\@model='selinux']/imagelabel)");
     diag "imagelabel $imagelabel";
 
     is($origdomainlabel, $domainlabel, "static label is $domainlabel");

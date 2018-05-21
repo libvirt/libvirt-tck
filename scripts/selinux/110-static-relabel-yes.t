@@ -28,7 +28,7 @@ and files can be relabelled
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::SELinux;
@@ -62,9 +62,9 @@ SKIP: {
     ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
     diag $dom->get_xml_description();
-    my $domainlabel = xpath($dom, "string(/domain/seclabel/label)");
+    my $domainlabel = xpath($dom, "string(/domain/seclabel[\@model='selinux']/label)");
     diag "domainlabel $domainlabel";
-    my $imagelabel = xpath($dom, "string(/domain/seclabel/imagelabel)");
+    my $imagelabel = xpath($dom, "string(/domain/seclabel[\@model='selinux']/imagelabel)");
     diag "imagelabel $imagelabel";
     my $imagetype = selinux_get_type($imagelabel);
     my $imagemcs = selinux_get_mcs($imagelabel);

@@ -60,6 +60,14 @@ sub format {
     return $self;
 }
 
+sub encryption_format {
+    my $self = shift;
+
+    $self->{encformat} = shift;
+
+    return $self;
+}
+
 sub secret {
     my $self = shift;
 
@@ -95,13 +103,13 @@ sub as_xml {
     $w->dataElement("capacity", $self->{capacity});
     $w->dataElement("allocation", $self->{allocation});
 
-    if ($self->{format} || $self->{secret}) {
+    if ($self->{format} || $self->{encformat}) {
         $w->startTag("target");
         if ($self->{format}) {
             $w->emptyTag("format", type => $self->{format});
         }
-        if ($self->{secret}) {
-            $w->startTag("encryption", format => "qcow");
+        if ($self->{encformat}) {
+            $w->startTag("encryption", format => $self->{encformat});
             $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
             $w->endTag("encryption");
         }
@@ -114,8 +122,8 @@ sub as_xml {
         if ($self->{backingFormat}) {
             $w->emptyTag("format", type => $self->{backingFormat});
         }
-        if ($self->{secret}) {
-            $w->startTag("encryption", format => "qcow");
+        if ($self->{encformat}) {
+            $w->startTag("encryption", format => $self->{encformat});
             $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});
             $w->endTag("encryption");
         }

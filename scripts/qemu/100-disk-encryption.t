@@ -76,6 +76,7 @@ lives_ok(sub { $pool = $conn->create_storage_pool($poolXML) }, "pool created");
 my $volXML = Sys::Virt::TCK::StorageVolBuilder->new(name => "demo.qcow2")
     ->capacity(1024*1024*1024)
     ->format("qcow2")
+    ->encryption_format("luks")
     ->secret($secretUUID)
     ->as_xml();
 
@@ -86,6 +87,7 @@ lives_ok(sub { $vol = $pool->create_volume($volXML) }, "volume created");
 
 my $xml = $tck->generic_domain(name => "tck")
     ->disk(format => { name => "qemu", type => "qcow2" },
+	   encryption_format => "luks",
 	   secret => $secretUUID,
 	   type => "file",
 	   src => $disk,

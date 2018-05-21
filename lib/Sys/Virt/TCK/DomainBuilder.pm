@@ -412,8 +412,8 @@ sub as_xml {
         $w->emptyTag("target",
                      dev => $disk->{dst},
                      $disk->{bus} ? (bus => $disk->{bus}) : ());
-        if ($disk->{secret}) {
-            $w->startTag("encryption", format => "qcow");
+        if ($disk->{encryption_format}) {
+            $w->startTag("encryption", format => $disk->{encryption_format});
             $w->emptyTag("secret", type => "passphrase", uuid => $disk->{secret});
             $w->endTag("encryption");
         }

@@ -37,6 +37,7 @@ chomp $xml;
 my $b = Sys::Virt::TCK::StorageVolBuilder->new()
     ->capacity(1000000)->allocation(1000000)
     ->format("qcow2")
+    ->encryption_format("qcow")
     ->secret("0a81f5b2-8403-7b23-c8d6-21ccc2f80d6f")
     ->as_xml;
 

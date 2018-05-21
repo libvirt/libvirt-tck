@@ -71,11 +71,10 @@ sub expect_result {
 sub libvirtd_status {
     my $self = shift;
     my $status = `service libvirtd status`;
-    my $_ = $status;
 
-    if (/stopped|unused|inactive/) {
+    if ($status =~ /stopped|unused|inactive/) {
         $self->{libvirtd_status} = 'stopped';
-    } elsif (/running|active/) {
+    } elsif ($status =~ /running|active/) {
         $self->{libvirtd_status} = 'running';
     }
 

@@ -99,7 +99,7 @@ $xml = $dom->get_xml_description();
 
 is($dom->get_block_info($dst2,0)->{capacity}, 1024*1024*50, "Get disk capacity info");
 is($dom->get_block_info($dst2,0)->{allocation}, 1024*1024, "Get disk allocation info");
-is($dom->get_block_info($dst2,0)->{physical}, 1024*1024, "Get disk physical info");
+is($dom->get_block_info($dst2,0)->{physical}, 1024*1024*50, "Get disk physical info");
 
 
 is($dom->get_block_info($dst,0)->{capacity}, 1024*1024*50, "Get disk capacity info");
@@ -124,8 +124,7 @@ my $date = "test";
 system("echo $date > $path");
 is($dom->block_peek($path,0,4,0), $date, "Get date from raw image");
 
-#qcow2 file start with hexadecimal:0x51 0x46 0x49 (ASCII: "QFI")
-is($dom->block_peek($path3,0,3,0), "QFI", "Get date from qcow2 image");
+dies_ok(sub { $dom->block_peek($path3,0,3,0) }, "Get date from qcow2 image");
 
 lives_ok(sub { $vol->delete(0) }, "deleted volume");
 

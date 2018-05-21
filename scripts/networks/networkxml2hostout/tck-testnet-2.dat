@@ -4,7 +4,7 @@ ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0
 #iptables -t nat -L -n | grep ' 10\.1\.2\.'
 #ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
 10.1.2.0/24 10.1.2.1
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p'
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p' | head -1
 /dnsmasq/tck-testnet.conf
 #grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
 bind-dynamic

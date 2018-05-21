@@ -12,7 +12,7 @@ ACCEPT     all      ::/0                 2001:db8:ac10:fd01::/64
 ACCEPT     all      2001:db8:ac10:fd01::/64  ::/0                
 ACCEPT     all      ::/0                 2001:db8:ac10:fe01::/64 
 ACCEPT     all      2001:db8:ac10:fe01::/64  ::/0                
-#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p'
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p' | head -1
 /dnsmasq/tck-testnet.conf
 #grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
 bind-dynamic
@@ -22,7 +22,7 @@ dhcp-range=2001:db8:ac10:fe01::1,ra-only
 dhcp-range=2001:db8:ac10:fd01::1,ra-only
 #brctl show | grep tck-testbr | gawk '{print $1" "$3}'
 tck-testbr yes
-#ip -o addr show dev tck-testbr | gawk '{print $4" "$6}'
+#ip -o addr show dev tck-testbr | gawk '{print $4" "$6}' | grep -v link
 10.1.2.1/24 10.1.2.255
 192.168.123.1/24 192.168.123.255
 172.28.255.241/28 172.28.255.255

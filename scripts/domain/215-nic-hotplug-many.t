@@ -47,9 +47,9 @@ diag "Creating a new transient domain";
 my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
 
-my $mac1 = "01:11:22:33:44:55";
-my $mac2 = "02:11:22:33:44:55";
-my $mac3 = "03:11:22:33:44:55";
+my $mac1 = "02:11:22:33:44:55";
+my $mac2 = "02:12:22:33:44:55";
+my $mac3 = "02:13:22:33:44:55";
 my $model = "virtio";
 
 my $netxml1 = <<EOF;

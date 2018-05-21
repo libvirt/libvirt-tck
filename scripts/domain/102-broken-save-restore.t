@@ -28,8 +28,7 @@ transient domains to/from a file.
 use strict;
 use warnings;
 
-use Test::More skip_all => "Until RHBZ 518032 is fixed";
-#use Test::More tests => 5;
+use Test::More tests => 5;
 
 use Sys::Virt::TCK;
 use Test::Exception;

@@ -409,6 +409,9 @@ sub as_xml {
             $w->emptyTag("source",
                          file => $disk->{src});
         }
+        if ($disk->{shareable}) {
+            $w->emptyTag("shareable");
+        }
         $w->emptyTag("target",
                      dev => $disk->{dst},
                      $disk->{bus} ? (bus => $disk->{bus}) : ());

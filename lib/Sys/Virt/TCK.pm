@@ -782,6 +782,7 @@ sub generic_machine_domain {
     my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
+    my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
     my %filterparams = exists $params{filterparams} ? %{$params{filterparams}} : ();
 
@@ -857,7 +858,8 @@ sub generic_machine_domain {
 
         $b->disk(src => $config{root},
                  dst => $config{dev},
-                 type => "file");
+                 type => "file",
+                 shareable => $shareddisk);
         return $b;
     }
 }
@@ -915,6 +917,7 @@ sub generic_domain {
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
     my $netmode = exists $params{netmode} ? $params{netmode} : undef;
+    my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
     my %filterparams = exists $params{filterparams} ? %{$params{filterparams}} : ();
 
@@ -936,6 +939,7 @@ sub generic_domain {
         $b = $self->generic_machine_domain(name => $name,
                                            caps => $caps,
                                            ostype => $ostype,
+					   shareddisk => $shareddisk,
                                            fullos => $fullos,
                                            filterref => $filterref,
                                            filterparams => \%filterparams);

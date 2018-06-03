@@ -10,6 +10,12 @@ sub get_first_macaddress {
     return $mac;
 }
 
+sub get_first_interface_target_dev {
+    my $dom = shift;
+    my $targetdev = xpath($dom, "string(/domain/devices/interface[1]/target/\@dev)");
+    return $targetdev;
+}
+
 sub get_network_ip {
     my $conn = shift;
     my $netname = shift;

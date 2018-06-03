@@ -85,11 +85,12 @@ $dom->create;
 ok($dom->get_id() > 0, "running domain has an ID > 0");
 
 diag "Waiting for guest to finish booting";
+my $iface = get_first_interface_target_dev($dom);
 my $stats;
 my $tries = 0;
 do {
     sleep(10);
-    $stats  = $dom->interface_stats("vnet0");
+    $stats  = $dom->interface_stats($iface);
     $tries++;
 } while ($stats->{"tx_packets"} < 10 && $tries < 10);
 

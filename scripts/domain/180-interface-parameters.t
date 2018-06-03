@@ -33,6 +33,7 @@ use warnings;
 use Test::More tests => 10;
 
 use Sys::Virt::TCK;
+use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
 use File::stat;
 
@@ -59,12 +60,13 @@ diag "Set/Get interface parameters";
 my %params = (Sys::Virt::Domain::BANDWIDTH_IN_AVERAGE=>1000, Sys::Virt::Domain::BANDWIDTH_IN_PEAK=>1001,
               Sys::Virt::Domain::BANDWIDTH_IN_BURST=>1002, Sys::Virt::Domain::BANDWIDTH_OUT_AVERAGE=>1003,
               Sys::Virt::Domain::BANDWIDTH_OUT_PEAK=>1004, Sys::Virt::Domain::BANDWIDTH_OUT_BURST=>1005);
-lives_ok(sub {$dom->set_interface_parameters("vnet0", \%params)}, "Set vnet0 parameters");
+my $iface = get_first_interface_target_dev($dom);
+lives_ok(sub {$dom->set_interface_parameters($iface, \%params)}, "Set $iface parameters");
 for my $key (sort keys %params) {
      diag "Set $key => $params{$key} ";
 }
 
-my $param = $dom->get_interface_parameters("vnet0", 0);
+my $param = $dom->get_interface_parameters($iface, 0);
 my $in_average = $param->{Sys::Virt::Domain::BANDWIDTH_IN_AVERAGE};
 my $in_burst = $param->{Sys::Virt::Domain::BANDWIDTH_IN_BURST};
 my $in_peak = $param->{Sys::Virt::Domain::BANDWIDTH_IN_PEAK};

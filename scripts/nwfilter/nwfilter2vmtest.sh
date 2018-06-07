@@ -638,8 +638,8 @@ main() {
     cd "${curdir}" || { echo "cd failed" >&2; exit 1; }
   fi
 
-  vm1="tck-test$$1"
-  vm2="tck-test$$2"
+  vm1="tck-$$1"
+  vm2="tck-$$2"
 
   createTestFilters "${flags}"
   if [ $? -ne 0 ]; then

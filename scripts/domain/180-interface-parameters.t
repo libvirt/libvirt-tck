@@ -33,7 +33,6 @@ use warnings;
 use Test::More tests => 10;
 
 use Sys::Virt::TCK;
-use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
 use File::stat;
 

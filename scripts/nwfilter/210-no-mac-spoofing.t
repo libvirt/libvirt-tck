@@ -29,7 +29,6 @@ use warnings;
 use Test::More tests => 5;
 
 use Sys::Virt::TCK;
-use Sys::Virt::TCK::NetworkHelpers;
 use Test::Exception;
 use Net::OpenSSH;
 

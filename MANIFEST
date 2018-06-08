@@ -8,7 +8,6 @@ lib/Sys/Virt/TCK/Capabilities.pm
 lib/Sys/Virt/TCK/DomainBuilder.pm
 lib/Sys/Virt/TCK/Hooks.pm
 lib/Sys/Virt/TCK/NetworkBuilder.pm
-lib/Sys/Virt/TCK/NetworkHelpers.pm
 lib/Sys/Virt/TCK/SELinux.pm
 lib/Sys/Virt/TCK/StoragePoolBuilder.pm
 lib/Sys/Virt/TCK/StorageVolBuilder.pm

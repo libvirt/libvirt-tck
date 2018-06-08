@@ -34,7 +34,6 @@ License: GPLv2
 Group: Development/Tools
 Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz
 Url: http://libvirt.org/
-BuildRoot: %{_tmppath}/%{appname}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: libvirt >= 4.4.0
 %if 0%{?fedora} || 0%{?rhel} > 7

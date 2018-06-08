@@ -24,13 +24,13 @@ dhcp-range=2001:db8:ac10:fd01::1,ra-only
 tck-testbr yes
 #ip -o addr show dev tck-testbr | gawk '{print $4" "$6}' | grep -v link
 10.1.2.1/24 10.1.2.255
-192.168.123.1/24 192.168.123.255
+192.168.97.1/24 192.168.97.255
 172.28.255.241/28 172.28.255.255
 2001:db8:ac10:fd01::1/64 global
 2001:db8:ac10:fe01::1/64 global
 #ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
 10.1.2.0/24 10.1.2.1
 172.28.255.240/28 172.28.255.241
-192.168.123.0/24 192.168.123.1
+192.168.97.0/24 192.168.97.1
 #virsh net-list | grep tck-testnet
  tck-testnet          active     no   no

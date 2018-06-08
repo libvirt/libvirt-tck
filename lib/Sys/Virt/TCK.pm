@@ -1259,7 +1259,7 @@ sub get_network_ip {
     if ($net_mask) {
         $ip = NetAddr::IP->new($net_ip, $net_mask);
     } elsif ($net_prefix) {
-        $ip = NetAddr::IP->new("$net_ip/$net_mask");
+        $ip = NetAddr::IP->new("$net_ip/$net_prefix");
     } else {
         $ip = NetAddr::IP->new("$net_ip");
     }

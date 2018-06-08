@@ -31,7 +31,6 @@ Name: perl-%{appname}
 Version: @VERSION@
 Release: 1
 License: GPLv2
-Group: Development/Tools
 Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz
 Url: http://libvirt.org/
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))

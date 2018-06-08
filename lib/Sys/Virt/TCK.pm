@@ -35,7 +35,7 @@ use XML::XPath;
 use Carp qw(cluck carp);
 use Fcntl qw(O_RDONLY SEEK_END);
 
-use Test::Builder;
+use Test::More;
 use Sub::Uplevel qw(uplevel);
 use base qw(Exporter);
 
@@ -1035,8 +1035,6 @@ sub _try_as_caller {
 };
 
 
-my $Tester = Test::Builder->new;
-
 sub ok_object($$$;$) {
     my $coderef = shift;
     my $class = shift;
@@ -1052,16 +1050,16 @@ sub ok_object($$$;$) {
         $ret && ref($ret) && $ret->isa($class) &&
         (!defined $name || ($ret->get_name() eq $name));
 
-    $Tester->ok($ok, $description);
+    ok($ok, $description);
     unless ($ok) {
-        $Tester->diag("expected $class object" . ($name ? " with name $name" : ""));
+        diag("expected $class object" . ($name ? " with name $name" : ""));
         if ($exception) {
-            $Tester->diag("found '$exception'");
+            diag("found '$exception'");
         } else {
             if ($ret && ref($ret) && $ret->isa($class)) {
-                $Tester->diag("found $class object with name " . $ret->get_name);
+                diag("found $class object with name " . $ret->get_name);
             } else {
-                $Tester->diag("found '$ret'");
+                diag("found '$ret'");
             }
         }
     }
@@ -1137,10 +1135,10 @@ sub ok_error(&$;$) {
     my $ok = ref($exception) && $exception->isa("Sys::Virt::Error") &&
         (!defined $code || ($exception->code() == $code));
 
-    $Tester->ok($ok, $description);
+    ok($ok, $description);
     unless ($ok) {
-        $Tester->diag("expecting Sys::Virt::Error object" . ($code ?  " with code $code" : ""));
-        $Tester->diag("found '$exception'");
+        diag("expecting Sys::Virt::Error object" . ($code ?  " with code $code" : ""));
+        diag("found '$exception'");
     }
     $@ = $exception;
     return $ok;

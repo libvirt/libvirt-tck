@@ -114,7 +114,7 @@ my $b = $class->new(
     conf_files => {
         'conf/default.cfg' => 'conf/default.cfg',
     },
-    PL_files => [ 'perl-Sys-Virt-TCK.spec.PL' ],
+    PL_files => { 'perl-Sys-Virt-TCK.spec.PL' => 'perl-Sys-Virt-TCK.spec' },
     );
 $b->add_build_element("conf");
 $b->add_build_element("pkgdata");

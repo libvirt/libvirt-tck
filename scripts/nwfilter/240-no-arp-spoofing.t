@@ -100,7 +100,8 @@ diag "ssh'ing into $guestip";
 my $ssh = Net::OpenSSH->new($guestip,
                             user => "root",
                             password => $tck->root_password(),
-                            master_opts => [-o => "StrictHostKeyChecking=no"]);
+                            master_opts => [-o => "UserKnownHostsFile=/dev/null",
+                                            -o => "StrictHostKeyChecking=no"]);
 
 # now generate a arp spoofing packets 
 diag "generate arpspoof script";

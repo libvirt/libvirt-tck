@@ -61,6 +61,9 @@ EOF
 my $b = $class->new(
     module_name => "Sys::Virt::TCK",
     license => 'gpl',
+    configure_requires => {
+       'Module::Build' => 0,
+    },
     dist_author => 'Daniel Berrange <dan@berrange.com>',
     dist_abstract => 'libvirt Technology Compatability Kit',
     requires => {
@@ -100,13 +103,12 @@ my $b = $class->new(
     script_files => [
         "bin/libvirt-tck",
     ],
-    create_makefile_pl  => 'passthrough',
     meta_add => {
         resources => {
-            license => "http://www.gnu.org/licenses/gpl.html",
-            homepage =>  "http://libvirt.org/",
-            repository => "http://libvirt.org/hg/libvirt-tck",
-            MailingList => "http://www.redhat.com/mailman/listinfo/libvir-list",
+            license => "https://www.gnu.org/licenses/gpl.html",
+            homepage =>  "https://libvirt.org/",
+            repository => "https://libvirt.org/git/?p=libvirt-tck.git;a=summary",
+            MailingList => "https://www.redhat.com/mailman/listinfo/libvir-list",
         },
     },
     conf_files => {

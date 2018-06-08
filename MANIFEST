@@ -15,7 +15,6 @@ lib/Sys/Virt/TCK/StorageVolBuilder.pm
 lib/Sys/Virt/TCK/TAP/XMLFormatter.pm
 lib/Sys/Virt/TCK/TAP/XMLFormatterSession.pm
 LICENSE
-Makefile.PL
 MANIFEST
 META.json
 META.yml

@@ -118,5 +118,3 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %dir %{_localstatedir}/cache/libvirt-tck
 
 %changelog
-* Fri Mar 24 2006  <berrange@redhat.com> - 0.0.1-1
-- Initial build

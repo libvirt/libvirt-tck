@@ -35,8 +35,12 @@ Group: Development/Tools
 Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz
 Url: http://libvirt.org/
 BuildRoot: %{_tmppath}/%{appname}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: perl >= %{perl_version}
-Requires: libvirt >= 0.6.2
+Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
+Requires: libvirt >= 4.4.0
+%if 0%{?fedora} || 0%{?rhel} > 7
+BuildRequires: perl-interpreter
+BuildRequires: perl-generators
+%endif
 BuildRequires: perl(accessors)
 BuildRequires: perl(App::Prove)
 BuildRequires: perl(Config::Record)
@@ -57,9 +61,12 @@ BuildRequires: perl(TAP::Harness::Archive)
 BuildRequires: perl(Test::Builder)
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Sub::Uplevel)
-BuildRequires: perl(Sys::Virt) >= 0.2.0
+BuildRequires: perl(Sys::Virt) >= 0.2.1
 BuildRequires: perl(XML::Twig)
 BuildRequires: perl(XML::Writer)
+BuildRequires: perl(XML::XPath)
+BuildRequires: perl(Test::Pod)
+BuildRequires: perl(Test::Pod::Coverage)
 # RPM autoprovides misses these 3
 Requires: perl(Test::Exception)
 Requires: perl(TAP::Formatter::HTML)
@@ -69,6 +76,8 @@ Requires: perl(Net::OpenSSH)
 Requires: perl(IO::Pty)
 Requires: libguestfs-tools
 Requires: /usr/bin/mkisofs
+# Want to force this minimal version, so don't rely on RPM autoprov
+Requires: perl(Sys::Virt) >= 0.2.1
 BuildArchitectures: noarch
 
 %description

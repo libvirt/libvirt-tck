@@ -98,7 +98,8 @@ my $b = $class->new(
     },
     build_requires => {
         'Test::Pod' => '0',
-        'Test::Pod::Coverage' => '0',
+	'Test::Pod::Coverage' => '0',
+	'Test::CPAN::Changes' => '0',
     },
     script_files => [
         "bin/libvirt-tck",

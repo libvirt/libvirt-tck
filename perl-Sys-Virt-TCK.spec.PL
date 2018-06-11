@@ -106,7 +106,7 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %files
 %defattr(-,root,root)
 %license LICENSE
-%doc README
+%doc README Changes
 %dir %{_sysconfdir}/libvirt-tck
 %config(noreplace) %{_sysconfdir}/libvirt-tck/default.cfg
 %{_bindir}/libvirt-tck

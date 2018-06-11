@@ -1,5 +1,6 @@
 bin/libvirt-tck
 Build.PL
+Changes
 conf/default.cfg
 docs/intro.pod
 docs/writing-tests.pod

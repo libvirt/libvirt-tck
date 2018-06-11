@@ -46,7 +46,7 @@ our @EXPORT = qw(ok_error ok_domain ok_domain_snapshot ok_pool
                  get_first_interface_target_dev get_network_ip
                  get_ip_from_leases shutdown_vm_gracefully);
 
-our $VERSION = 'v1.0.0';
+our $VERSION = 'v1.1.0';
 
 sub new {
     my $proto = shift;

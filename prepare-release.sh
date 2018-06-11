@@ -16,7 +16,7 @@ NAME=Sys-Virt-TCK
 
 set -e
 
-rm -rf blib _build Build
+rm -rf blib _build Build perl-Sys-Virt-TCK.spec
 
 perl Build.PL install_base=$HOME/builder
 

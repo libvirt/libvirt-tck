@@ -118,3 +118,5 @@ $dom->undefine;
 
 ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 }
+
+$secret->undefine;

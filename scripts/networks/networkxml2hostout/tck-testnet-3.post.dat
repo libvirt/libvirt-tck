@@ -11,7 +11,7 @@
 #route -n | grep '10\.1\.2\.'
 #route -n | grep '192\.168\.97\.'
 #route -n | grep '172\.28\.255\.240'
-#brctl show | grep tck-testbr
+#ip link show type bridge | grep tck-testbr | gawk '{print $2}'
 #ifconfig tck-testbr 2>/dev/null | grep ':10\.1\.2\.'
 #ifconfig tck-testbr 2>/dev/null | grep 'inet6 addr: 2001'
 #ip addr show tck-testbr 2>/dev/null | grep "inet "

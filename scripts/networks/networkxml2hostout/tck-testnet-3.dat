@@ -20,8 +20,8 @@ bind-dynamic
 dhcp-range=10.1.2.2,10.1.2.254
 dhcp-range=2001:db8:ac10:fe01::1,ra-only
 dhcp-range=2001:db8:ac10:fd01::1,ra-only
-#brctl show | grep tck-testbr | gawk '{print $1" "$3}'
-tck-testbr yes
+#ip link show type bridge | grep tck-testbr | gawk '{print $2}'
+tck-testbr:
 #ip -o addr show dev tck-testbr | gawk '{print $4" "$6}' | grep -v link
 10.1.2.1/24 10.1.2.255
 192.168.97.1/24 192.168.97.255

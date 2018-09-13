@@ -4,6 +4,6 @@
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(dhcp-range 10\.1\.2\.2\,10\.1\.2\.254*\).*|\1|p'
 #route -n | grep '10\.1\.2\.'
 #route -n | grep '10\.1\.2\.'
-#brctl show | grep tck-testbr | gawk '{print $1" "$3}'
+#ip link show type bridge | grep tck-testbr | gawk '{print $2}'
 #ifconfig tck-testbr 2>/dev/null| grep ':10\.1\.2\.'
 #virsh net-list | grep tck-testnet

@@ -97,7 +97,7 @@ my $ssh = Net::OpenSSH->new($guestip,
                             user => "root",
                             password => $tck->root_password(),
                             master_opts => [-o => "UserKnownHostsFile=/dev/null",
-                                            -o => "StrictHostKeyChecking=off"]);
+                                            -o => "StrictHostKeyChecking=no"]);
 
 # now bring eth0 down, change MAC and bring it up again
 diag "fiddling with mac";

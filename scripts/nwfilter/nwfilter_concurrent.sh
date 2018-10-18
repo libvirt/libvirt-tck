@@ -244,7 +244,7 @@ runTest()
 
   # Test runs for a maximum of 5 minutes
   now=`date +%s`
-  test_end=$(($now + 5 * 60))
+  test_end=$(($now + 10 * 60))
 
   while :;
   do

@@ -32,10 +32,14 @@ use Test::More tests => 6;
 use Sys::Virt::TCK;
 use Sys::Virt::TCK::SELinux;
 
+my $selinux_status = "";
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
-END { $tck->cleanup if $tck; }
+END {
+    system("setenforce", "1") if ($selinux_status eq "Enforcing");
+    $tck->cleanup if $tck;
+}
 
 my $info;
 eval {
@@ -57,6 +61,13 @@ SKIP: {
 	->seclabel(model => "selinux", type => "static", relabel => "no", label => $origdomainlabel)
 	->disk(src => $disk, dst => "vdb", type => "file")
 	->as_xml;
+
+    chomp($selinux_status = `getenforce`);
+    diag "selinux is $selinux_status";
+    if ($selinux_status eq "Enforcing") {
+        diag "Temporarily setting SELinux to Permissive mode";
+        system("setenforce", "0");
+    }
 
     diag "Creating a new transient domain";
     my $dom;

@@ -8,7 +8,7 @@ libvirt-tck - libvirt Technology Compatability Kit
 
 =head1 SYNOPSIS
 
- # libvirt-tck [OPTIONS]
+ # libvirt-tck [OPTIONS] [TESTS..]
 
 Run with default config, probing for URI to use
 
@@ -62,8 +62,15 @@ the default configuration file from C</etc/libvirt-tck/default.cfg>
 and will allow libvirt to probe for the hypervisor driver to
 run. If a reliably repeatable test result set is desired, it is
 recommended to always give an explicit libvirt connection URI
-to choose the driver. The following options are available when
-running the C<libvirt-tck> command
+to choose the driver.
+
+Any command line arguments that are not parsed as options will
+be considered paths to test scripts to invoke. If no paths are
+given, all tests under C</usr/share/libvirt-tck/tests> will be
+executed.
+
+The following options are available when running the C<libvirt-tck>
+command
 
 =over 4
 
@@ -97,11 +104,6 @@ networks, storage pools, etc which have a "tck" name prefix.
 
 User created objects whose name does not start with "tck" will be
 left untouched.
-
-=item -t, --testdir PATH
-
-Specify an alternate directory path in which to find the test
-scripts to be run. If omitted, defaults to C</usr/share/libvirt-tck/tests>
 
 =item -a, --archive FILE
 
@@ -144,7 +146,6 @@ my $timer = 0;
 my $archive;
 my $config = catfile($confdir, "default.cfg");
 my $format = "text";
-my $testdir = catdir($datadir, "tests");
 
 if (!GetOptions("verbose" => \$verbose,
 		"debug" => \$debug,
@@ -154,7 +155,6 @@ if (!GetOptions("verbose" => \$verbose,
 		"config=s" => \$config,
 		"force" => \$force,
 		"format=s" => \$format,
-		"testdir=s" => \$testdir,
 		"timer" => \$timer) || $help) {
     pod2usage(-verbose => $help,
 	      -output => $help ? \*STDOUT : \*STDERR,
@@ -181,12 +181,19 @@ if ($verbose && $quiet) {
 	      -output => \*STDERR);
 }
 
-unless (-e $testdir) {
-    print STDERR "$0: test directory '$testdir' does not exist\n";
-    exit 2;
+my @testdirs = @ARGV;
+unless (@testdirs) {
+    push @testdirs, catdir($datadir, "tests");
 }
 
-my @newargv = ("-r", "--norc", "--merge", $testdir);
+foreach (@testdirs) {
+    unless (-e $_) {
+	print STDERR "$0: test path '$_' does not exist\n";
+	exit 2;
+    }
+}
+
+my @newargv = ("-r", "--norc", "--merge", @testdirs);
 
 if ($archive) {
     push @newargv, "-a", $archive;

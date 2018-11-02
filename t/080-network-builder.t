@@ -23,7 +23,7 @@ my $xml = <<EOF;
 <network>
   <name>tck</name>
   <bridge name="virbr0" />
-  <forward dev="eth0" />
+  <forward dev="eth0"></forward>
   <ip address="192.168.100.1" netmask="255.255.255.0">
     <dhcp>
       <range start="192.168.100.50" end="192.168.100.70" />

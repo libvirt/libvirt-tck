@@ -61,6 +61,22 @@ sub forward {
     return $self;
 }
 
+sub interfaces {
+    my $self = shift;
+
+    $self->{interfaces} = [@_];
+
+    return $self;
+}
+
+sub host_devices {
+    my $self = shift;
+
+    $self->{host_devices} = [@_];
+
+    return $self;
+}
+
 sub ipaddr {
     my $self = shift;
     my $address = shift;
@@ -98,8 +114,21 @@ sub as_xml {
     $w->emptyTag("bridge", %{$self->{bridge}})
         if $self->{bridge};
 
-    $w->emptyTag("forward", %{$self->{forward}})
-        if exists $self->{forward};
+    if (exists $self->{forward}) {
+	$w->startTag("forward", %{$self->{forward}});
+	foreach (@{$self->{interfaces}}) {
+	    $w->emptyTag("interface", dev => $_);
+	}
+	foreach (@{$self->{host_devices}}) {
+	    $w->emptyTag("address",
+			 type => "pci",
+			 domain => $_->[0],
+			 bus => $_->[1],
+			 slot => $_->[2],
+			 function => $_->[3]);
+	}
+	$w->endTag("forward");
+    }
 
     if ($self->{ipaddr}) {
         $w->startTag("ip",

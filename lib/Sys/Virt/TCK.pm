@@ -29,6 +29,7 @@ use File::Path qw(mkpath);
 use File::Spec::Functions qw(catfile catdir rootdir);
 use Cwd qw(cwd);
 use LWP::UserAgent;
+use IO::Interface::Simple;
 use IO::Uncompress::Gunzip qw(gunzip);
 use IO::Uncompress::Bunzip2 qw(bunzip2);
 use XML::XPath;
@@ -1284,6 +1285,38 @@ sub get_ip_from_leases{
     return $ip;
 }
 
+
+sub find_free_ipv4_subnet {
+    my $index;
+
+    my %used;
+
+    foreach my $iface (IO::Interface::Simple->interfaces()) {
+	if ($iface->netmask eq "255.255.255.0" &&
+	    $iface->address =~ /^192.168.(\d+).\d+/) {
+	    $used{"$1"} = 1;
+	    print "Used $1\n";
+	} else {
+	    print "Not used ", $iface->address, "\n";
+	}
+    }
+
+    for (my $i = 1; $i < 255; $i++) {
+	if (!exists $used{"$i"}) {
+	    $index = $i;
+	    last;
+	}
+    }
+
+    return () unless defined $index;
+
+    return (
+	address => "192.168.$index.1",
+	netmask => "255.255.255.0",
+	dhcpstart => "192.168.$index.100",
+	dhcpend => "192.168.$index.200"
+	);
+}
 
 sub shutdown_vm_gracefully {
     my $dom = shift;

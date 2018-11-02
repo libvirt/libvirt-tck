@@ -38,20 +38,22 @@ test suite for libvirt drivers.
 
 =head2 WARNING
 
-There now follows a few words of warning
+The test suite is intended to be moderately safe to run on arbitrary
+hosts and takes steps to avoid intentionally breaking things.
 
-The test suite needs to have a completely 'clean' initial
-starting state. If your host already has virtual machines
-defined and/or running this will cause problems. The test
-suite will detect this and refuse to run, allowing you to
-remove any preexisting guests. Alternatively you can pass
-the --force option and libvirt will DELETE EVERYTHING it
-finds.
+All objects (guests, networks, storage pools, etc) that are created
+will  have a name prefix of "tck" to minimize risk of clashes. The
+test suite will only ever (intentionally) delete objects with a
+"tck" name prefix.
 
-To repeat: ALL YOUR EXISTING DOMAINS, NETWORKS, STORAGE POOLS
-WILL BE DELETED IF YOU USE THE --force OPTION.
+Where a test suite needs access to a precious host resource (physical
+NIC, PCI device, USB device, block device), execution will be skipped
+until the admin has white listed one or more suitable resources in
+the C</etc/libvirt-tck/default.cfg> configuration file.
 
-The warning is now complete, continue reading
+Despite these precautions, running automated tests always carries some
+degree of risk to the host system. It is thus advisable to avoid
+executing this test suite on hosts with precious state.
 
 =head2 OPTIONS
 
@@ -90,13 +92,11 @@ C<xml> option generates a formal XML document of results.
 
 =item --force
 
-Forcably remove all running guest domains and all persistent guest
-domain configuration files before running any tests. The test suite
-requires a pristine install, so all existing managed objects must
-be removed before running. This switch will instruct libvirt-tck
-to automatically remove all guest domains. YOU WILL NOT GET YOUR
-EXISTING GUEST DOMAINS BACK IF THIS HAPPENS. THEY WILL BE GONE
-FOREVER. USE AT YOUR OWN RISK.
+Forcably remove all previously created objects, including guests,
+networks, storage pools, etc which have a "tck" name prefix.
+
+User created objects whose name does not start with "tck" will be
+left untouched.
 
 =item -t, --testdir PATH
 

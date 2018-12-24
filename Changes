@@ -1,5 +1,19 @@
 Revision history for perl module Sys::Virt
 
+1.1.0 2018-12-24
+
+ - Prevent netdev name overflowing max length
+ - Avoid commonly virtual network subnet for tests
+ - Ensure secrets are cleaned up in encryption test
+ - Stop using deprecated brctl
+ - Fix typo related to SSH host key checking
+ - Fix undefined global in disk encryption test
+ - Fix selinux static relabelling test
+ - Increase timeout in nwfilter concurrency test
+ - Remove bogus warning about deleting everything on host
+ - Add tests for virtual network connections from guests
+ - Switch to using positional args for tests
+
 1.0.0 2018-06-11
 
  - Too many changes to list

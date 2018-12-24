@@ -65,6 +65,15 @@ scripts/networks/082-unique-id-caching.t
 scripts/networks/090-invalid-ops-when-inactive.t
 scripts/networks/100-apply-verify-host.t
 scripts/networks/110-interface-change-transaction.t
+scripts/networks/300-guest-network-isolated.t
+scripts/networks/310-guest-network-nat.t
+scripts/networks/320-guest-network-route.t
+scripts/networks/330-guest-network-open.t
+scripts/networks/340-guest-network-bridge.t
+scripts/networks/350-guest-network-private.t
+scripts/networks/360-guest-network-vepa.t
+scripts/networks/370-guest-network-passthrough.t
+scripts/networks/380-guest-network-hostdev.t
 scripts/networks/networkApplyTest.sh
 scripts/networks/networkxml2hostout/tck-testnet-1.dat
 scripts/networks/networkxml2hostout/tck-testnet-1.post.dat

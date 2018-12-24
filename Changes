@@ -1,5 +1,9 @@
 Revision history for perl module Sys::Virt
 
+2.0.0 2019-??-??
+
+ - XXX
+
 1.1.0 2018-12-24
 
  - Prevent netdev name overflowing max length

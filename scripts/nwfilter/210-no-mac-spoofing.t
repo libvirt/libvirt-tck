@@ -81,9 +81,9 @@ diag "guest ip is $guestip";
 my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
 my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
 diag $ebtable;
-# ebtables shortens :00: to :0: so we need to do that too
+# ebtables *might* shorten :00: to :0: so we need to allow for both when searching
 $_ = $mac;
-s/00/0/g; 
+s/0([0-9])/0{0,1}$1/g;
 ok($ebtable =~ $_, "check ebtables entry");
 
 my $macfalse = "52:54:00:f9:21:22";

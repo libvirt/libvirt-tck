@@ -94,7 +94,7 @@ is($st->size, 1024*1024*50, "size is 50M");
 # overhead for a file
 ok($st->blocks >= (1024*1024*50/512), "alot of blocks allocated");
 
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
+lives_ok(sub { $vol->delete(0) }, "deleted raw volume");
 
 
 
@@ -104,7 +104,7 @@ SKIP: {
         skip "qcow1 format not supported", 4;
     }
 
-    ok_volume(sub { $vol = $pool->create_volume($volqcow1xml) }, "create qcow volume");
+    ok_volume(sub { $vol = $pool->create_volume($volqcow1xml) }, "create qcow1 volume");
 
     $path = xpath($vol, "string(/volume/target/path)");
     $st = stat($path);
@@ -121,7 +121,7 @@ SKIP: {
 
 
 
-ok_volume(sub { $vol = $pool->create_volume($volqcow2xml) }, "create qcow volume");
+ok_volume(sub { $vol = $pool->create_volume($volqcow2xml) }, "create qcow2 volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -132,12 +132,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic qcow2 header is allocated");
 
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
+lives_ok(sub { $vol->delete(0) }, "deleted qcow2 volume");
 
 
 
 
-ok_volume(sub { $vol = $pool->create_volume($volvmdkxml) }, "create qcow volume");
+ok_volume(sub { $vol = $pool->create_volume($volvmdkxml) }, "create vmdk volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -148,12 +148,12 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vmdk header is allocated");
 
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
+lives_ok(sub { $vol->delete(0) }, "deleted vmdk volume");
 
 
 
 
-ok_volume(sub { $vol = $pool->create_volume($volvpcxml) }, "create qcow volume");
+ok_volume(sub { $vol = $pool->create_volume($volvpcxml) }, "create vpc volume");
 
 $path = xpath($vol, "string(/volume/target/path)");
 $st = stat($path);
@@ -164,5 +164,5 @@ ok($st, "path $path exists");
 # should be quite small :-)
 ok($st->size < 1024*1024, "basic vpc header is allocated");
 
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
+lives_ok(sub { $vol->delete(0) }, "deleted vpc volume");
 

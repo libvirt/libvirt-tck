@@ -99,18 +99,24 @@ lives_ok(sub { $vol->delete(0) }, "deleted volume");
 
 
 
-ok_volume(sub { $vol = $pool->create_volume($volqcow1xml) }, "create qcow volume");
+SKIP: {
+    if (`qemu-img -help` !~ "^Supported formats: .* qcow ") {
+        skip "qcow1 format not supported", 4;
+    }
 
-$path = xpath($vol, "string(/volume/target/path)");
-$st = stat($path);
+    ok_volume(sub { $vol = $pool->create_volume($volqcow1xml) }, "create qcow volume");
 
-ok($st, "path $path exists");
+    $path = xpath($vol, "string(/volume/target/path)");
+    $st = stat($path);
 
-# Don't know exactly how large a qcow1 empty file is, but it
-# should be quite small :-)
-ok($st->size < 1024*1024, "basic qcow1 header is allocated");
+    ok($st, "path $path exists");
 
-lives_ok(sub { $vol->delete(0) }, "deleted volume");
+    # Don't know exactly how large a qcow1 empty file is, but it
+    # should be quite small :-)
+    ok($st->size < 1024*1024, "basic qcow1 header is allocated");
+
+    lives_ok(sub { $vol->delete(0) }, "deleted volume");
+}
 
 
 

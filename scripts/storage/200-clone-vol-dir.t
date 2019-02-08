@@ -106,39 +106,45 @@ diag "Now testing cloning of various formats";
 my @formats = qw(raw qcow qcow2 vmdk vpc);
 
 foreach my $format (@formats) {
-    diag "Cloning source volume to $format format";
-    my $volclonexml = $tck->generic_volume("tck$format", $format, ((1024*1024*50)+4096))->as_xml;
+    SKIP: {
+        if (($format eq "qcow") and (`qemu-img -help` !~ "^Supported formats: .* qcow ")) {
+            skip "qcow1 format not supported", 9;
+        }
 
-    my $clone;
-    ok_volume(sub { $clone = $pool->clone_volume($volclonexml, $vol) }, "clone to $format volume");
+        diag "Cloning source volume to $format format";
+        my $volclonexml = $tck->generic_volume("tck$format", $format, ((1024*1024*50)+4096))->as_xml;
 
-    $path = xpath($clone, "string(/volume/target/path)");
-    $st = stat($path);
-    ok($st, "path $path exists");
-    ok($st->size >= ((1024*1024*50)+4096), "size is at least 50M");
+        my $clone;
+        ok_volume(sub { $clone = $pool->clone_volume($volclonexml, $vol) }, "clone to $format volume");
 
-
-    diag "Cloning cloned volume back to raw format";
-    my $voldstxml = $tck->generic_volume("tckdst", "raw", ((1024*1024*50)+4096))->as_xml;
-    my $result;
-    ok_volume(sub { $result = $pool->clone_volume($voldstxml, $clone) }, "clone back to raw volume");
+        $path = xpath($clone, "string(/volume/target/path)");
+        $st = stat($path);
+        ok($st, "path $path exists");
+        ok($st->size >= ((1024*1024*50)+4096), "size is at least 50M");
 
 
-    $path = xpath($result, "string(/volume/target/path)");
+        diag "Cloning cloned volume back to raw format";
+        my $voldstxml = $tck->generic_volume("tckdst", "raw", ((1024*1024*50)+4096))->as_xml;
+        my $result;
+        ok_volume(sub { $result = $pool->clone_volume($voldstxml, $clone) }, "clone back to raw volume");
 
-    $st = stat($path);
-    ok($st, "path $path exists");
 
-    is($st->size, ((1024*1024*50)+4096), "size is 50M");
+        $path = xpath($result, "string(/volume/target/path)");
 
-    diag "Comparing data between source & result volume";
+        $st = stat($path);
+        ok($st, "path $path exists");
 
-    my $dstdigest = &digest($path);
+        is($st->size, ((1024*1024*50)+4096), "size is 50M");
 
-    is($srcdigest, $dstdigest, "digests match");
+        diag "Comparing data between source & result volume";
 
-    lives_ok(sub { $clone->delete(0) }, "deleted clone volume");
-    lives_ok(sub { $result->delete(0) }, "deleted result volume");
+        my $dstdigest = &digest($path);
+
+        is($srcdigest, $dstdigest, "digests match");
+
+        lives_ok(sub { $clone->delete(0) }, "deleted clone volume");
+        lives_ok(sub { $result->delete(0) }, "deleted result volume");
+    }
 }
 
 

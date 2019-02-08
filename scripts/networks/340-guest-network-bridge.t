@@ -36,9 +36,9 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
-((system "brctl addbr tck") == 0) or die "cannot create bridge 'tck'";
+((system "ip link add name tck type bridge") == 0) or die "cannot create bridge 'tck'";
 
-END { system "brctl delbr tck" }
+END { system "ip link del tck" }
 
 my $b = Sys::Virt::TCK::NetworkBuilder->new(name => "tck");
 $b->bridge("tck");

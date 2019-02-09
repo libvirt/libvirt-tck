@@ -24,7 +24,7 @@
 #ebtables -t nat -L O-vnet0-ipv4 | grep -v "^Bridge" | grep -v "^$"
 -j ACCEPT 
 #ebtables -t nat -L I-vnet0-arp-mac | grep -v "^Bridge" | grep -v "^$"
--p ARP --arp-mac-src 52:54:0:9f:33:da -j RETURN 
+-p ARP --arp-mac-src 52:54:10:9f:33:da -j RETURN
 -j DROP 
 #ebtables -t nat -L I-vnet0-arp-ip | grep -v "^Bridge" | grep -v "^$"
 -p ARP --arp-ip-src 10.1.1.1 -j RETURN 

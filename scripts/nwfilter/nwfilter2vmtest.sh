@@ -653,7 +653,7 @@ main() {
       exit 1
   fi
 
-  createVM "${vm2}" "${TESTFILTERNAME}" "10.1.1.1" "52:54:0:9f:33:da" \
+  createVM "${vm2}" "${TESTFILTERNAME}" "10.1.1.1" "52:54:10:9f:33:da" \
            "${flags}"
   if [ $? -ne 0 ]; then
       echo "Could not create VM ${vm2}. Exiting."

@@ -50,7 +50,7 @@ FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --p
 -i vnet0 -j libvirt-I-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
 -o vnet0 -j libvirt-O-vnet0
-#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L libvirt-I-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
 -p ARP -s 1:2:3:4:5:6 -j ACCEPT 
 -p ARP -s 1:2:3:4:5:6 -j DROP 
 -p ARP -s 1:2:3:4:5:6 -j DROP 

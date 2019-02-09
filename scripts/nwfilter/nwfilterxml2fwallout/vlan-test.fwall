@@ -1,9 +1,9 @@
-#ebtables -t nat -L libvirt-I-vnet0 | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L libvirt-I-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
 -p 802_1Q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 291 -j CONTINUE 
 -p 802_1Q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 1234 -j RETURN 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 2054 -j DROP 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 4660 -j ACCEPT 
-#ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L libvirt-O-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j CONTINUE 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 1234 -j RETURN 
 -p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j DROP 

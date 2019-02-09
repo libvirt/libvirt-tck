@@ -6,9 +6,9 @@
 -i vnet0 -j libvirt-I-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0
 -o vnet0 -j libvirt-O-vnet0
-#ebtables -t nat -L I-vnet0-stp-xyz | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L I-vnet0-stp-xyz | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | sed s/06:05:04:03:02:01/6:5:4:3:2:1/g | grep -v "^Bridge" | grep -v "^$"
 -s 1:2:3:4:5:6 -d BGA --stp-root-prio 4660:9029  --stp-root-addr 6:5:4:3:2:1 --stp-root-cost 287454020:573785173  -j RETURN 
-#ebtables -t nat -L O-vnet0-stp-xyz | grep -v "^Bridge" | grep -v "^$"
+#ebtables -t nat -L O-vnet0-stp-xyz | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | sed s/06:05:04:03:02:01/6:5:4:3:2:1/g | grep -v "^Bridge" | grep -v "^$"
 -s 1:2:3:4:5:6 -d BGA --stp-type 18 --stp-flags 68 -j CONTINUE 
 -s 1:2:3:4:5:6 -d BGA --stp-sender-prio 4660  --stp-sender-addr 6:5:4:3:2:1 --stp-port 123:234  --stp-msg-age 5544:5555  --stp-max-age 7777:8888  --stp-hello-time 12345:12346  --stp-forward-delay 54321:65432  -j DROP 
 

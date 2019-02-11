@@ -2,12 +2,12 @@
 -i vnet0 -j libvirt-I-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0
 -o vnet0 -j libvirt-O-vnet0
-#ebtables -t nat -L libvirt-I-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
--p IPv6 -s 1:2:3:4:5:6/ff:ff:ff:ff:ff:fe -d aa:bb:cc:dd:ee:80/ff:ff:ff:ff:ff:80 --ip6-src ::/ffff:fc00:: --ip6-dst ::10.1.0.0/ffff:ffff:ffff:ffff:ffff:ffff:ffff:8000 --ip6-proto udp --ip6-sport 20:22 --ip6-dport 100:101 -j ACCEPT 
--p IPv6 --ip6-src a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-dst 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-proto tcp --ip6-sport 100:101 --ip6-dport 20:22 -j ACCEPT 
--p IPv6 --ip6-src a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-dst 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-proto tcp --ip6-sport 65535 --ip6-dport 255:256 -j ACCEPT 
--p IPv6 --ip6-src a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-dst 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-proto mux -j ACCEPT 
-#ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
--p IPv6 --ip6-src 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-dst a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-proto tcp --ip6-sport 20:22 --ip6-dport 100:101 -j ACCEPT 
--p IPv6 --ip6-src 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-dst a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-proto tcp --ip6-sport 255:256 --ip6-dport 65535 -j ACCEPT 
--p IPv6 --ip6-src 1::2/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff --ip6-dst a:b:c::/ffff:ffff:ffff:ffff:8000:: --ip6-proto mux -j ACCEPT 
+#ebtables -t nat -L libvirt-I-vnet0 | sed 's#/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff##g' | sed 's#/ffff:ffff:ffff:ffff:ffff:ffff:ffff:8000#/113#g' | sed 's#/ffff:ffff:ffff:ffff:8000::#/65#g' | sed 's#/ffff:fc00::#/22#g' | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
+-p IPv6 -s 1:2:3:4:5:6/ff:ff:ff:ff:ff:fe -d aa:bb:cc:dd:ee:80/ff:ff:ff:ff:ff:80 --ip6-src ::/22 --ip6-dst ::10.1.0.0/113 --ip6-proto udp --ip6-sport 20:22 --ip6-dport 100:101 -j ACCEPT
+-p IPv6 --ip6-src a:b:c::/65 --ip6-dst 1::2 --ip6-proto tcp --ip6-sport 100:101 --ip6-dport 20:22 -j ACCEPT
+-p IPv6 --ip6-src a:b:c::/65 --ip6-dst 1::2 --ip6-proto tcp --ip6-sport 65535 --ip6-dport 255:256 -j ACCEPT
+-p IPv6 --ip6-src a:b:c::/65 --ip6-dst 1::2 --ip6-proto mux -j ACCEPT
+#ebtables -t nat -L libvirt-O-vnet0 | sed 's#/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff##g' | sed 's#/ffff:ffff:ffff:ffff:8000::#/65#g' | grep -v "^Bridge" | grep -v "^$"
+-p IPv6 --ip6-src 1::2 --ip6-dst a:b:c::/65 --ip6-proto tcp --ip6-sport 20:22 --ip6-dport 100:101 -j ACCEPT
+-p IPv6 --ip6-src 1::2 --ip6-dst a:b:c::/65 --ip6-proto tcp --ip6-sport 255:256 --ip6-dport 65535 -j ACCEPT
+-p IPv6 --ip6-src 1::2 --ip6-dst a:b:c::/65 --ip6-proto mux -j ACCEPT

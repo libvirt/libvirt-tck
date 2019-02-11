@@ -396,11 +396,16 @@ sub as_xml {
                      type => $disk->{type},
                      $disk->{device} ? (device => $disk->{device}) : ());
 
-        if ($disk->{format}) {
-            $w->emptyTag("driver",
-                         name => $disk->{format}->{name},
-                         type => $disk->{format}->{type});
+        my @driver = ();
+        if ($self->{type} eq "qemu" ||
+            $self->{type} eq "kvm") {
+            push @driver, "cache", "none";
         }
+        if ($disk->{format}) {
+            push @driver, "name", $disk->{format}->{name},
+                "type", $disk->{format}->{type};
+        }
+        $w->emptyTag("driver", @driver);
 
         if ($disk->{type} eq "block") {
             $w->emptyTag("source",

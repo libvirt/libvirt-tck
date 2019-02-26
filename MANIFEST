@@ -74,6 +74,7 @@ scripts/networks/350-guest-network-private.t
 scripts/networks/360-guest-network-vepa.t
 scripts/networks/370-guest-network-passthrough.t
 scripts/networks/380-guest-network-hostdev.t
+scripts/networks/400-guest-bandwidth.t
 scripts/networks/networkApplyTest.sh
 scripts/networks/networkxml2hostout/tck-testnet-1.dat
 scripts/networks/networkxml2hostout/tck-testnet-1.post.dat

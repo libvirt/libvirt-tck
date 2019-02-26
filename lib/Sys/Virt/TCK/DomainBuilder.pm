@@ -466,6 +466,16 @@ sub as_xml {
             $w->emptyTag("model",
                          type => $interface->{model});
         }
+	if ($interface->{bandwidth}) {
+	    $w->startTag("bandwidth");
+	    if ($interface->{bandwidth}->{"in"}) {
+		$w->emptyTag("inbound", %{$interface->{bandwidth}->{"in"}});
+	    }
+	    if ($interface->{bandwidth}->{"out"}) {
+		$w->emptyTag("outbound", %{$interface->{bandwidth}->{"out"}});
+	    }
+	    $w->endTag("bandwidth");
+	}
         if ($interface->{filterref}) {
             $w->startTag("filterref",
                          filter => $interface->{filterref});

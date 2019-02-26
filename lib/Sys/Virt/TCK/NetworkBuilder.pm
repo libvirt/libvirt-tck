@@ -87,6 +87,15 @@ sub ipaddr {
     return $self;
 }
 
+sub bandwidth {
+    my $self = shift;
+    my %bw = @_;
+
+    $self->{bandwidth} = \%bw;
+
+    return $self;
+}
+
 sub dhcp_range {
     my $self = shift;
     my $start = shift;
@@ -113,6 +122,17 @@ sub as_xml {
 
     $w->emptyTag("bridge", %{$self->{bridge}})
         if $self->{bridge};
+
+    if ($self->{bandwidth}) {
+	$w->startTag("bandwidth");
+	if ($self->{bandwidth}->{"in"}) {
+	    $w->emptyTag("inbound", %{$self->{bandwidth}->{"in"}});
+	}
+	if ($self->{bandwidth}->{"out"}) {
+	    $w->emptyTag("outbound", %{$self->{bandwidth}->{"out"}});
+	}
+	$w->endTag("bandwidth");
+    }
 
     if (exists $self->{forward}) {
 	$w->startTag("forward", %{$self->{forward}});

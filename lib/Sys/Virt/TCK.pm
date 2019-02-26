@@ -919,7 +919,7 @@ sub generic_domain {
     my %params = @_;
 
     my $name = exists $params{name} ? $params{name} : "tck";
-    my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
+    my $ostype = exists $params{ostype} ? $params{ostype} : undef;
     my $fullos = exists $params{fullos} ? $params{fullos} : 0;
     my $netmode = exists $params{netmode} ? $params{netmode} : undef;
     my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;

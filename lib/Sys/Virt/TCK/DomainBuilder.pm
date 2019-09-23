@@ -49,6 +49,7 @@ sub new {
         graphics => [],
         hostdevs => [],
         seclabel => {},
+        rng => {},
     };
 
     bless $self, $class;
@@ -328,6 +329,19 @@ sub seclabel {
     return $self;
 }
 
+sub rng {
+    my $self = shift;
+    my %params = @_;
+
+    die "backend model parameter is required" unless $params{backend_model};
+    die "backend parameter is required" unless $params{backend};
+
+    $self->{rng} = \%params;
+    $self->{rng}->{model} = "virtio" unless defined $self->{rng}->{model};
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -504,6 +518,15 @@ sub as_xml {
         $w->endTag("graphics");
     }
     $w->emptyTag("console", type => "pty");
+
+    if (%{$self->{rng}}) {
+        $w->startTag("rng",
+                     model => $self->{rng}->{model});
+        $w->dataElement("backend", $self->{rng}->{backend},
+                        model => $self->{rng}->{backend_model});
+        $w->endTag("rng");
+    }
+
     $w->endTag("devices");
     if ($self->{seclabel}->{model}) {
         $w->startTag("seclabel",

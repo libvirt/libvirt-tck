@@ -807,6 +807,8 @@ sub generic_machine_domain {
         $b->disk(src => $config{root},
                  dst => $config{dev},
                  type => "file");
+        $b->rng(backend_model => "random",
+                backend => "/dev/urandom");
 
         if ($config{firstboot}) {
             print "# Running the first boot\n";
@@ -865,6 +867,8 @@ sub generic_machine_domain {
                  dst => $config{dev},
                  type => "file",
                  shareable => $shareddisk);
+        $b->rng(backend_model => "random",
+                backend => "/dev/urandom");
         return $b;
     }
 }

@@ -98,8 +98,8 @@ ok_domain(sub { $dom = $conn->create_domain($xml) }, "Create domain");
 $xml = $dom->get_xml_description();
 
 is($dom->get_block_info($dst2,0)->{capacity}, 1024*1024*50, "Get disk capacity info");
-is($dom->get_block_info($dst2,0)->{allocation}, 1024*1024, "Get disk allocation info");
-is($dom->get_block_info($dst2,0)->{physical}, 1024*1024*50, "Get disk physical info");
+ok($dom->get_block_info($dst2,0)->{allocation} >= 1024*1024, "Get disk allocation info");
+ok($dom->get_block_info($dst2,0)->{physical} >= 1024*1024*50, "Get disk physical info");
 
 
 is($dom->get_block_info($dst,0)->{capacity}, 1024*1024*50, "Get disk capacity info");

@@ -681,8 +681,6 @@ sub get_disk_dev {
     my $dev;
     if ($ostype eq "xen") {
         $dev = "xvda";
-    } elsif ($ostype eq "uml") {
-        $dev = "ubda";
     } elsif ($ostype eq "hvm") {
         if ($domain eq "kvm" ||
             $domain eq "qemu" ||

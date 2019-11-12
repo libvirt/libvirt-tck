@@ -85,7 +85,7 @@ SKIP: {
     ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is stopped";
-    ok(`service libvirtd status` =~ /stopped|unused|inactive/, "libvirtd is stopped");
+    ok($hook->{libvirtd_status} =~ /stopped|unused|inactive/, "libvirtd is stopped");
 
     # start libvirtd
     $hook->action('start');
@@ -110,7 +110,7 @@ SKIP: {
     ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
-    ok(`service libvirtd status` =~ /running/, "libvirtd is running");
+    ok($hook->{libvirtd_status} =~ /running/, "libvirtd is running");
 
     # restart libvirtd
     $hook->action('restart');
@@ -135,7 +135,7 @@ SKIP: {
     ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
-    ok(`service libvirtd status` =~ /running/, "libvirtd is running");
+    ok($hook->{libvirtd_status} =~ /running/, "libvirtd is running");
 
     # reload libvirtd
     $hook->action('reload');
@@ -160,7 +160,7 @@ SKIP: {
     ok($hook->compare_log(), "$hook->{name} is invoked correctly while $hook->{action} libvirtd");
 
     diag "check if libvirtd is still running";
-    ok(`service libvirtd status` =~ /running/, "libvirtd is running");
+    ok($hook->{libvirtd_status} =~ /running/, "libvirtd is running");
 
     $hook->cleanup();
 

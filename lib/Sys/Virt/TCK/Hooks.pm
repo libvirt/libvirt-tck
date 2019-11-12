@@ -48,6 +48,10 @@ sub new {
     return $self;
 }
 
+sub have_systemd {
+    return (system "command -pv systemctl > /dev/null") == 0;
+}
+
 sub log_name {
     my $self = shift;
     my $log_name = shift;
@@ -70,7 +74,13 @@ sub expect_result {
 
 sub libvirtd_status {
     my $self = shift;
-    my $status = `service libvirtd status`;
+    my $status;
+
+    if (have_systemd()) {
+        $status = `systemctl status libvirtd`;
+    } else {
+        $status = `service libvirtd status`;
+    }
 
     if ($status =~ /stopped|unused|inactive/) {
         $self->{libvirtd_status} = 'stopped';
@@ -238,10 +248,17 @@ sub cleanup {
 sub service_libvirtd {
     my $self = shift;
     my $action = $self->{action};
+    my $cmd;
 
     truncate $self->{log_name}, 0 if -f $self->{log_name};
 
-    die "failed on $action daemon" if system "service libvirtd $action";
+    if (have_systemd()) {
+        $cmd = "systemctl $action libvirtd";
+    } else {
+        $cmd = "service libvirtd $action";
+    }
+
+    die "failed on $action daemon" if system $cmd;
 
     $self->libvirtd_status;
 }

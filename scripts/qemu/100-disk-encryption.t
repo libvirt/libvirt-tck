@@ -41,10 +41,9 @@ END { $tck->cleanup if $tck; }
 
 SKIP: {
     skip "Only relevant to QEMU driver", 8 unless $conn->get_type() eq "QEMU";
-    skip "Libvirt LUKS support isn't ready", 8;
 
 my $dir = $tck->bucket_dir("300-disk-encryption");
-my $disk = catfile($dir, "demo.qcow2");
+my $disk = catfile($dir, "demo.img");
 
 
 my $secretXML = <<EOF;
@@ -73,9 +72,9 @@ diag "Creating pool $poolXML";
 lives_ok(sub { $pool = $conn->create_storage_pool($poolXML) }, "pool created");
 
 
-my $volXML = Sys::Virt::TCK::StorageVolBuilder->new(name => "demo.qcow2")
+my $volXML = Sys::Virt::TCK::StorageVolBuilder->new(name => "demo.img")
     ->capacity(1024*1024*1024)
-    ->format("qcow2")
+    ->format("raw")
     ->encryption_format("luks")
     ->secret($secretUUID)
     ->as_xml();
@@ -86,7 +85,7 @@ diag "Creating volume $volXML";
 lives_ok(sub { $vol = $pool->create_volume($volXML) }, "volume created");
 
 my $xml = $tck->generic_domain(name => "tck")
-    ->disk(format => { name => "qemu", type => "qcow2" },
+    ->disk(format => { name => "qemu", type => "raw" },
 	   encryption_format => "luks",
 	   secret => $secretUUID,
 	   type => "file",

@@ -16,13 +16,12 @@
 
 =head1 NAME
 
-domain/060-persistent-lifecycle.t - Persistent domain lifecycle
+domain/100-disk-encryption.t - LUKS disk encryption
 
 =head1 DESCRIPTION
 
-The test case validates the core lifecycle operations on
-persistent domains. A persistent domain is one with a
-configuration enabling it to be tracked when inactive.
+The test case verifies that libvirt is able to both create LUKS encrypted
+storage volumes as well as start a domain with such disks assigned.
 
 =cut
 

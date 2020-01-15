@@ -4,14 +4,16 @@ RETURN     all  --  10.1.2.0/24     255.255.255.255
 MASQUERADE  tcp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  udp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24         
-#iptables -n -L FORWARD | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
+#iptables -n -L LIBVIRT_FWI | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
-ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
-#ip6tables -n -L FORWARD | grep ' 2001:db8:ac10'
+#iptables -n -L LIBVIRT_FWO | grep ' 10\.1\.2\.'
+ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0
+#ip6tables -n -L LIBVIRT_FWI | grep ' 2001:db8:ac10'
 ACCEPT     all      ::/0                 2001:db8:ac10:fd01::/64 
-ACCEPT     all      2001:db8:ac10:fd01::/64  ::/0                
 ACCEPT     all      ::/0                 2001:db8:ac10:fe01::/64 
-ACCEPT     all      2001:db8:ac10:fe01::/64  ::/0                
+#ip6tables -n -L LIBVIRT_FWO | grep ' 2001:db8:ac10'
+ACCEPT     all      2001:db8:ac10:fd01::/64  ::/0
+ACCEPT     all      2001:db8:ac10:fe01::/64  ::/0
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p' | head -1
 /dnsmasq/tck-testnet.conf
 #grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`

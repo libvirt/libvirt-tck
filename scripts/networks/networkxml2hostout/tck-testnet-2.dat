@@ -1,5 +1,6 @@
-#iptables -L FORWARD -n | grep ' 10\.1\.2\.'
+#iptables -L LIBVIRT_FWI -n | grep ' 10\.1\.2\.'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         
+#iptables -L LIBVIRT_FWO -n | grep ' 10\.1\.2\.'
 ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
 #iptables -t nat -L -n | grep ' 10\.1\.2\.'
 #ip -o route show dev tck-testbr | gawk '{print $1" "$7}'

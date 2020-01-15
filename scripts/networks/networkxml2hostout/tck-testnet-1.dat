@@ -4,8 +4,9 @@ RETURN     all  --  10.1.2.0/24     255.255.255.255
 MASQUERADE  tcp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  udp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
 MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24         
-#iptables -n -L FORWARD | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
+#iptables -n -L LIBVIRT_FWI | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
 ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
+#iptables -n -L LIBVIRT_FWO | grep ' 10\.1\.2\.'
 ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
 #ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
 10.1.2.0/24 10.1.2.1

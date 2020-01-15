@@ -15,7 +15,7 @@ ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0
 #grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
 bind-dynamic
 #grep dhcp-range `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
-dhcp-range=10.1.2.2,10.1.2.254
+dhcp-range=10.1.2.2,10.1.2.254,255.255.255.0
 #ip link show type bridge | grep tck-testbr | gawk '{print $2}'
 tck-testbr:
 #ip -o addr show dev tck-testbr | gawk '{print $4" "$6}'

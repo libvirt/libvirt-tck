@@ -19,7 +19,7 @@ ACCEPT     all      2001:db8:ac10:fe01::/64  ::/0
 #grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
 bind-dynamic
 #grep dhcp-range `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
-dhcp-range=10.1.2.2,10.1.2.254
+dhcp-range=10.1.2.2,10.1.2.254,255.255.255.0
 dhcp-range=2001:db8:ac10:fe01::1,ra-only
 dhcp-range=2001:db8:ac10:fd01::1,ra-only
 #ip link show type bridge | grep tck-testbr | gawk '{print $2}'

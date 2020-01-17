@@ -408,6 +408,32 @@ sub has_disk_image {
     return -f $target
 }
 
+sub ssh_key_path {
+    my $self = shift;
+    my $basedir = shift;
+
+    return catfile($basedir, "ssh", "id_rsa");
+}
+
+sub create_host_ssh_keys {
+    my $self = shift;
+
+    my $scratch = $self->scratch_dir;
+    my $ssh_dir_path = catfile($scratch, "ssh");
+    my $ssh_key_path = $self->ssh_key_path($scratch);
+
+    if (! -d "$ssh_dir_path") {
+        mkdir "$ssh_dir_path", 0700;
+    }
+
+    if (! -e "$ssh_key_path") {
+        diag "generating a new SSH RSA key pair under $ssh_dir_path\n";
+        system "ssh-keygen -q -t rsa -f $ssh_key_path -N ''";
+    }
+
+    return $ssh_key_path;
+}
+
 sub create_virt_builder_disk {
     my $self = shift;
     my $bucket = shift;
@@ -424,8 +450,10 @@ sub create_virt_builder_disk {
         return $target;
     }
 
+    my $ssh_key_path = $self->create_host_ssh_keys;
+
     print "# running virt-builder $osname\n";
-    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--output", $target, $osname;
+    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--ssh-inject", "root:file:$ssh_key_path.pub", "--output", $target, $osname;
 
     die "cannot run virt-builder: $?" if $? != 0;
 

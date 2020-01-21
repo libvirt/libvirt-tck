@@ -98,7 +98,7 @@ system("/usr/sbin/tcpdump -v -i virbr0 not ip  > /tmp/tcpdump.log &");
 diag "ssh'ing into $guestip";
 my $ssh = Net::OpenSSH->new($guestip,
                             user => "root",
-                            password => $tck->root_password(),
+                            key_path => $tck->ssh_key_path($tck->scratch_dir()),
                             master_opts => [-o => "UserKnownHostsFile=/dev/null",
                                             -o => "StrictHostKeyChecking=no"]);
 

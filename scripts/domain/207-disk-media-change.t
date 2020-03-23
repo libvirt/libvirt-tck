@@ -98,5 +98,5 @@ EOF
 
     my $finalxml = $dom->get_xml_description;
 
-    is($initialxml, $finalxml, "final XML matches initial XML");
+    ok($finalxml =~ m|$path1|, "final XML has properly updated media");
 }

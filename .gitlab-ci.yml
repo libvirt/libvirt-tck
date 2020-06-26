@@ -54,7 +54,7 @@ stages:
     - perl Build test
     - perl Build install
     - perl Build dist
-    - if test -x /usr/bin/rpmbuild ; then rpmbuild --nodeps -ta Sys-Virt-TCK*.tar.gz ; fi
+    - if test -x /usr/bin/rpmbuild && test "$RPM" != "skip" ; then rpmbuild --nodeps -ta Sys-Virt-TCK*.tar.gz ; fi
 
 # Check that all commits are signed-off for the DCO.
 # Skip on "libvirt" namespace, since we only need to run
@@ -68,6 +68,21 @@ check-dco:
   except:
     variables:
       - $CI_PROJECT_NAMESPACE == 'libvirt'
+
+centos-7-container:
+  <<: *container_job_definition
+  variables:
+    NAME: centos-7
+
+centos-8-container:
+  <<: *container_job_definition
+  variables:
+    NAME: centos-8
+
+centos-stream-container:
+  <<: *container_job_definition
+  variables:
+    NAME: centos-stream
 
 debian-9-container:
   <<: *container_job_definition
@@ -99,6 +114,23 @@ fedora-rawhide-container:
   variables:
     NAME: fedora-rawhide
 
+centos-7-git-build:
+  <<: *git_build_job_definition
+  variables:
+    NAME: centos-7
+    RPM: skip
+
+centos-8-git-build:
+  <<: *git_build_job_definition
+  variables:
+    NAME: centos-8
+    RPM: skip
+
+centos-stream-git-build:
+  <<: *git_build_job_definition
+  variables:
+    NAME: centos-stream
+    RPM: skip
 
 debian-9-git-build:
   <<: *git_build_job_definition

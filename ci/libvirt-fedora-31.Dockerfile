@@ -32,6 +32,7 @@ RUN dnf update -y && \
         ninja-build \
         patch \
         perl \
+        perl-App-cpanminus \
         perl-Archive-Tar \
         perl-CPAN-Changes \
         perl-Config-Record \
@@ -41,6 +42,7 @@ RUN dnf update -y && \
         perl-IO-Compress-Bzip2 \
         perl-IO-String \
         perl-Module-Build \
+        perl-NetAddr-IP \
         perl-Sub-Uplevel \
         perl-TAP-Formatter-HTML \
         perl-TAP-Formatter-JUnit \
@@ -58,6 +60,7 @@ RUN dnf update -y && \
         pkgconfig \
         python3 \
         python3-docutils \
+        python3-pip \
         python3-setuptools \
         python3-wheel \
         rpcgen \

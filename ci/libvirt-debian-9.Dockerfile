@@ -12,6 +12,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             ca-certificates \
             ccache \
             chrony \
+            cpanminus \
             gcc \
             gdb \
             gettext \
@@ -29,6 +30,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             libio-compress-perl \
             libio-string-perl \
             libmodule-build-perl \
+            libnetaddr-ip-perl \
             libnl-3-dev \
             libnl-route-3-dev \
             libsub-uplevel-perl \

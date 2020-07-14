@@ -84,11 +84,6 @@ centos-stream-container:
   variables:
     NAME: centos-stream
 
-debian-9-container:
-  <<: *container_job_definition
-  variables:
-    NAME: debian-9
-
 debian-10-container:
   <<: *container_job_definition
   variables:
@@ -131,11 +126,6 @@ centos-stream-git-build:
   variables:
     NAME: centos-stream
     RPM: skip
-
-debian-9-git-build:
-  <<: *git_build_job_definition
-  variables:
-    NAME: debian-9
 
 debian-10-git-build:
   <<: *git_build_job_definition

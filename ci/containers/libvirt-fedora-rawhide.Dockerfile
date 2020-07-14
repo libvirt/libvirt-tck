@@ -69,7 +69,8 @@ RUN dnf update -y --nogpgcheck fedora-gpg-keys && \
         screen \
         strace \
         sudo \
-        vim && \
+        vim \
+        xz && \
     dnf autoremove -y && \
     dnf clean all -y && \
     mkdir -p /usr/libexec/ccache-wrappers && \

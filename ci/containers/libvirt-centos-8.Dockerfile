@@ -64,7 +64,8 @@ RUN dnf install 'dnf-command(config-manager)' -y && \
         screen \
         strace \
         sudo \
-        vim && \
+        vim \
+        xz && \
     dnf autoremove -y && \
     dnf clean all -y && \
     mkdir -p /usr/libexec/ccache-wrappers && \
@@ -76,7 +77,8 @@ RUN cpanm --notest \
           LWP::UserAgent \
           TAP::Formatter::HTML \
           TAP::Formatter::JUnit \
-          TAP::Harness::Archive
+          TAP::Harness::Archive \
+          accessors
 
 ENV LANG "en_US.UTF-8"
 

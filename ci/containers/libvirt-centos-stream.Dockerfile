@@ -30,7 +30,6 @@ RUN dnf install -y centos-release-stream && \
         libxslt \
         lsof \
         make \
-        meson \
         net-tools \
         ninja-build \
         patch \
@@ -72,6 +71,9 @@ RUN dnf install -y centos-release-stream && \
     mkdir -p /usr/libexec/ccache-wrappers && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/$(basename /usr/bin/gcc)
+
+RUN pip3 install \
+         meson==0.54.0
 
 RUN cpanm --notest \
           Config::Record \

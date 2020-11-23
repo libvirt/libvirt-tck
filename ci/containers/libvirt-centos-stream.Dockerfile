@@ -7,8 +7,6 @@ RUN dnf install -y centos-release-stream && \
     dnf install -y epel-release && \
     dnf update -y && \
     dnf install -y \
-        bash \
-        bash-completion \
         ca-certificates \
         ccache \
         gcc \
@@ -25,7 +23,6 @@ RUN dnf install -y centos-release-stream && \
         libxslt \
         make \
         ninja-build \
-        patch \
         perl \
         perl-App-cpanminus \
         perl-Archive-Tar \
@@ -72,9 +69,7 @@ RUN cpanm --notest \
           accessors
 
 ENV LANG "en_US.UTF-8"
-
 ENV MAKE "/usr/bin/make"
 ENV NINJA "/usr/bin/ninja"
 ENV PYTHON "/usr/bin/python3"
-
 ENV CCACHE_WRAPPERSDIR "/usr/libexec/ccache-wrappers"

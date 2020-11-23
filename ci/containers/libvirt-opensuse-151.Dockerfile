@@ -2,8 +2,6 @@ FROM registry.opensuse.org/opensuse/leap:15.1
 
 RUN zypper update -y && \
     zypper install -y \
-           bash \
-           bash-completion \
            ca-certificates \
            ccache \
            gcc \
@@ -20,7 +18,6 @@ RUN zypper update -y && \
            libxslt \
            make \
            ninja \
-           patch \
            perl \
            perl-App-cpanminus \
            perl-Archive-Tar \
@@ -64,9 +61,7 @@ RUN cpanm --notest \
           accessors
 
 ENV LANG "en_US.UTF-8"
-
 ENV MAKE "/usr/bin/make"
 ENV NINJA "/usr/bin/ninja"
 ENV PYTHON "/usr/bin/python3"
-
 ENV CCACHE_WRAPPERSDIR "/usr/libexec/ccache-wrappers"

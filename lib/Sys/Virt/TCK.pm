@@ -23,7 +23,7 @@ use Sys::Virt::TCK::StoragePoolBuilder;
 use Sys::Virt::TCK::StorageVolBuilder;
 use Sys::Virt::TCK::Capabilities;
 
-use Config::Record;
+use YAML qw();
 use File::Copy qw(copy);
 use File::Path qw(mkpath);
 use File::Spec::Functions qw(catfile catdir rootdir);
@@ -56,7 +56,7 @@ sub new {
     my %params = @_;
 
     $self->{config} = $params{config} ? $params{config} :
-        Config::Record->new(file => ($ENV{LIBVIRT_TCK_CONFIG} || "/etc/tck.conf"));
+        YAML::LoadFile($ENV{LIBVIRT_TCK_CONFIG} || "/etc/libvirt-tck/default.yml");
 
     $self->{autoclean} = $params{autoclean} ? $params{autoclean} :
         ($ENV{LIBVIRT_TCK_AUTOCLEAN} || 0);
@@ -74,7 +74,7 @@ sub new {
 sub root_password {
     my $self = shift;
 
-    return $self->{config}->get("rootpassword", "123456");
+    return $self->config("rootpassword", "123456");
 }
 
 sub setup_conn {
@@ -255,9 +255,13 @@ sub config {
     my $key = shift;
     if (@_) {
         my $default = shift;
-        return $self->{config}->get($key, $default);
+	if (exists $self->{config}->{$key}) {
+	    return $self->{config}->{$key};
+	} else {
+	    return $default;
+	}
     } else {
-        return $self->{config}->get($key);
+	return $self->{config}->{$key};
     }
 }
 
@@ -1212,10 +1216,11 @@ sub get_host_usb_device {
         return ();
     }
 
-    my $bus = $self->config("host_usb_devices/[$devindex]/bus", undef);
-    my $device = $self->config("host_usb_devices/[$devindex]/device", undef);
-    my $vendor = $self->config("host_usb_devices/[$devindex]/vendor", undef);
-    my $product = $self->config("host_usb_devices/[$devindex]/product", undef);
+    my $dev = $devs->[$devindex];
+    my $bus = $dev->{"bus"};
+    my $device = $dev->{"device"};
+    my $vendor = $dev->{"vendor"};
+    my $product = $dev->{"product"};
 
     return ($bus, $device, $vendor, $product);
 }
@@ -1230,10 +1235,11 @@ sub get_host_pci_device {
         return ();
     }
 
-    my $domain = $self->config("host_pci_devices/[$devindex]/domain", 0);
-    my $bus = $self->config("host_pci_devices/[$devindex]/bus", 0);
-    my $slot = $self->config("host_pci_devices/[$devindex]/slot");
-    my $function = $self->config("host_pci_devices/[$devindex]/function", 0);
+    my $dev = $devs->[$devindex];
+    my $domain = $dev->{"domain"};
+    my $bus = $dev->{"bus"};
+    my $slot = $dev->{"slot"};
+    my $function = $dev->{"fnuction"};
 
     return ($domain, $bus, $slot, $function);
 }
@@ -1242,17 +1248,28 @@ sub get_host_block_device {
     my $self = shift;
     my $devindex = @_ ? shift : 0;
 
-    my $device = ($self->config("host_block_devices/[$devindex]/path", undef)
-                  || $self->config("host_block_devices/[$devindex]", undef));
+    my $devs = $self->config("host_block_devices", []);
+    if ($devindex >= $#{$devs}) {
+	return undef;
+    }
+    my $device = $devs->[$devindex];
+    my $size;
+    if (defined $device &&
+	ref($device) == 'HASH') {
+	$device = $device->{"path"};
+	$size = $device->{"size"};
+    }
     return undef unless $device;
 
-    my $kb_blocks = $self->config("host_block_devices/[$devindex]/size", 0);
-
-    # Filter out devices that the current user can't open.
-    sysopen(BLK, $device, O_RDONLY) or return undef;
-    my $match = ($kb_blocks ? sysseek(BLK, 0, SEEK_END) == $kb_blocks * 1024
-                 : 1);
-    close BLK;
+    my $match = 1;
+    if (defined $size) {
+	# Filter out devices that the current user can't open.
+	sysopen(BLK, $device, O_RDONLY) or return undef;
+	if (sysseek(BLK, 0, SEEK_END) != ($size * 1024)) {
+	    $match = 0;
+	}
+	close BLK;
+    }
 
     return $match ? $device : undef;
 }
@@ -1261,7 +1278,13 @@ sub get_host_network_device {
     my $self = shift;
     my $devindex = @_ ? shift : 0;
 
-    return $self->config("host_network_devices/[$devindex]", undef);
+    my $devs = $self->config("host_network_devices", []);
+
+    if ($devindex >= $#{$devs}) {
+	return undef;
+    }
+
+    return $devs->[$devindex];
 }
 
 sub get_first_macaddress {

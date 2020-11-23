@@ -41,7 +41,6 @@ BuildRequires: perl-generators
 %endif
 BuildRequires: perl(accessors)
 BuildRequires: perl(App::Prove)
-BuildRequires: perl(Config::Record)
 BuildRequires: perl(Cwd)
 BuildRequires: perl(File::Spec::Functions)
 BuildRequires: perl(File::Copy)
@@ -65,6 +64,7 @@ BuildRequires: perl(XML::Writer)
 BuildRequires: perl(XML::XPath)
 BuildRequires: perl(Test::Pod)
 BuildRequires: perl(Test::Pod::Coverage)
+BuildRequires: perl(YAML)
 # RPM autoprovides misses these 3
 Requires: perl(Test::Exception)
 Requires: perl(TAP::Formatter::HTML)
@@ -108,7 +108,7 @@ find $RPM_BUILD_ROOT -depth -type d -exec rmdir {} 2>/dev/null \;
 %license LICENSE
 %doc README Changes
 %dir %{_sysconfdir}/libvirt-tck
-%config(noreplace) %{_sysconfdir}/libvirt-tck/default.cfg
+%config(noreplace) %{_sysconfdir}/libvirt-tck/default.yml
 %{_bindir}/libvirt-tck
 %dir %{_datadir}/libvirt-tck
 %{_datadir}/libvirt-tck/*

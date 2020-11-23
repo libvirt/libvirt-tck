@@ -395,7 +395,7 @@ Having created the test script it can be run directly using Perl, simply by
 setting an environment variable pointing to the config file
 
 
-   # export LIBVIRT_TCK_CONFIG=/etc/libvirt-tck/xen.cfg
+   # export LIBVIRT_TCK_CONFIG=/etc/libvirt-tck/xen.yml
    # perl example-persistent-domain.t
 
 If the libvirt driver being tested were bug-free it would result in the

@@ -16,7 +16,7 @@ Run with default config, probing for URI to use
 
 Run with a custom config
 
- # libvirt-tck --config /etc/libvirt/other.cfg
+ # libvirt-tck --config /etc/libvirt-tck/other.yml
 
 Run with verbose progress information
 
@@ -49,7 +49,7 @@ test suite will only ever (intentionally) delete objects with a
 Where a test suite needs access to a precious host resource (physical
 NIC, PCI device, USB device, block device), execution will be skipped
 until the admin has white listed one or more suitable resources in
-the C</etc/libvirt-tck/default.cfg> configuration file.
+the C</etc/libvirt-tck/default.yml> configuration file.
 
 Despite these precautions, running automated tests always carries some
 degree of risk to the host system. It is thus advisable to avoid
@@ -58,7 +58,7 @@ executing this test suite on hosts with precious state.
 =head2 OPTIONS
 
 If invoked without any arguments the test suite will run using
-the default configuration file from C</etc/libvirt-tck/default.cfg>
+the default configuration file from C</etc/libvirt-tck/default.yml>
 and will allow libvirt to probe for the hypervisor driver to
 run. If a reliably repeatable test result set is desired, it is
 recommended to always give an explicit libvirt connection URI
@@ -88,7 +88,7 @@ the name of each test case
 =item -c, --config FILE
 
 Specify the name of the configuration file to use, rather than
-the default C</etc/libvirt-tck/default.cfg>
+the default C</etc/libvirt-tck/default.yml>
 
 =item --format text|html|xml|junit
 
@@ -144,7 +144,7 @@ my $force = 0;
 my $debug = 0;
 my $timer = 0;
 my $archive;
-my $config = catfile($confdir, "default.cfg");
+my $config = catfile($confdir, "default.yml");
 my $format = "text";
 
 if (!GetOptions("verbose" => \$verbose,

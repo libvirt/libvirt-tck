@@ -2,7 +2,7 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/e14741b4744c97bcfe210bd904b5e6354e0feaba
 
 FROM docker.io/library/centos:8
 
@@ -48,6 +48,7 @@ RUN dnf update -y && \
         perl-XML-Twig \
         perl-XML-Writer \
         perl-XML-XPath \
+        perl-YAML \
         perl-generators \
         pkgconfig \
         python3 \
@@ -68,7 +69,6 @@ RUN pip3 install \
          meson==0.56.0
 
 RUN cpanm --notest \
-          Config::Record \
           LWP::UserAgent \
           TAP::Formatter::HTML \
           TAP::Formatter::JUnit \

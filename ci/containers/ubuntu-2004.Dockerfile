@@ -2,7 +2,7 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/e14741b4744c97bcfe210bd904b5e6354e0feaba
 
 FROM docker.io/library/ubuntu:20.04
 
@@ -21,7 +21,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             libarchive-tar-perl \
             libc-dev-bin \
             libc6-dev \
-            libconfig-record-perl \
             libcpan-changes-perl \
             libdigest-perl \
             libdigest-perl-md5-perl \
@@ -49,6 +48,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             libxml-xpath-perl \
             libxml2-dev \
             libxml2-utils \
+            libyaml-perl \
             locales \
             make \
             ninja-build \

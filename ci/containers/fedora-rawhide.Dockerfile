@@ -2,7 +2,7 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/e14741b4744c97bcfe210bd904b5e6354e0feaba
 
 FROM registry.fedoraproject.org/fedora:rawhide
 
@@ -39,7 +39,6 @@ exec "$@"' > /usr/bin/nosync && \
         ninja-build \
         perl-Archive-Tar \
         perl-CPAN-Changes \
-        perl-Config-Record \
         perl-Digest \
         perl-Digest-MD5 \
         perl-File-Slurp \
@@ -60,6 +59,7 @@ exec "$@"' > /usr/bin/nosync && \
         perl-XML-Twig \
         perl-XML-Writer \
         perl-XML-XPath \
+        perl-YAML \
         perl-accessors \
         perl-base \
         perl-generators \

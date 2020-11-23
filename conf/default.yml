@@ -1,9 +1,10 @@
+
 #
 # Which driver to test. If not set, then driver is
 # auto probed
-#uri = "qemu:///system"
-#uri = "xen:///"
-#uri = "qemu:///session"
+#uri: "qemu:///system"
+#uri: "xen:///"
+uri: "qemu:///session"
 
 #
 # To enable migration tests, set 'otheruri' to a URI
@@ -13,7 +14,7 @@
 # NB: You must *ALSO* ensure that 'scratch_dir' is
 # pointing to an NFS filesystem shared between the
 # local host and the remote libvirtd.
-#otheruri = "qemu+ssh://otherhostname/system"
+#otheruri: "qemu+ssh://otherhostname/system"
 
 # Override  directory used for downloading/creating temporary files
 #
@@ -21,7 +22,7 @@
 # directory.
 #
 # Defaults to /var/cache/libvirt-tck for root, or `pwd`/libvirt-tck for non-root
-#scratch_dir = /var/cache/libvirt-tck
+#scratch_dir: /var/cache/libvirt-tck
 
 # To avoid filling the filesystem, the test suite will
 # automatically set a usage limit of
@@ -32,26 +33,22 @@
 # the limit.
 #
 # If you want to set a artificially lower usage limit...
-#scratch_usage_limit = 10G
+#scratch_usage_limit: 10G
 
 # Some of the scripts need to be able to login to the
 # guest OS images. The TCK will pick a random root
 # password, but if you want to login to the guest OS
 # images to debug things, then set a fixed password
 # here
-#rootpassword = 123456
+#rootpassword: 123456
 
 # List the virt-builder images to use for each arch
-images = (
-  {
-    arch = x86_64
-    ostype = (
-      hvm
-      xen
-    )
-    osname = fedora-31
-  }
-)
+images:
+  - arch: x86_64
+    ostype:
+      - hvm
+      - xen
+    osname: fedora-34
 
 #
 # Where the kernel/initrd files needed by tests are to be
@@ -74,82 +71,57 @@ images = (
 # that can be listed instead of the initrd. Otherwise a
 # empty sparse root FS will be created
 #
-kernels = (
-   # Fedora 30 i686 PAE has pv_ops, so one kernel can do both Xen and KVM guests here
-   # No i386 releases since F30
-   {
-     arch = i686
-     ostype = (
-       hvm
-       xen
-     )
-     kernel = http://dl.fedoraproject.org/pub/fedora-secondary/releases/30/Everything/i386/os/images/pxeboot/vmlinuz
-     initrd = http://dl.fedoraproject.org/pub/fedora-secondary/releases/30/Everything/i386/os/images/pxeboot/initrd.img
-   }
-   # Fedora 31 x86_64 has pv_ops, so one kernel can do both Xen and KVM guests here
-   {
-     arch = x86_64
-     ostype = (
-       hvm
-       xen
-     )
-     kernel = http://dl.fedoraproject.org/pub/fedora/linux/releases/31/Everything/x86_64/os/images/pxeboot/vmlinuz
-     initrd = http://dl.fedoraproject.org/pub/fedora/linux/releases/31/Everything/x86_64/os/images/pxeboot/initrd.img
-   }
-   # LXC containers need a virtual container filesystem somewhere
-#   {
-#     arch = x86_64
-#     ostype = exe
-#   }
-)
+kernels:
+  # Fedora 34 x86_64 has pv_ops, so one kernel can do both Xen and KVM guests here
+  - arch: x86_64
+    ostype:
+      - hvm
+      - xen
+    kernel: http://dl.fedoraproject.org/pub/fedora/linux/releases/34/Everything/x86_64/os/images/pxeboot/vmlinuz
+    initrd: http://dl.fedoraproject.org/pub/fedora/linux/releases/34/Everything/x86_64/os/images/pxeboot/initrd.img
+
+# LXC containers need a virtual container filesystem somewhere
+#
+#  - arch: x86_64
+#    ostype: exe
 
 # Host USB devices that the test suite can safely mess around with
 # without risk of breaking the host OS
-host_usb_devices = (
+host_usb_devices:
 # Must list either vendor+product, or bus+dev, or both
-#   {
-#      vendor = 0x0627
-#      product = 0x0001
-#      bus = 001
-#      device = 002
-#   }
+#  - vendor: 0x0627
+#    product: 0x0001
+#    bus: 001
+#    device: 002
 # Can list more than one USB device if many are available
-)
 
 
 # Host PCI devices that the test suite can safely mess around with
 # without risk of breaking the host OS. Using a NIC device is the
 # most reliable option. Definitely don't try listing a VGA device.
-host_pci_devices = (
+host_pci_devices:
 # Slot is only required entry, all others default to 0
-#   {
-#      domain = 0000
-#      bus = 00
-#      slot = 07
-#      function = 0
-#   }
+#  - domain: 0000
+#    bus: 00
+#    slot: 07
+#    function: 0
 # Can list more than one PCI device if many are available
-)
 
 # List of host block devices that the test suite can trash all
 # data on, for purposes of testing. You have been warned !
 # Only full block devices allowed, no single partitions, since
 # the test suite itself needs to create partitions.
 # The disks should be at *least* 512 MB in size
-host_block_devices = (
+host_block_devices:
 # Each block device is either a raw path
-#  /dev/vdb
+#  - /dev/vdb
 # or a path plus size in 1k blocks, as in /proc/partitions, to avoid
 # trashing the wrong device
-#  {
-#    path = /dev/disk/by-id/usb-Generic_Flash_Disk_9B46E3C5-0:0
-#    size = 989184
-#  }
+#  - path: /dev/disk/by-id/usb-Generic_Flash_Disk_9B46E3C5-0:0
+#    size: 989184
 # Can list more than on block device if many are available
-)
 
 # List of host NIC devices that the test suite can screw
 # around with for testing purposes
-host_network_devices = (
-#   eth0
-)
+host_network_devices:
+#  - eth0

@@ -70,7 +70,6 @@ my $b = $class->new(
         'perl' => '5.8.0',
         'accessors' => 0,
         'App::Prove' => '3.11',
-        'Config::Record' => '1.0.0',
         'Cwd' => 0,
         'Digest' => 0,
         'Digest::MD5' => 0,
@@ -95,6 +94,7 @@ my $b = $class->new(
         'XML::Twig' => 0,
         'XML::Writer' => 0,
         'XML::XPath' => 0,
+        'YAML' => 0,
     },
     build_requires => {
         'Test::Pod' => '0',
@@ -113,7 +113,7 @@ my $b = $class->new(
         },
     },
     conf_files => {
-        'conf/default.cfg' => 'conf/default.cfg',
+        'conf/default.yml' => 'conf/default.yml',
     },
     PL_files => { 'perl-Sys-Virt-TCK.spec.PL' => 'perl-Sys-Virt-TCK.spec' },
     );

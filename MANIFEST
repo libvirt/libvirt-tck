@@ -1,7 +1,7 @@
 bin/libvirt-tck
 Build.PL
 Changes
-conf/default.cfg
+conf/default.yml
 docs/intro.pod
 docs/writing-tests.pod
 lib/Sys/Virt/TCK.pm

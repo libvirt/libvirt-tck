@@ -118,7 +118,7 @@ module for generating XML documents
 
 module for parsing XML documents & XPath
 
-=item Config::Record
+=item YAML
 
 module for parsing simple configuration files
 
@@ -281,7 +281,7 @@ It has only really been tested with the QEMU driver, and a little with
 the Xen driver. Most other drivers will not yet work/pass with it.
 
 The only thing that needs to be changed before running the test
-script is to set a URI in the config file /etc/libvirt-tck/default.cfg
+script is to set a URI in the config file /etc/libvirt-tck/default.yml
 
 The test suite will automatically download kernels, initrds and
 root filesystems needed to run the tests. The configuration file

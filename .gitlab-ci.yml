@@ -109,11 +109,6 @@ fedora-rawhide-container:
   variables:
     NAME: fedora-rawhide
 
-opensuse-151-container:
-  <<: *container_job_definition
-  variables:
-    NAME: opensuse-151
-
 ubuntu-1804-container:
   <<: *container_job_definition
   variables:
@@ -167,11 +162,6 @@ fedora-rawhide-git-build:
   <<: *git_build_job_definition
   variables:
     NAME: fedora-rawhide
-
-opensuse-151-git-build:
-  <<: *git_build_job_definition
-  variables:
-    NAME: opensuse-151
 
 ubuntu-1804-git-build:
   <<: *git_build_job_definition

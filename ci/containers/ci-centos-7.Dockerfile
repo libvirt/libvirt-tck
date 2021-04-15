@@ -2,8 +2,9 @@
 #
 #  $ lcitool dockerfile centos-7 libvirt+minimal,libvirt-perl,libvirt-tck
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/b098ec6631a85880f818f2dd25c437d509e53680
-FROM registry.centos.org/centos:7
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/6552fd8885423cfc383a58255eca542937f7d4ea
+
+FROM docker.io/library/centos:7
 
 RUN yum update -y && \
     echo 'skip_missing_names_on_install=0' >> /etc/yum.conf && \
@@ -11,6 +12,7 @@ RUN yum update -y && \
     yum install -y \
         ca-certificates \
         ccache \
+        cpp \
         gcc \
         gettext \
         git \
@@ -56,10 +58,10 @@ RUN yum update -y && \
     rpm -qa | sort > /packages.txt && \
     mkdir -p /usr/libexec/ccache-wrappers && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
-    ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/$(basename /usr/bin/gcc)
+    ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/gcc
 
 RUN pip3 install \
-         meson==0.54.0
+         meson==0.56.0
 
 RUN cpanm --notest \
           Config::Record \

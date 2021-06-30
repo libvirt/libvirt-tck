@@ -1,26 +1,26 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     udplite--  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02state NEW,ESTABLISHED ctdir REPLY
-RETURN     udplite--  0.0.0.0/0            10.1.0.0/22         DSCP match 0x21state ESTABLISHED ctdir ORIGINAL
-RETURN     udplite--  0.0.0.0/0            10.1.0.0/22         DSCP match 0x21state ESTABLISHED ctdir ORIGINAL
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     udplite--  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply
+return     udplite--  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original
+return     udplite--  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     udplite--  10.1.2.3             0.0.0.0/0           DSCP match 0x02state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udplite--  10.1.0.0/22          0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x21state NEW,ESTABLISHED ctdir REPLY
-ACCEPT     udplite--  10.1.0.0/22          0.0.0.0/0           MAC 01:02:03:04:05:06 DSCP match 0x21state NEW,ESTABLISHED ctdir REPLY
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     udplite--  10.1.2.3             0.0.0.0/0           dscp match 0x02state established ctdir original
+accept     udplite--  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21state new,established ctdir reply
+accept     udplite--  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21state new,established ctdir reply
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     udplite--  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x02state NEW,ESTABLISHED ctdir REPLY
-RETURN     udplite--  0.0.0.0/0            10.1.0.0/22         DSCP match 0x21state ESTABLISHED ctdir ORIGINAL
-RETURN     udplite--  0.0.0.0/0            10.1.0.0/22         DSCP match 0x21state ESTABLISHED ctdir ORIGINAL
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     udplite--  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply
+return     udplite--  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original
+return     udplite--  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged

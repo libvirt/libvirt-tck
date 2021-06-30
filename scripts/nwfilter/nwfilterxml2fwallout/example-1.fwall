@@ -1,22 +1,22 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 state ESTABLISHED ctdir ORIGINAL
-RETURN     icmp --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED ctdir ORIGINAL
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED ctdir ORIGINAL
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 state established ctdir original
+return     icmp --  0.0.0.0/0            0.0.0.0/0           state established ctdir original
+return     all  --  0.0.0.0/0            0.0.0.0/0           state established ctdir original
+drop       all  --  0.0.0.0/0            0.0.0.0/0
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:22 state NEW,ESTABLISHED ctdir REPLY
-ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED ctdir REPLY
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state NEW,ESTABLISHED ctdir REPLY
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:22 state new,established ctdir reply
+accept     icmp --  0.0.0.0/0            0.0.0.0/0           state new,established ctdir reply
+accept     all  --  0.0.0.0/0            0.0.0.0/0           state new,established ctdir reply
+drop       all  --  0.0.0.0/0            0.0.0.0/0
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 state ESTABLISHED ctdir ORIGINAL
-RETURN     icmp --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED ctdir ORIGINAL
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED ctdir ORIGINAL
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 state established ctdir original
+return     icmp --  0.0.0.0/0            0.0.0.0/0           state established ctdir original
+return     all  --  0.0.0.0/0            0.0.0.0/0           state established ctdir original
+drop       all  --  0.0.0.0/0            0.0.0.0/0
 

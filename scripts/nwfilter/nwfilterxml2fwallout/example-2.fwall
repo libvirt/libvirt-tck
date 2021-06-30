@@ -1,20 +1,20 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED /* out: existing and related (ftp) connections */ 
-RETURN     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state NEW /* out: DNS lookups */ 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     all  --  0.0.0.0/0            0.0.0.0/0           state related,established /* out: existing and related (ftp) connections */
+return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state new /* out: dns lookups */
+drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state ESTABLISHED /* in: existing connections */ 
-ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpts:21:22 state NEW /* in: ftp and ssh */ 
-ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           state NEW /* in: icmp */ 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     all  --  0.0.0.0/0            0.0.0.0/0           state established /* in: existing connections */
+accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpts:21:22 state new /* in: ftp and ssh */
+accept     icmp --  0.0.0.0/0            0.0.0.0/0           state new /* in: icmp */
+drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED /* out: existing and related (ftp) connections */ 
-RETURN     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state NEW /* out: DNS lookups */ 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */ 
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     all  --  0.0.0.0/0            0.0.0.0/0           state related,established /* out: existing and related (ftp) connections */
+return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state new /* out: dns lookups */
+drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 

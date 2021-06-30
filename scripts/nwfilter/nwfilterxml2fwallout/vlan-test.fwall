@@ -1,14 +1,14 @@
 #ebtables -t nat -L libvirt-I-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
--p 802_1Q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 291 -j CONTINUE 
--p 802_1Q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 1234 -j RETURN 
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 2054 -j DROP 
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 4660 -j ACCEPT 
+-p 802_1q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 291 -j continue
+-p 802_1q -s aa:bb:cc:dd:ee:ff -d 1:2:3:4:5:6 --vlan-id 1234 -j return
+-p 802_1q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 2054 -j drop
+-p 802_1q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-encap 4660 -j accept
 #ebtables -t nat -L libvirt-O-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j CONTINUE 
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 1234 -j RETURN 
--p 802_1Q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j DROP 
+-p 802_1q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j continue
+-p 802_1q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 1234 -j return
+-p 802_1q -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --vlan-id 291 -j drop
 #ebtables -t nat -L PREROUTING | grep vnet0
--i vnet0 -j libvirt-I-vnet0
+-i vnet0 -j libvirt-i-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0
--o vnet0 -j libvirt-O-vnet0
+-o vnet0 -j libvirt-o-vnet0
 

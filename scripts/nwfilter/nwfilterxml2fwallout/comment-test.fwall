@@ -1,77 +1,77 @@
 #ebtables -t nat -L PREROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
--i vnet0 -j libvirt-I-vnet0
+-i vnet0 -j libvirt-i-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
--o vnet0 -j libvirt-O-vnet0
+-o vnet0 -j libvirt-o-vnet0
 #ebtables -t nat -L libvirt-I-vnet0 | sed 's#/ffff:ffff:ffff:ffff:ffff:ffff:ffff:8000#/113#g' | sed 's#/ffff:fc00::#/22#g' | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | sed s/0a:0b:0c:0d:0e:0f/a:b:c:d:e:f/g | grep -v "^Bridge" | grep -v "^$"
--p IPv4 -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --ip-src 10.1.2.3 --ip-dst 10.1.2.3 --ip-tos 0x32 --ip-proto udp --ip-sport 291:564 --ip-dport 13398:17767 -j ACCEPT 
--p IPv6 -s 1:2:3:4:5:6/ff:ff:ff:ff:ff:fe -d aa:bb:cc:dd:ee:80/ff:ff:ff:ff:ff:80 --ip6-src ::/22 --ip6-dst ::10.1.0.0/113 --ip6-proto tcp --ip6-sport 273:400 --ip6-dport 13107:65535 -j ACCEPT
--p ARP -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --arp-op Request --arp-htype 18 --arp-ptype 0x56 --arp-mac-src 1:2:3:4:5:6 --arp-mac-dst a:b:c:d:e:f -j ACCEPT 
+-p ipv4 -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --ip-src 10.1.2.3 --ip-dst 10.1.2.3 --ip-tos 0x32 --ip-proto udp --ip-sport 291:564 --ip-dport 13398:17767 -j accept
+-p ipv6 -s 1:2:3:4:5:6/ff:ff:ff:ff:ff:fe -d aa:bb:cc:dd:ee:80/ff:ff:ff:ff:ff:80 --ip6-src ::/22 --ip6-dst ::10.1.0.0/113 --ip6-proto tcp --ip6-sport 273:400 --ip6-dport 13107:65535 -j accept
+-p arp -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --arp-op request --arp-htype 18 --arp-ptype 0x56 --arp-mac-src 1:2:3:4:5:6 --arp-mac-dst a:b:c:d:e:f -j accept
 #ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
--p 0x1234 -j ACCEPT 
+-p 0x1234 -j accept
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 state new,established ctdir reply/* udp rule */
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     udp  --  10.1.2.3             0.0.0.0/0           DSCP match 0x22udp spts:564:1092 dpts:291:400 state ESTABLISHED ctdir ORIGINAL/* udp rule */
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     udp  --  10.1.2.3             0.0.0.0/0           dscp match 0x22udp spts:564:1092 dpts:291:400 state established ctdir original/* udp rule */
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     udp  --  0.0.0.0/0            10.1.2.3            MAC 01:02:03:04:05:06 DSCP match 0x22udp spts:291:400 dpts:564:1092 state NEW,ESTABLISHED ctdir REPLY/* udp rule */
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 state new,established ctdir reply/* udp rule */
 #iptables -L libvirt-host-in -n | grep HI-vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep FI-vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #ip6tables -L FI-vnet0 -n | sed 's/\/128/    /'
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp      ::/0                 a:b:c::             DSCP match 0x39 tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */
-RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
-RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */
-RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 state established ctdir original/* tcp/ipv6 rule */
+return     udp      ::/0                 ::/0                state established ctdir original/* `ls`;${columns};$(ls);"test";&'3   spaces' */
+return     sctp     ::/0                 ::/0                state established ctdir original/* comment with lone ', `, ", `, \, $x, and two  spaces */
+return     ah       ::/0                 ::/0                state established ctdir original/* tmp=`mktemp`; echo ${random} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L FO-vnet0 -n | sed 's/\/128/    /'
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     tcp      a:b:c::              ::/0                MAC 01:02:03:04:05:06 DSCP match 0x39 tcp spts:32:33 dpts:256:4369 state NEW,ESTABLISHED ctdir REPLY/* tcp/ipv6 rule */
-ACCEPT     udp      ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
-ACCEPT     sctp     ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* comment with lone ', `, ", `, \, $x, and two  spaces */
-ACCEPT     ah       ::/0                 ::/0                state NEW,ESTABLISHED ctdir REPLY/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     tcp      a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x39 tcp spts:32:33 dpts:256:4369 state new,established ctdir reply/* tcp/ipv6 rule */
+accept     udp      ::/0                 ::/0                state new,established ctdir reply/* `ls`;${columns};$(ls);"test";&'3   spaces' */
+accept     sctp     ::/0                 ::/0                state new,established ctdir reply/* comment with lone ', `, ", `, \, $x, and two  spaces */
+accept     ah       ::/0                 ::/0                state new,established ctdir reply/* tmp=`mktemp`; echo ${random} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L HI-vnet0 -n | sed 's/\/128/    /'
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp      ::/0                 a:b:c::             DSCP match 0x39 tcp spts:256:4369 dpts:32:33 state ESTABLISHED ctdir ORIGINAL/* tcp/ipv6 rule */
-RETURN     udp      ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* `ls`;${COLUMNS};$(ls);"test";&'3   spaces' */
-RETURN     sctp     ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* comment with lone ', `, ", `, \, $x, and two  spaces */
-RETURN     ah       ::/0                 ::/0                state ESTABLISHED ctdir ORIGINAL/* tmp=`mktemp`; echo ${RANDOM} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 state established ctdir original/* tcp/ipv6 rule */
+return     udp      ::/0                 ::/0                state established ctdir original/* `ls`;${columns};$(ls);"test";&'3   spaces' */
+return     sctp     ::/0                 ::/0                state established ctdir original/* comment with lone ', `, ", `, \, $x, and two  spaces */
+return     ah       ::/0                 ::/0                state established ctdir original/* tmp=`mktemp`; echo ${random} > ${tmp} ; cat < ${tmp}; rm -f ${tmp} */
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
 #ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
 #ip6tables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all      ::/0                 ::/0                PHYSDEV match --physdev-in vnet0 
+accept     all      ::/0                 ::/0                physdev match --physdev-in vnet0
 #ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #ip6tables -L INPUT -n --line-numbers | grep libvirt
-1    libvirt-host-in  all      ::/0                 ::/0                
+1    libvirt-host-in  all      ::/0                 ::/0
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
 #ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
 #ip6tables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all      ::/0                 ::/0                PHYSDEV match --physdev-in vnet0 
+accept     all      ::/0                 ::/0                physdev match --physdev-in vnet0
 #ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all ::/0 ::/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged

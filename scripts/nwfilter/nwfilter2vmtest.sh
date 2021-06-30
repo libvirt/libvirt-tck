@@ -186,6 +186,12 @@ checkExpectedOutput() {
         #state
         sed -i "s/ctstate/state/" ${tmpfile}
 
+        # there was a problem in some version of ebtables that MAC addresses
+        # formatted in uppercase breaking some of the tests; prevent these
+        # breakages by converting the ebtables output to lowercase (test
+        # outputs were already treated this way)
+        sed -i "s/[A-Z]/\L&/g" "${tmpfile}"
+
         diff -w ${tmpfile} ${tmpfile2} >/dev/null
 
         if [ $? -ne 0 ]; then

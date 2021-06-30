@@ -1,31 +1,31 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02tcp spt:80 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02tcp spt:90 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02tcp spt:80 state new,established ctdir reply
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x02tcp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x02tcp dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x02tcp dpt:80 state ESTABLISHED ctdir ORIGINAL
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x02tcp dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02tcp dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x02tcp dpt:80 state established ctdir original
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02tcp spt:80 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02tcp spt:90 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02tcp spt:80 state new,established ctdir reply
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #iptables -L FORWARD -n --line-number | grep libvirt
-1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0           
-2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0           
-3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0           
+1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0
+2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0
+3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0
 

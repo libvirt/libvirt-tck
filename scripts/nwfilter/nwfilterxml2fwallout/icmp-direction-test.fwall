@@ -1,23 +1,23 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 8 state NEW,ESTABLISHED 
-DROP       icmp --  0.0.0.0/0            0.0.0.0/0           
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 8 state new,established
+drop       icmp --  0.0.0.0/0            0.0.0.0/0
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 0 state NEW,ESTABLISHED 
-DROP       icmp --  0.0.0.0/0            0.0.0.0/0           
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 0 state new,established
+drop       icmp --  0.0.0.0/0            0.0.0.0/0
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 8 state NEW,ESTABLISHED 
-DROP       icmp --  0.0.0.0/0            0.0.0.0/0           
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     icmp --  0.0.0.0/0            0.0.0.0/0           icmp type 8 state new,established
+drop       icmp --  0.0.0.0/0            0.0.0.0/0
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged

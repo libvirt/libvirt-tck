@@ -1,10 +1,10 @@
 #ebtables -t nat -L PREROUTING | grep vnet0
--i vnet0 -j libvirt-I-vnet0
+-i vnet0 -j libvirt-i-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0
--o vnet0 -j libvirt-O-vnet0
+-o vnet0 -j libvirt-o-vnet0
 #ebtables -t nat -L libvirt-I-vnet0 | sed s/01:02:03:04:05:06/1:2:3:4:5:6/g | grep -v "^Bridge" | grep -v "^$"
--p IPv4 -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --ip-src 10.1.2.3 --ip-dst 10.1.2.3 --ip-proto udp --ip-sport 20:22 --ip-dport 100:101 -j ACCEPT 
--p IPv4 --ip-src 10.1.0.0/17 --ip-dst 10.1.2.0/24 --ip-tos 0x3F --ip-proto udp -j ACCEPT 
+-p ipv4 -s 1:2:3:4:5:6 -d aa:bb:cc:dd:ee:ff --ip-src 10.1.2.3 --ip-dst 10.1.2.3 --ip-proto udp --ip-sport 20:22 --ip-dport 100:101 -j accept
+-p ipv4 --ip-src 10.1.0.0/17 --ip-dst 10.1.2.0/24 --ip-tos 0x3f --ip-proto udp -j accept
 #ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
--p IPv4 --ip-src 10.1.2.2/31 --ip-dst 10.1.2.0/25 --ip-tos 0x3F --ip-proto 255 -j ACCEPT
+-p ipv4 --ip-src 10.1.2.2/31 --ip-dst 10.1.2.0/25 --ip-tos 0x3f --ip-proto 255 -j accept
 

@@ -1,193 +1,193 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x01tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              1.1.1.1             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              2.2.2.2             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              3.3.3.3             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x01tcp spt:90 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x01tcp spt:80 state new,established ctdir reply
+return     udp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     udp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     udp  --  1.1.1.1              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  1.1.1.1              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  1.1.1.1              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     sctp --  1.1.1.1              1.1.1.1             dscp match 0x06state new,established ctdir reply
+return     sctp --  2.2.2.2              2.2.2.2             dscp match 0x06state new,established ctdir reply
+return     sctp --  3.3.3.3              3.3.3.3             dscp match 0x06state new,established ctdir reply
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x01tcp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x01tcp dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x01tcp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x02udp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x02udp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x02udp dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x02udp dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x02udp dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x02udp dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            1.1.1.1             DSCP match 0x03sctp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            2.2.2.2             DSCP match 0x03sctp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            3.3.3.3             DSCP match 0x03sctp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            1.1.1.1             DSCP match 0x03sctp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            2.2.2.2             DSCP match 0x03sctp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            3.3.3.3             DSCP match 0x03sctp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            1.1.1.1             DSCP match 0x03sctp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            2.2.2.2             DSCP match 0x03sctp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            3.3.3.3             DSCP match 0x03sctp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            1.1.1.1             DSCP match 0x03sctp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            2.2.2.2             DSCP match 0x03sctp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  0.0.0.0/0            3.3.3.3             DSCP match 0x03sctp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1080 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1080 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1080 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1080 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1090 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1090 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1090 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1090 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1100 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1100 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1100 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1100 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1110 dpt:80 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            1.1.1.1             DSCP match 0x04tcp spt:1110 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            2.2.2.2             DSCP match 0x04tcp spt:1110 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     tcp  --  0.0.0.0/0            3.3.3.3             DSCP match 0x04tcp spt:1110 dpt:90 state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  1.1.1.1              1.1.1.1             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  1.1.1.1              2.2.2.2             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  1.1.1.1              3.3.3.3             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  2.2.2.2              1.1.1.1             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  2.2.2.2              2.2.2.2             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  2.2.2.2              3.3.3.3             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  3.3.3.3              1.1.1.1             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  3.3.3.3              2.2.2.2             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     udp  --  3.3.3.3              3.3.3.3             DSCP match 0x05state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  1.1.1.1              1.1.1.1             DSCP match 0x06state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  2.2.2.2              2.2.2.2             DSCP match 0x06state ESTABLISHED ctdir ORIGINAL
-ACCEPT     sctp --  3.3.3.3              3.3.3.3             DSCP match 0x06state ESTABLISHED ctdir ORIGINAL
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x01tcp dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x01tcp dpt:80 state established ctdir original
+accept     udp  --  0.0.0.0/0            1.1.1.1             dscp match 0x02udp dpt:80 state established ctdir original
+accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:80 state established ctdir original
+accept     udp  --  0.0.0.0/0            3.3.3.3             dscp match 0x02udp dpt:80 state established ctdir original
+accept     udp  --  0.0.0.0/0            1.1.1.1             dscp match 0x02udp dpt:90 state established ctdir original
+accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:90 state established ctdir original
+accept     udp  --  0.0.0.0/0            3.3.3.3             dscp match 0x02udp dpt:90 state established ctdir original
+accept     sctp --  0.0.0.0/0            1.1.1.1             dscp match 0x03sctp spt:1080 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1080 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            3.3.3.3             dscp match 0x03sctp spt:1080 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            1.1.1.1             dscp match 0x03sctp spt:1090 dpt:90 state established ctdir original
+accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1090 dpt:90 state established ctdir original
+accept     sctp --  0.0.0.0/0            3.3.3.3             dscp match 0x03sctp spt:1090 dpt:90 state established ctdir original
+accept     sctp --  0.0.0.0/0            1.1.1.1             dscp match 0x03sctp spt:1100 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1100 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            3.3.3.3             dscp match 0x03sctp spt:1100 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            1.1.1.1             dscp match 0x03sctp spt:1110 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1110 dpt:80 state established ctdir original
+accept     sctp --  0.0.0.0/0            3.3.3.3             dscp match 0x03sctp spt:1110 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1080 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1080 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1080 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1080 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1080 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1080 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1090 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1090 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1090 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1090 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1090 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1090 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1100 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1100 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1100 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1100 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1100 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1100 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1110 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1110 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1110 dpt:80 state established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x04tcp spt:1110 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            2.2.2.2             dscp match 0x04tcp spt:1110 dpt:90 state established ctdir original
+accept     tcp  --  0.0.0.0/0            3.3.3.3             dscp match 0x04tcp spt:1110 dpt:90 state established ctdir original
+accept     udp  --  1.1.1.1              1.1.1.1             dscp match 0x05state established ctdir original
+accept     udp  --  1.1.1.1              2.2.2.2             dscp match 0x05state established ctdir original
+accept     udp  --  1.1.1.1              3.3.3.3             dscp match 0x05state established ctdir original
+accept     udp  --  2.2.2.2              1.1.1.1             dscp match 0x05state established ctdir original
+accept     udp  --  2.2.2.2              2.2.2.2             dscp match 0x05state established ctdir original
+accept     udp  --  2.2.2.2              3.3.3.3             dscp match 0x05state established ctdir original
+accept     udp  --  3.3.3.3              1.1.1.1             dscp match 0x05state established ctdir original
+accept     udp  --  3.3.3.3              2.2.2.2             dscp match 0x05state established ctdir original
+accept     udp  --  3.3.3.3              3.3.3.3             dscp match 0x05state established ctdir original
+accept     sctp --  1.1.1.1              1.1.1.1             dscp match 0x06state established ctdir original
+accept     sctp --  2.2.2.2              2.2.2.2             dscp match 0x06state established ctdir original
+accept     sctp --  3.3.3.3              3.3.3.3             dscp match 0x06state established ctdir original
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x01tcp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x01tcp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02udp spt:80 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x02udp spt:90 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              0.0.0.0/0           DSCP match 0x03sctp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1080 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1090 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1100 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:80 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  1.1.1.1              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  2.2.2.2              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     tcp  --  3.3.3.3              0.0.0.0/0           DSCP match 0x04tcp spt:90 dpt:1110 state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              1.1.1.1             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              2.2.2.2             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  1.1.1.1              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  2.2.2.2              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     udp  --  3.3.3.3              3.3.3.3             DSCP match 0x05state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  1.1.1.1              1.1.1.1             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  2.2.2.2              2.2.2.2             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
-RETURN     sctp --  3.3.3.3              3.3.3.3             DSCP match 0x06state NEW,ESTABLISHED ctdir REPLY
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x01tcp spt:90 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x01tcp spt:80 state new,established ctdir reply
+return     udp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02udp spt:80 state new,established ctdir reply
+return     udp  --  1.1.1.1              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     udp  --  3.3.3.3              0.0.0.0/0           dscp match 0x02udp spt:90 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1080 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:90 dpt:1090 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 state new,established ctdir reply
+return     sctp --  1.1.1.1              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     sctp --  3.3.3.3              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1080 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1080 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1090 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1090 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1100 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1100 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:80 dpt:1110 state new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     tcp  --  2.2.2.2              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     tcp  --  3.3.3.3              0.0.0.0/0           dscp match 0x04tcp spt:90 dpt:1110 state new,established ctdir reply
+return     udp  --  1.1.1.1              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              1.1.1.1             dscp match 0x05state new,established ctdir reply
+return     udp  --  1.1.1.1              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              2.2.2.2             dscp match 0x05state new,established ctdir reply
+return     udp  --  1.1.1.1              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     udp  --  2.2.2.2              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     udp  --  3.3.3.3              3.3.3.3             dscp match 0x05state new,established ctdir reply
+return     sctp --  1.1.1.1              1.1.1.1             dscp match 0x06state new,established ctdir reply
+return     sctp --  2.2.2.2              2.2.2.2             dscp match 0x06state new,established ctdir reply
+return     sctp --  3.3.3.3              3.3.3.3             dscp match 0x06state new,established ctdir reply
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #iptables -L FORWARD -n --line-number | grep libvirt
-1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0           
-2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0           
-3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0           
+1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0
+2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0
+3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0
 

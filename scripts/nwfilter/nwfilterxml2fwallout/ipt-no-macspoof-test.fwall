@@ -1,19 +1,19 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
-target     prot opt source               destination         
+chain fi-vnet0 (1 references)
+target     prot opt source               destination
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
-target     prot opt source               destination         
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           MAC ! 12:34:56:78:9A:BC 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           MAC ! AA:AA:AA:AA:AA:AA 
+chain fo-vnet0 (1 references)
+target     prot opt source               destination
+drop       all  --  0.0.0.0/0            0.0.0.0/0           mac ! 12:34:56:78:9a:bc
+drop       all  --  0.0.0.0/0            0.0.0.0/0           mac ! aa:aa:aa:aa:aa:aa
 #iptables -L HI-vnet0
-Chain HI-vnet0 (1 references)
-target     prot opt source               destination         
+chain hi-vnet0 (1 references)
+target     prot opt source               destination
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0 
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0 
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged

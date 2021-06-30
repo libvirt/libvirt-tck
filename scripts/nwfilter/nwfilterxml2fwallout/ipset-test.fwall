@@ -1,38 +1,38 @@
 #iptables -L FI-vnet0 -n
-Chain FI-vnet0 (1 references)
+chain fi-vnet0 (1 references)
 target     prot opt source               destination
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED ctdir REPLY match-set tck_test src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* out+NONE */
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test dst,src /* inout */
+return     all  --  0.0.0.0/0            0.0.0.0/0            state new,established ctdir reply match-set tck_test src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* out+none */
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src
+return     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test dst,src /* inout */
 #iptables -L FO-vnet0 -n
-Chain FO-vnet0 (1 references)
+chain fo-vnet0 (1 references)
 target     prot opt source               destination
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* in+NONE */
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED ctdir REPLY match-set tck_test src,dst,src
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED ctdir REPLY match-set tck_test src,dst,src
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED ctdir REPLY match-set tck_test src,dst
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* inout */
+accept     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src
+accept     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* in+none */
+accept     all  --  0.0.0.0/0            0.0.0.0/0            state new,established ctdir reply match-set tck_test src,dst,src
+accept     all  --  0.0.0.0/0            0.0.0.0/0            state new,established ctdir reply match-set tck_test src,dst,src
+accept     all  --  0.0.0.0/0            0.0.0.0/0            state new,established ctdir reply match-set tck_test src,dst
+accept     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* inout */
 #iptables -L HI-vnet0 -n
-Chain HI-vnet0 (1 references)
+chain hi-vnet0 (1 references)
 target     prot opt source               destination
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state NEW,ESTABLISHED ctdir REPLY match-set tck_test src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* out+NONE */
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src,dst
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED ctdir ORIGINAL match-set tck_test dst,src
-RETURN     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test dst,src /* inout */
+return     all  --  0.0.0.0/0            0.0.0.0/0            state new,established ctdir reply match-set tck_test src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test src,dst /* out+none */
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src,dst
+return     all  --  0.0.0.0/0            0.0.0.0/0            state established ctdir original match-set tck_test dst,src
+return     all  --  0.0.0.0/0            0.0.0.0/0            match-set tck_test dst,src /* inout */
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-HI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0
+hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-FI-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-in vnet0
+fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in-post -n | grep vnet0
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           PHYSDEV match --physdev-in vnet0
+accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
 #iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-FO-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] PHYSDEV match --physdev-out vnet0 --physdev-is-bridged
+fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
 #ebtables -t nat -L libvirt-O-vnet0 2>/dev/null | grep -v "table:" | grep -v "^$"
 #ebtables -t nat -L libvirt-I-vnet0 2>/dev/null | grep -v "table:" | grep -v "^$"
 #ebtables -t nat -L PREROUTING | grep vnet0

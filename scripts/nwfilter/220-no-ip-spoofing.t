@@ -100,10 +100,8 @@ echo "DEV=\\\$(ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://
 MASK=\\\$(ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q')
 ip addr show \\\$DEV
 kill \\\$(pidof dhclient)
-ip link set \\\$DEV down
 ip addr flush dev \\\$DEV
 ip addr add ${spoofipaddr}/\\\$MASK dev \\\$DEV
-ip link set \\\$DEV up
 ip addr show \\\$DEV
 sleep 1
 ping -c 1 ${networkipaddr}

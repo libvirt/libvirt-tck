@@ -133,7 +133,7 @@ diag "Exit Code: $?";
 
 # now stop tcpdump and verify result
 diag "stopping tcpdump";
-system("kill -15 `/sbin/pidof tcpdump`");
+system("kill -15 `pidof tcpdump`");
 diag "tcpdump.log:";
 my $tcpdumplog = `cat /tmp/tcpdump.log`;
 diag($tcpdumplog);

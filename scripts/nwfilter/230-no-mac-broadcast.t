@@ -146,7 +146,7 @@ diag "Exit Code: $?";
 
 # now stop tcpdump and verify result
 diag "stopping tcpdump";
-system("kill -15 `/sbin/pidof tcpdump`");
+system("kill -15 `pidof tcpdump`");
 my $tcpdumplog = `cat /tmp/tcpdump.log`;
 diag($tcpdumplog);
 ok($tcpdumplog =~ "0 packets captured", "tcpdump expected to capture no packets");

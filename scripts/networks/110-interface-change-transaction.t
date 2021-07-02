@@ -51,6 +51,7 @@ unlink $test_interface_cfg if -f $test_interface_cfg;
 
 eval { $conn->interface_change_begin(); };
 SKIP: {
+    skip "$network_script_dir not available on this platform", 2 unless -d $network_script_dir;
     skip "interface_change_begin/commit/rollback not implemented", 2 if $@ && err_not_implemented($@);
 
     $ret = system("cat <<EOF > $test_interface_cfg

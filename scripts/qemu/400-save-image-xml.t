@@ -97,7 +97,7 @@ SKIP:{
             # scenario 3 - get/define xml from invalid domain save image
             unlink $savefile if -f $savefile;
             diag "Creating an invalid save img file";
-            `dd if=/dev/null of=$savefile bs=1M count=100 &>/dev/null`;
+            `truncate -s 100M $savefile &>/dev/null`;
             ok($? == 0, "created 100M raw img file: $savefile");
             diag "Getting xml from invalid save image";
             ok_error(sub { $conn->get_save_image_xml_description($savefile, 0) }, "failed to get invalid domain save image xml" );

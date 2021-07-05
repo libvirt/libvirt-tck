@@ -2,7 +2,7 @@
 #
 #  $ lcitool dockerfile fedora-rawhide libvirt+minimal,libvirt-perl,libvirt-tck
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/6552fd8885423cfc383a58255eca542937f7d4ea
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
 
 FROM registry.fedoraproject.org/fedora:rawhide
 
@@ -37,7 +37,6 @@ exec "$@"' > /usr/bin/nosync && \
         make \
         meson \
         ninja-build \
-        perl \
         perl-Archive-Tar \
         perl-CPAN-Changes \
         perl-Config-Record \
@@ -49,6 +48,7 @@ exec "$@"' > /usr/bin/nosync && \
         perl-Module-Build \
         perl-NetAddr-IP \
         perl-Sub-Uplevel \
+        perl-Sys-Hostname \
         perl-TAP-Formatter-HTML \
         perl-TAP-Formatter-JUnit \
         perl-TAP-Harness-Archive \
@@ -61,6 +61,7 @@ exec "$@"' > /usr/bin/nosync && \
         perl-XML-Writer \
         perl-XML-XPath \
         perl-accessors \
+        perl-base \
         perl-generators \
         pkgconfig \
         python3 \

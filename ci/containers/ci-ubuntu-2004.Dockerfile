@@ -2,7 +2,7 @@
 #
 #  $ lcitool dockerfile ubuntu-2004 libvirt+minimal,libvirt-perl,libvirt-tck
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/6552fd8885423cfc383a58255eca542937f7d4ea
+# https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
 
 FROM docker.io/library/ubuntu:20.04
 
@@ -18,10 +18,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             gettext \
             git \
             libaccessors-perl \
+            libarchive-tar-perl \
             libc-dev-bin \
             libc6-dev \
             libconfig-record-perl \
             libcpan-changes-perl \
+            libdigest-perl \
             libdigest-perl-md5-perl \
             libfile-slurp-perl \
             libglib2.0-dev \
@@ -50,7 +52,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             locales \
             make \
             ninja-build \
-            perl \
+            perl-base \
             pkgconf \
             python3 \
             python3-docutils \

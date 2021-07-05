@@ -1,0 +1,19 @@
+projects:
+  - libvirt-tck
+  - libvirt-perl
+  - libvirt+minimal
+
+gitlab:
+  namespace: libvirt
+  project: libvirt-tck
+
+targets:
+  centos-8:
+    jobs:
+      - arch: x86_64
+        variables:
+          RPM: skip
+
+  fedora-rawhide: x86_64
+
+  ubuntu-2004: x86_64

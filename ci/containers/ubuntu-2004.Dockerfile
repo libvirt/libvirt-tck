@@ -1,6 +1,6 @@
 # THIS FILE WAS AUTO-GENERATED
 #
-#  $ lcitool dockerfile ubuntu-2004 libvirt+minimal,libvirt-perl,libvirt-tck
+#  $ lcitool manifest ci/manifest.yml
 #
 # https://gitlab.com/libvirt/libvirt-ci/-/commit/5093d9474cc7e391455e381f437f478b3e077f32
 

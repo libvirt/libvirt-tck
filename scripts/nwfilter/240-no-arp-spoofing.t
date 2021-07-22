@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # -*- perl -*-
 #
 # Copyright (C) 2010 IBM Corp.

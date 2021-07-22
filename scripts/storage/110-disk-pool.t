@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # -*- perl -*-
 #
 # Copyright (C) 2009-2010 Red Hat, Inc

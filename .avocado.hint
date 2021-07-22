@@ -1,0 +1,6 @@
+[kinds]
+tap = ./scripts/*/*.t
+
+[tap]
+uri = $testpath
+kwargs = PERL5LIB=./lib,LIBVIRT_TCK_CONFIG=./conf/default.yml,LIBVIRT_TCK_AUTOCLEAN=1

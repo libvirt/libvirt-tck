@@ -40,3 +40,19 @@ libvirt TCK
 -----------
 
 - functional/integration testing of the 'live' drivers
+
+Running with Avocado
+--------------------
+
+In order to run those tests with the Avocado framework, you can execute:
+
+``$ avocado --config avocado.config run ./scripts/domain/*.t``
+
+If you would like to see results in tap, run:
+
+``$ avocado --config avocado.config run --tap - ./scripts/domain/*.t``
+
+Debugging errors
+~~~~~~~~~~~~~~~~
+
+Visit ``~avocado/job-results/latest/`` folder to see details and debug files.

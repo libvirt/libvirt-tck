@@ -21,7 +21,7 @@ META.yml
 perl-Sys-Virt-TCK.spec
 perl-Sys-Virt-TCK.spec.PL
 prepare-release.sh
-README
+README.rst
 scripts/domain/050-transient-lifecycle.t
 scripts/domain/051-transient-autostart.t
 scripts/domain/060-persistent-lifecycle.t

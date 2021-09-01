@@ -413,7 +413,8 @@ sub as_xml {
         my @driver = ();
         if ($self->{type} eq "qemu" ||
             $self->{type} eq "kvm") {
-            push @driver, "cache", "none";
+            push @driver, "cache",
+                 $disk->{cache} ? $disk->{cache} : "none";
         }
         if ($disk->{format}) {
             push @driver, "name", $disk->{format}->{name},

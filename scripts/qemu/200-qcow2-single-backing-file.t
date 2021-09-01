@@ -112,7 +112,8 @@ SKIP: {
 	->disk(format => { name => "qemu", type => "raw" },
 	       type => "file",
 	       src => $pathmain,
-	       dst => "vdb")
+	       dst => "vdb",
+	       cache => "unsafe")
 	->as_xml;
 
     diag "Defining an inactive domain config $xml";

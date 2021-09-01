@@ -133,7 +133,8 @@ SKIP: {
     $xml = $tck->generic_domain(name => "tck")
 	->disk(type => "file",
 	       src => $pathmain,
-	       dst => "vdb")
+	       dst => "vdb",
+	       cache => "unsafe")
 	->as_xml;
 
     diag "Defining an inactive domain config $xml";

@@ -2,9 +2,9 @@
 #
 # Which driver to test. If not set, then driver is
 # auto probed
-#uri: "qemu:///system"
+uri: "qemu:///system"
 #uri: "xen:///"
-uri: "qemu:///session"
+#uri: "qemu:///session"
 
 #
 # To enable migration tests, set 'otheruri' to a URI

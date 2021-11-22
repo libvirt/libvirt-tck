@@ -5,8 +5,7 @@ VIRSH=virsh
 # For each line starting with uri=, remove the prefix and set the hold
 # space to the rest of the line.  Then at file end, print the hold
 # space, which is effectively the last uri= line encountered.
-uri=$(sed -n '/^uri[ ]*:[ ]*/ {s///; h}; $ {x; p}' \
-    < "$LIBVIRT_TCK_CONFIG" | sed -e 's/"//g')
+uri=$(sed -n '/^uri[ ]*:[ ]*/ {s///; s/"//g; h}; $ {x; p}' < "$LIBVIRT_TCK_CONFIG")
 : "${uri:=qemu:///system}"
 
 LIBVIRT_URI=${uri}

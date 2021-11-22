@@ -1,5 +1,5 @@
 #!/bin/sh
 
-pwd=$(dirname -- "$0")
+cwd=$(dirname -- "$0")
 
-(cd -- "${pwd}"; sh ./networkApplyTest.sh --tap-test)
+(cd -- "${cwd}"; sh ./networkApplyTest.sh --tap-test)

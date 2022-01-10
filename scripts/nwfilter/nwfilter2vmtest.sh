@@ -6,17 +6,11 @@ TESTFILTERNAME="nwfiltertestfilter"
 TESTVM2FWALLDATA="nwfilterxml2fwallout/testvm.fwall.dat"
 VIRSH=virsh
 
-# For each line starting with uri=, remove the prefix and set the hold
-# space to the rest of the line.  Then at file end, print the hold
-# space, which is effectively the last uri= line encountered.
-[ -r "$LIBVIRT_TCK_CONFIG" ] && uri=$(sed -n '/^uri[     ]*=[     ]*/ {
-  s///
-  h
-}
-$ {
-  x
-  p
-}' < "$LIBVIRT_TCK_CONFIG" | sed -e 's/"//g')
+PATTERN="^uri[ ]*:[ ]*"
+uri=$(grep -E "$PATTERN" "$LIBVIRT_TCK_CONFIG" | \
+      sed "/$PATTERN/ {s///;s/\"//g}" | \
+      tail -1)
+
 : "${uri:=qemu:///system}"
 
 LIBVIRT_URI=${uri}

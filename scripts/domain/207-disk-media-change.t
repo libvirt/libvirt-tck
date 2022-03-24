@@ -29,7 +29,8 @@ on a CDROM disk in a running domain.
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+#use Test::More tests => 7;
+use Test::More skip_all => "Disabled until https://gitlab.com/qemu-project/qemu/-/issues/933 is resolved"
 
 use Sys::Virt::TCK;
 use Test::Exception;

@@ -2,7 +2,7 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/c5bde43affd9a5fea0c06542d71e708ac1bd6153
+# https://gitlab.com/libvirt/libvirt-ci
 
 FROM docker.io/library/ubuntu:20.04
 
@@ -24,6 +24,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
             libcpan-changes-perl \
             libdigest-perl \
             libdigest-perl-md5-perl \
+            libextutils-cbuilder-perl \
             libfile-slurp-perl \
             libglib2.0-dev \
             libgnutls28-dev \
@@ -69,8 +70,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/gcc
 
-RUN pip3 install \
-         meson==0.56.0
+RUN pip3 install meson==0.56.0
 
 ENV LANG "en_US.UTF-8"
 ENV MAKE "/usr/bin/make"

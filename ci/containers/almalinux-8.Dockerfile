@@ -2,9 +2,9 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/c5bde43affd9a5fea0c06542d71e708ac1bd6153
+# https://gitlab.com/libvirt/libvirt-ci
 
-FROM docker.io/library/centos:8
+FROM docker.io/library/almalinux:8
 
 RUN dnf update -y && \
     dnf install 'dnf-command(config-manager)' -y && \
@@ -28,6 +28,7 @@ RUN dnf update -y && \
         libxml2-devel \
         libxslt \
         make \
+        meson \
         ninja-build \
         perl \
         perl-App-cpanminus \
@@ -35,6 +36,7 @@ RUN dnf update -y && \
         perl-CPAN-Changes \
         perl-Digest \
         perl-Digest-MD5 \
+        perl-ExtUtils-CBuilder \
         perl-File-Slurp \
         perl-IO-Compress-Bzip2 \
         perl-IO-String \
@@ -53,9 +55,6 @@ RUN dnf update -y && \
         pkgconfig \
         python3 \
         python3-docutils \
-        python3-pip \
-        python3-setuptools \
-        python3-wheel \
         rpcgen \
         rpm-build && \
     dnf autoremove -y && \
@@ -64,9 +63,6 @@ RUN dnf update -y && \
     mkdir -p /usr/libexec/ccache-wrappers && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/gcc
-
-RUN pip3 install \
-         meson==0.56.0
 
 RUN cpanm --notest \
           LWP::UserAgent \

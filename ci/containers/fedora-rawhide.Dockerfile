@@ -2,7 +2,7 @@
 #
 #  $ lcitool manifest ci/manifest.yml
 #
-# https://gitlab.com/libvirt/libvirt-ci/-/commit/c5bde43affd9a5fea0c06542d71e708ac1bd6153
+# https://gitlab.com/libvirt/libvirt-ci
 
 FROM registry.fedoraproject.org/fedora:rawhide
 
@@ -17,7 +17,7 @@ else\n\
 fi\n\
 exec "$@"' > /usr/bin/nosync && \
     chmod +x /usr/bin/nosync && \
-    nosync dnf update -y && \
+    nosync dnf distro-sync -y && \
     nosync dnf install -y \
         ca-certificates \
         ccache \
@@ -41,6 +41,7 @@ exec "$@"' > /usr/bin/nosync && \
         perl-CPAN-Changes \
         perl-Digest \
         perl-Digest-MD5 \
+        perl-ExtUtils-CBuilder \
         perl-File-Slurp \
         perl-IO-Compress-Bzip2 \
         perl-IO-String \

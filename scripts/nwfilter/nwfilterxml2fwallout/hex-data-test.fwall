@@ -11,15 +11,15 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 state new,established ctdir reply
+return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 ctstate new,established ctdir reply
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     udp  --  10.1.2.3             0.0.0.0/0           dscp match 0x22udp spts:564:1092 dpts:291:400 state established ctdir original
+accept     udp  --  10.1.2.3             0.0.0.0/0           dscp match 0x22udp spts:564:1092 dpts:291:400 ctstate established ctdir original
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 state new,established ctdir reply
+return     udp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x22udp spts:291:400 dpts:564:1092 ctstate new,established ctdir reply
 #iptables -L libvirt-host-in -n | grep HI-vnet0 | tr -s " "
 hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep FI-vnet0 | tr -s " "
@@ -31,15 +31,15 @@ fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --p
 #ip6tables -L FI-vnet0 -n | sed 's/\/128/    /'
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 state established ctdir original
+return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 ctstate established ctdir original
 #ip6tables -L FO-vnet0 -n | sed 's/\/128/    /'
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     tcp      a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x39 tcp spts:32:33 dpts:256:4369 state new,established ctdir reply
+accept     tcp      a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x39 tcp spts:32:33 dpts:256:4369 ctstate new,established ctdir reply
 #ip6tables -L HI-vnet0 -n | sed 's/\/128/    /'
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 state established ctdir original
+return     tcp      ::/0                 a:b:c::             dscp match 0x39 tcp spts:256:4369 dpts:32:33 ctstate established ctdir original
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 hi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
 #ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "

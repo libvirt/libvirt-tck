@@ -1,20 +1,20 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     all  --  0.0.0.0/0            0.0.0.0/0           state related,established /* out: existing and related (ftp) connections */
-return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state new /* out: dns lookups */
+return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate related,established /* out: existing and related (ftp) connections */
+return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 ctstate new /* out: dns lookups */
 drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     all  --  0.0.0.0/0            0.0.0.0/0           state established /* in: existing connections */
-accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpts:21:22 state new /* in: ftp and ssh */
-accept     icmp --  0.0.0.0/0            0.0.0.0/0           state new /* in: icmp */
+accept     all  --  0.0.0.0/0            0.0.0.0/0           ctstate established /* in: existing connections */
+accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpts:21:22 ctstate new /* in: ftp and ssh */
+accept     icmp --  0.0.0.0/0            0.0.0.0/0           ctstate new /* in: icmp */
 drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     all  --  0.0.0.0/0            0.0.0.0/0           state related,established /* out: existing and related (ftp) connections */
-return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 state new /* out: dns lookups */
+return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate related,established /* out: existing and related (ftp) connections */
+return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 ctstate new /* out: dns lookups */
 drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
 

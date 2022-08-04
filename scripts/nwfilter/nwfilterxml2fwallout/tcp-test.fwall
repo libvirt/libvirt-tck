@@ -1,13 +1,13 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply
+return     tcp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply
 return     tcp  --  0.0.0.0/0            10.1.2.3            dscp match 0x21tcp spts:100:1111 dpts:20:21
 return     tcp  --  0.0.0.0/0            10.1.2.3            dscp match 0x3ftcp spt:65535 dpts:255:256
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     tcp  --  10.1.2.3             0.0.0.0/0           dscp match 0x02state established ctdir original
+accept     tcp  --  10.1.2.3             0.0.0.0/0           dscp match 0x02ctstate established ctdir original
 accept     tcp  --  10.1.2.3             0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21tcp spts:20:21 dpts:100:1111
 accept     tcp  --  10.1.2.3             0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x3ftcp spts:255:256 dpt:65535
 accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x02/0x3f
@@ -17,7 +17,7 @@ accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:0x08/0x00
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply
+return     tcp  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply
 return     tcp  --  0.0.0.0/0            10.1.2.3            dscp match 0x21tcp spts:100:1111 dpts:20:21
 return     tcp  --  0.0.0.0/0            10.1.2.3            dscp match 0x3ftcp spt:65535 dpts:255:256
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "

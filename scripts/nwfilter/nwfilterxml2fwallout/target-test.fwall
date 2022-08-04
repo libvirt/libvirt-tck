@@ -1,10 +1,10 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply/* accept rule -- dir out */
+return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply/* accept rule -- dir out */
 drop       all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* drop rule   -- dir out */
 reject     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original/* accept rule -- dir in */
+return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21ctstate established ctdir original/* accept rule -- dir in */
 drop       all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* drop rule   -- dir in */
 reject     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
 return     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */
@@ -13,10 +13,10 @@ reject     all  --  0.0.0.0/0            0.0.0.0/0           /* reject rule -- d
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02state established ctdir original/* accept rule -- dir out */
+accept     all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02ctstate established ctdir original/* accept rule -- dir out */
 drop       all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02/* drop rule   -- dir out */
 reject     all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-accept     all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21state new,established ctdir reply/* accept rule -- dir in */
+accept     all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir reply/* accept rule -- dir in */
 drop       all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21/* drop rule   -- dir in */
 reject     all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
 accept     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */
@@ -25,10 +25,10 @@ reject     all  --  0.0.0.0/0            0.0.0.0/0           /* reject rule -- d
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02state new,established ctdir reply/* accept rule -- dir out */
+return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply/* accept rule -- dir out */
 drop       all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* drop rule   -- dir out */
 reject     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21state established ctdir original/* accept rule -- dir in */
+return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21ctstate established ctdir original/* accept rule -- dir in */
 drop       all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* drop rule   -- dir in */
 reject     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
 return     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */

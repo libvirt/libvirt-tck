@@ -1,15 +1,15 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     icmp --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02icmp type 12 code 11 state new,established
+return     icmp --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02icmp type 12 code 11 ctstate new,established
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     icmp --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21icmp type 255 code 255 state new,established
+accept     icmp --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21icmp type 255 code 255 ctstate new,established
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     icmp --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02icmp type 12 code 11 state new,established
+return     icmp --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02icmp type 12 code 11 ctstate new,established
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "

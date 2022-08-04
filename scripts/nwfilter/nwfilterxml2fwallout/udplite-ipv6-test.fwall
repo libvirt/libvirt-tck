@@ -1,21 +1,21 @@
 #ip6tables -L FI-vnet0 -n | sed 's/\/128/    /'
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     udplite    f:e:d::c:b:a/127     a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply
-return     udplite    ::/0                 a:b:c::             dscp match 0x21ctstate established ctdir original
-return     udplite    ::/0                 ::10.1.2.3          dscp match 0x21ctstate established ctdir original
+return     udplite    f:e:d::c:b:a/127     a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original
+return     udplite    ::/0                 a:b:c::             dscp match 0x21ctstate established ctdir reply
+return     udplite    ::/0                 ::10.1.2.3          dscp match 0x21ctstate established ctdir reply
 #ip6tables -L FO-vnet0 -n | sed 's/\/128/    /'
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     udplite    a:b:c::d:e:f         f:e:d::c:b:a/127    dscp match 0x02ctstate established ctdir original
-accept     udplite    a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir reply
-accept     udplite    ::10.1.2.3           ::/0                mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir reply
+accept     udplite    a:b:c::d:e:f         f:e:d::c:b:a/127    dscp match 0x02ctstate established ctdir reply
+accept     udplite    a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir original
+accept     udplite    ::10.1.2.3           ::/0                mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir original
 #ip6tables -L HI-vnet0 -n | sed 's/\/128/    /'
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     udplite    f:e:d::c:b:a/127     a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir reply
-return     udplite    ::/0                 a:b:c::             dscp match 0x21ctstate established ctdir original
-return     udplite    ::/0                 ::10.1.2.3          dscp match 0x21ctstate established ctdir original
+return     udplite    f:e:d::c:b:a/127     a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original
+return     udplite    ::/0                 a:b:c::             dscp match 0x21ctstate established ctdir reply
+return     udplite    ::/0                 ::10.1.2.3          dscp match 0x21ctstate established ctdir reply
 #ip6tables -L INPUT -n --line-numbers | grep libvirt
 1    libvirt-host-in  all      ::/0                 ::/0
 #ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "

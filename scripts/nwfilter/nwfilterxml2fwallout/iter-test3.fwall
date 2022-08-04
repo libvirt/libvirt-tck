@@ -1,27 +1,27 @@
 #iptables -L FI-vnet0 -n
 chain fi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir reply
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir reply
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir reply
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir reply
-return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir original
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir original
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir original
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir original
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir original
 #iptables -L FO-vnet0 -n
 chain fo-vnet0 (1 references)
 target     prot opt source               destination
-accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:80 ctstate established ctdir original
-accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:90 ctstate established ctdir original
-accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:80 ctstate established ctdir original
-accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:90 ctstate established ctdir original
-accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1100 dpt:80 ctstate established ctdir original
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:80 ctstate established ctdir reply
+accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:90 ctstate established ctdir reply
+accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:80 ctstate established ctdir reply
+accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:90 ctstate established ctdir reply
+accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1100 dpt:80 ctstate established ctdir reply
 #iptables -L HI-vnet0 -n
 chain hi-vnet0 (1 references)
 target     prot opt source               destination
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir reply
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir reply
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir reply
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir reply
-return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir reply
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir original
+return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir original
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir original
+return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir original
+return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir original
 #iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
 hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
 #iptables -L libvirt-in -n | grep vnet0 | tr -s " "

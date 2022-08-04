@@ -157,12 +157,6 @@ checkExpectedOutput() {
           break
         fi
 
-        #change --ctdir ORIGINAL to --ctdir REPLY
-        #and    --ctdir REPLY    to --ctdir ORIGINAL
-        sed -i "s/ctdir[ ]*ORIGINAL/ctdir _REPLY/" ${tmpfile}
-        sed -i "s/ctdir[ ]*REPLY/ctdir ORIGINAL/" ${tmpfile}
-        sed -i "s/ctdir _REPLY/ctdir REPLY/" ${tmpfile}
-
         # there was a problem in some version of ebtables that MAC addresses
         # formatted in uppercase breaking some of the tests; prevent these
         # breakages by converting the ebtables output to lowercase (test

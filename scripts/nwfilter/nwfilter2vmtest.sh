@@ -98,16 +98,6 @@ mktmpdir() {
   return 0
 }
 
-probeIptablesCtdir() {
-  # below gawk works for "2\.6\.39.*"; any non-digit immediately
-  # after '39' will be ignored
-  rev=$(uname -r | gawk -F. '{print $1 * 1000000 + $2 * 1000 + $3 }')
-  # 2.6.39 had the correction
-  if [ $rev -ge 2006039 ]; then
-    IPTABLES_CTDIR_CORRECTED=1
-  fi
-}
-
 checkExpectedOutput() {
   xmlfile="$1"
   fwallfile="$2"
@@ -167,14 +157,11 @@ checkExpectedOutput() {
           break
         fi
 
-        if [ $IPTABLES_CTDIR_CORRECTED -ne 0 ]; then
-          #change --ctdir ORIGINAL to --ctdir REPLY
-          #and    --ctdir REPLY    to --ctdir ORIGINAL
-          sed -i "s/ctdir[ ]*ORIGINAL/ctdir _REPLY/" ${tmpfile}
-          sed -i "s/ctdir[ ]*REPLY/ctdir ORIGINAL/" ${tmpfile}
-          sed -i "s/ctdir _REPLY/ctdir REPLY/" ${tmpfile}
-        fi
-
+        #change --ctdir ORIGINAL to --ctdir REPLY
+        #and    --ctdir REPLY    to --ctdir ORIGINAL
+        sed -i "s/ctdir[ ]*ORIGINAL/ctdir _REPLY/" ${tmpfile}
+        sed -i "s/ctdir[ ]*REPLY/ctdir ORIGINAL/" ${tmpfile}
+        sed -i "s/ctdir _REPLY/ctdir REPLY/" ${tmpfile}
 
         # there was a problem in some version of ebtables that MAC addresses
         # formatted in uppercase breaking some of the tests; prevent these
@@ -574,8 +561,6 @@ main() {
       echo "This script will only run on Linux."
     fi
     exit 1;
-  else
-    probeIptablesCtdir
   fi
 
   if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then

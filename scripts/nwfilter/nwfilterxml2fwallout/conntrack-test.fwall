@@ -1,24 +1,21 @@
-#iptables -L FI-vnet0 -n | sed 's|#conn/|#conn src/|'
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-drop       icmp --  0.0.0.0/0            0.0.0.0/0           #conn src/32 > 1
-drop       tcp  --  0.0.0.0/0            0.0.0.0/0           #conn src/32 > 2
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate new,established ctdir original
-#iptables -L FO-vnet0 -n
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     all  --  0.0.0.0/0            0.0.0.0/0           ctstate established ctdir reply
-#iptables -L HI-vnet0 -n | sed 's|#conn/|#conn src/|'
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-drop       icmp --  0.0.0.0/0            0.0.0.0/0           #conn src/32 > 1
-drop       tcp  --  0.0.0.0/0            0.0.0.0/0           #conn src/32 > 2
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate new,established ctdir original
-#iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in-post -n | grep vnet0
-accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
-#iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
+#iptables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -p icmp -m connlimit --connlimit-above 1 --connlimit-mask 32 --connlimit-saddr -j drop
+-a fi-vnet0 -p tcp -m connlimit --connlimit-above 2 --connlimit-mask 32 --connlimit-saddr -j drop
+-a fi-vnet0 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+#iptables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+#iptables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -p icmp -m connlimit --connlimit-above 1 --connlimit-mask 32 --connlimit-saddr -j drop
+-a hi-vnet0 -p tcp -m connlimit --connlimit-above 2 --connlimit-mask 32 --connlimit-saddr -j drop
+-a hi-vnet0 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+#iptables -S libvirt-host-in | grep vnet0
+-a libvirt-host-in -m physdev --physdev-in vnet0 -g hi-vnet0
+#iptables -S libvirt-in | grep vnet0
+-a libvirt-in -m physdev --physdev-in vnet0 -g fi-vnet0
+#iptables -S libvirt-in-post | grep vnet0
+-a libvirt-in-post -m physdev --physdev-in vnet0 -j accept
+#iptables -S libvirt-out | grep vnet0
+-a libvirt-out -m physdev --physdev-out vnet0 --physdev-is-bridged -g fo-vnet0

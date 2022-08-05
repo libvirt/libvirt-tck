@@ -1,51 +1,48 @@
-#iptables -L FI-vnet0 -n
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original/* accept rule -- dir out */
-drop       all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* drop rule   -- dir out */
-reject     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21ctstate established ctdir reply/* accept rule -- dir in */
-drop       all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* drop rule   -- dir in */
-reject     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* drop   rule -- dir inout */
-reject     all  --  0.0.0.0/0            0.0.0.0/0           /* reject rule -- dir inout */ reject-with icmp-port-unreachable
-#iptables -L FO-vnet0 -n
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02ctstate established ctdir reply/* accept rule -- dir out */
-drop       all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02/* drop rule   -- dir out */
-reject     all  --  10.1.2.3             0.0.0.0/0           dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-accept     all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21ctstate new,established ctdir original/* accept rule -- dir in */
-drop       all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21/* drop rule   -- dir in */
-reject     all  --  10.1.0.0/22          0.0.0.0/0           mac 01:02:03:04:05:06 dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
-accept     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* drop   rule -- dir inout */
-reject     all  --  0.0.0.0/0            0.0.0.0/0           /* reject rule -- dir inout */ reject-with icmp-port-unreachable
-#iptables -L HI-vnet0 -n
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-return     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original/* accept rule -- dir out */
-drop       all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* drop rule   -- dir out */
-reject     all  --  0.0.0.0/0            10.1.2.3            mac 01:02:03:04:05:06 dscp match 0x02/* reject rule -- dir out */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21ctstate established ctdir reply/* accept rule -- dir in */
-drop       all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* drop rule   -- dir in */
-reject     all  --  0.0.0.0/0            10.1.0.0/22         dscp match 0x21/* reject rule -- dir in */ reject-with icmp-port-unreachable
-return     all  --  0.0.0.0/0            0.0.0.0/0           /* accept rule -- dir inout */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* drop   rule -- dir inout */
-reject     all  --  0.0.0.0/0            0.0.0.0/0           /* reject rule -- dir inout */ reject-with icmp-port-unreachable
-#iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in-post -n | grep vnet0
-accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
-#iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
-#iptables -L FORWARD -n --line-number | grep libvirt
-1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0
-2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0
-3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0
+#iptables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m conntrack --ctstate new,established -m conntrack --ctdir original -m comment --comment "accept rule -- dir out" -j return
+-a fi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m comment --comment "drop rule   -- dir out" -j drop
+-a fi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m comment --comment "reject rule -- dir out" -j reject --reject-with icmp-port-unreachable
+-a fi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m conntrack --ctstate established -m conntrack --ctdir reply -m comment --comment "accept rule -- dir in" -j return
+-a fi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m comment --comment "drop rule   -- dir in" -j drop
+-a fi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m comment --comment "reject rule -- dir in" -j reject --reject-with icmp-port-unreachable
+-a fi-vnet0 -m comment --comment "accept rule -- dir inout" -j return
+-a fi-vnet0 -m comment --comment "drop   rule -- dir inout" -j drop
+-a fi-vnet0 -m comment --comment "reject rule -- dir inout" -j reject --reject-with icmp-port-unreachable
+#iptables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -s 10.1.2.3/32 -m dscp --dscp 0x02 -m conntrack --ctstate established -m conntrack --ctdir reply -m comment --comment "accept rule -- dir out" -j accept
+-a fo-vnet0 -s 10.1.2.3/32 -m dscp --dscp 0x02 -m comment --comment "drop rule   -- dir out" -j drop
+-a fo-vnet0 -s 10.1.2.3/32 -m dscp --dscp 0x02 -m comment --comment "reject rule -- dir out" -j reject --reject-with icmp-port-unreachable
+-a fo-vnet0 -s 10.1.0.0/22 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x21 -m conntrack --ctstate new,established -m conntrack --ctdir original -m comment --comment "accept rule -- dir in" -j accept
+-a fo-vnet0 -s 10.1.0.0/22 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x21 -m comment --comment "drop rule   -- dir in" -j drop
+-a fo-vnet0 -s 10.1.0.0/22 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x21 -m comment --comment "reject rule -- dir in" -j reject --reject-with icmp-port-unreachable
+-a fo-vnet0 -m comment --comment "accept rule -- dir inout" -j accept
+-a fo-vnet0 -m comment --comment "drop   rule -- dir inout" -j drop
+-a fo-vnet0 -m comment --comment "reject rule -- dir inout" -j reject --reject-with icmp-port-unreachable
+#iptables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m conntrack --ctstate new,established -m conntrack --ctdir original -m comment --comment "accept rule -- dir out" -j return
+-a hi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m comment --comment "drop rule   -- dir out" -j drop
+-a hi-vnet0 -d 10.1.2.3/32 -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m comment --comment "reject rule -- dir out" -j reject --reject-with icmp-port-unreachable
+-a hi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m conntrack --ctstate established -m conntrack --ctdir reply -m comment --comment "accept rule -- dir in" -j return
+-a hi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m comment --comment "drop rule   -- dir in" -j drop
+-a hi-vnet0 -d 10.1.0.0/22 -m dscp --dscp 0x21 -m comment --comment "reject rule -- dir in" -j reject --reject-with icmp-port-unreachable
+-a hi-vnet0 -m comment --comment "accept rule -- dir inout" -j return
+-a hi-vnet0 -m comment --comment "drop   rule -- dir inout" -j drop
+-a hi-vnet0 -m comment --comment "reject rule -- dir inout" -j reject --reject-with icmp-port-unreachable
+#iptables -S libvirt-host-in | grep vnet0
+-a libvirt-host-in -m physdev --physdev-in vnet0 -g hi-vnet0
+#iptables -S libvirt-in | grep vnet0
+-a libvirt-in -m physdev --physdev-in vnet0 -g fi-vnet0
+#iptables -S libvirt-in-post | grep vnet0
+-a libvirt-in-post -m physdev --physdev-in vnet0 -j accept
+#iptables -S libvirt-out | grep vnet0
+-a libvirt-out -m physdev --physdev-out vnet0 --physdev-is-bridged -g fo-vnet0
+#iptables -S FORWARD | grep libvirt
+-a forward -j libvirt-in
+-a forward -j libvirt-out
+-a forward -j libvirt-in-post
 #ebtables -t nat -L PREROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"
 -i vnet0 -j libvirt-i-vnet0
 #ebtables -t nat -L POSTROUTING | grep vnet0 | grep -v "^Bridge" | grep -v "^$"

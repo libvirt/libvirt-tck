@@ -1,37 +1,33 @@
-#iptables -L FI-vnet0 -n
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir original
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir original
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir original
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir original
-return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir original
-#iptables -L FO-vnet0 -n
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:80 ctstate established ctdir reply
-accept     tcp  --  0.0.0.0/0            1.1.1.1             dscp match 0x01tcp dpt:90 ctstate established ctdir reply
-accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:80 ctstate established ctdir reply
-accept     udp  --  0.0.0.0/0            2.2.2.2             dscp match 0x02udp dpt:90 ctstate established ctdir reply
-accept     sctp --  0.0.0.0/0            2.2.2.2             dscp match 0x03sctp spt:1100 dpt:80 ctstate established ctdir reply
-#iptables -L HI-vnet0 -n
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:80 ctstate new,established ctdir original
-return     tcp  --  1.1.1.1              0.0.0.0/0           dscp match 0x01tcp spt:90 ctstate new,established ctdir original
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:80 ctstate new,established ctdir original
-return     udp  --  2.2.2.2              0.0.0.0/0           dscp match 0x02udp spt:90 ctstate new,established ctdir original
-return     sctp --  2.2.2.2              0.0.0.0/0           dscp match 0x03sctp spt:80 dpt:1100 ctstate new,established ctdir original
-#iptables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-hi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in -n | grep vnet0 | tr -s " "
-fi-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-in vnet0
-#iptables -L libvirt-in-post -n | grep vnet0
-accept     all  --  0.0.0.0/0            0.0.0.0/0           physdev match --physdev-in vnet0
-#iptables -L libvirt-out -n | grep vnet0 | tr -s " "
-fo-vnet0 all -- 0.0.0.0/0 0.0.0.0/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
-#iptables -L FORWARD -n --line-number | grep libvirt
-1    libvirt-in  all  --  0.0.0.0/0            0.0.0.0/0
-2    libvirt-out  all  --  0.0.0.0/0            0.0.0.0/0
-3    libvirt-in-post  all  --  0.0.0.0/0            0.0.0.0/0
-
+#iptables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -s 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --sport 80 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a fi-vnet0 -s 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --sport 90 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a fi-vnet0 -s 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --sport 80 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a fi-vnet0 -s 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --sport 90 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a fi-vnet0 -s 2.2.2.2/32 -p sctp -m dscp --dscp 0x03 -m sctp --sport 80 --dport 1100 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+#iptables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -d 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --dport 80 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+-a fo-vnet0 -d 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --dport 90 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+-a fo-vnet0 -d 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --dport 80 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+-a fo-vnet0 -d 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --dport 90 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+-a fo-vnet0 -d 2.2.2.2/32 -p sctp -m dscp --dscp 0x03 -m sctp --sport 1100 --dport 80 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+#iptables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -s 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --sport 80 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a hi-vnet0 -s 1.1.1.1/32 -p tcp -m dscp --dscp 0x01 -m tcp --sport 90 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a hi-vnet0 -s 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --sport 80 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a hi-vnet0 -s 2.2.2.2/32 -p udp -m dscp --dscp 0x02 -m udp --sport 90 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a hi-vnet0 -s 2.2.2.2/32 -p sctp -m dscp --dscp 0x03 -m sctp --sport 80 --dport 1100 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+#iptables -S libvirt-host-in | grep vnet0
+-a libvirt-host-in -m physdev --physdev-in vnet0 -g hi-vnet0
+#iptables -S libvirt-in | grep vnet0
+-a libvirt-in -m physdev --physdev-in vnet0 -g fi-vnet0
+#iptables -S libvirt-in-post | grep vnet0
+-a libvirt-in-post -m physdev --physdev-in vnet0 -j accept
+#iptables -S libvirt-out | grep vnet0
+-a libvirt-out -m physdev --physdev-out vnet0 --physdev-is-bridged -g fo-vnet0
+#iptables -S FORWARD | grep libvirt
+-a forward -j libvirt-in
+-a forward -j libvirt-out
+-a forward -j libvirt-in-post

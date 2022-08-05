@@ -1,31 +1,28 @@
-#ip6tables -L FI-vnet0 -n | sed 's/\/128/    /'
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-return     sctp     ::/0                 a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original
-return     sctp     ::/0                 a:b:c::             dscp match 0x21sctp spts:100:1111 dpts:20:21 ctstate established ctdir reply
-return     sctp     ::/0                 ::10.1.2.3          dscp match 0x3fsctp spt:65535 dpts:255:256 ctstate established ctdir reply
-#ip6tables -L FO-vnet0 -n | sed 's/\/128/    /'
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     sctp     a:b:c::d:e:f         ::/0                dscp match 0x02ctstate established ctdir reply
-accept     sctp     a:b:c::              ::/0                mac 01:02:03:04:05:06 dscp match 0x21sctp spts:20:21 dpts:100:1111 ctstate new,established ctdir original
-accept     sctp     ::10.1.2.3           ::/0                mac 01:02:03:04:05:06 dscp match 0x3fsctp spts:255:256 dpt:65535 ctstate new,established ctdir original
-#ip6tables -L HI-vnet0 -n | sed 's/\/128/    /'
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-return     sctp     ::/0                 a:b:c::d:e:f        mac 01:02:03:04:05:06 dscp match 0x02ctstate new,established ctdir original
-return     sctp     ::/0                 a:b:c::             dscp match 0x21sctp spts:100:1111 dpts:20:21 ctstate established ctdir reply
-return     sctp     ::/0                 ::10.1.2.3          dscp match 0x3fsctp spt:65535 dpts:255:256 ctstate established ctdir reply
-#ip6tables -L INPUT -n --line-numbers | grep libvirt
-1    libvirt-host-in  all      ::/0                 ::/0
-#ip6tables -L libvirt-host-in -n | grep vnet0 | tr -s " "
-hi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
-#ip6tables -L libvirt-in -n | grep vnet0 | tr -s " "
-fi-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-in vnet0
-#ip6tables -L libvirt-in-post -n | grep vnet0
-accept     all      ::/0                 ::/0                physdev match --physdev-in vnet0
-#ip6tables -L libvirt-out -n | grep vnet0 | tr -s " "
-fo-vnet0 all ::/0 ::/0 [goto] physdev match --physdev-out vnet0 --physdev-is-bridged
+#ip6tables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -d a:b:c::d:e:f/128 -p sctp -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a fi-vnet0 -d a:b:c::/128 -p sctp -m dscp --dscp 0x21 -m sctp --sport 100:1111 --dport 20:21 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a fi-vnet0 -d ::10.1.2.3/128 -p sctp -m dscp --dscp 0x3f -m sctp --sport 65535 --dport 255:256 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+#ip6tables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -s a:b:c::d:e:f/128 -p sctp -m dscp --dscp 0x02 -m conntrack --ctstate established -m conntrack --ctdir reply -j accept
+-a fo-vnet0 -s a:b:c::/128 -p sctp -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x21 -m sctp --sport 20:21 --dport 100:1111 -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
+-a fo-vnet0 -s ::10.1.2.3/128 -p sctp -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x3f -m sctp --sport 255:256 --dport 65535 -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
+#ip6tables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -d a:b:c::d:e:f/128 -p sctp -m mac --mac-source 01:02:03:04:05:06 -m dscp --dscp 0x02 -m conntrack --ctstate new,established -m conntrack --ctdir original -j return
+-a hi-vnet0 -d a:b:c::/128 -p sctp -m dscp --dscp 0x21 -m sctp --sport 100:1111 --dport 20:21 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a hi-vnet0 -d ::10.1.2.3/128 -p sctp -m dscp --dscp 0x3f -m sctp --sport 65535 --dport 255:256 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+#ip6tables -S INPUT | grep libvirt
+-a input -j libvirt-host-in
+#ip6tables -S libvirt-host-in | grep vnet0 
+-a libvirt-host-in -m physdev --physdev-in vnet0 -g hi-vnet0
+#ip6tables -S libvirt-in | grep vnet0
+-a libvirt-in -m physdev --physdev-in vnet0 -g fi-vnet0
+#ip6tables -S libvirt-in-post | grep vnet0
+-a libvirt-in-post -m physdev --physdev-in vnet0 -j accept
+#ip6tables -S libvirt-out | grep vnet0
+-a libvirt-out -m physdev --physdev-out vnet0 --physdev-is-bridged -g fo-vnet0
 #ebtables -t nat -L libvirt-O-vnet0 2>/dev/null | grep -v "table:" | grep -v "^$"
 #ebtables -t nat -L libvirt-I-vnet0 2>/dev/null | grep -v "table:" | grep -v "^$"
 #ebtables -t nat -L PREROUTING | grep vnet0

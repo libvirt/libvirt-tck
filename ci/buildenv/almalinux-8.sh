@@ -4,13 +4,12 @@
 #
 # https://gitlab.com/libvirt/libvirt-ci
 
-FROM docker.io/library/almalinux:8
-
-RUN dnf update -y && \
-    dnf install 'dnf-command(config-manager)' -y && \
-    dnf config-manager --set-enabled -y powertools && \
-    dnf install -y centos-release-advanced-virtualization && \
-    dnf install -y epel-release && \
+function install_buildenv() {
+    dnf update -y
+    dnf install 'dnf-command(config-manager)' -y
+    dnf config-manager --set-enabled -y powertools
+    dnf install -y centos-release-advanced-virtualization
+    dnf install -y epel-release
     dnf install -y \
         ca-certificates \
         ccache \
@@ -56,23 +55,21 @@ RUN dnf update -y && \
         python3 \
         python3-docutils \
         rpcgen \
-        rpm-build && \
-    dnf autoremove -y && \
-    dnf clean all -y && \
-    rpm -qa | sort > /packages.txt && \
-    mkdir -p /usr/libexec/ccache-wrappers && \
-    ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
+        rpm-build
+    rpm -qa | sort > /packages.txt
+    mkdir -p /usr/libexec/ccache-wrappers
+    ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/gcc
-
-RUN cpanm --notest \
+    cpanm --notest \
           LWP::UserAgent \
           TAP::Formatter::HTML \
           TAP::Formatter::JUnit \
           TAP::Harness::Archive \
           accessors
+}
 
-ENV CCACHE_WRAPPERSDIR "/usr/libexec/ccache-wrappers"
-ENV LANG "en_US.UTF-8"
-ENV MAKE "/usr/bin/make"
-ENV NINJA "/usr/bin/ninja"
-ENV PYTHON "/usr/bin/python3"
+export CCACHE_WRAPPERSDIR="/usr/libexec/ccache-wrappers"
+export LANG="en_US.UTF-8"
+export MAKE="/usr/bin/make"
+export NINJA="/usr/bin/ninja"
+export PYTHON="/usr/bin/python3"

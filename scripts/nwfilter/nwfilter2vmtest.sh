@@ -157,6 +157,8 @@ checkExpectedOutput() {
           break
         fi
 
+        sed -i "s/-p 0x600/-p Length/" "${tmpfile}"
+
         # there was a problem in some version of ebtables that MAC addresses
         # formatted in uppercase breaking some of the tests; prevent these
         # breakages by converting the ebtables output to lowercase (test

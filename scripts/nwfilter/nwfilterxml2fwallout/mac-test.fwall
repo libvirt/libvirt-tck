@@ -6,6 +6,6 @@
 -p arp -s 1:2:3:4:5:6 -j accept
 #ebtables -t nat -L libvirt-O-vnet0 | grep -v "^Bridge" | grep -v "^$"
 -p ipv4 -d aa:bb:cc:dd:ee:ff -j accept
--p 0x600 -d aa:bb:cc:dd:ee:ff -j accept
+-p length -d aa:bb:cc:dd:ee:ff -j accept
 -p 0xffff -d aa:bb:cc:dd:ee:ff -j accept
 

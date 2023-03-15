@@ -138,7 +138,7 @@ in existence.
 For following discussions, it may be convenient to refer to the source
 code of the framework. This is available from
 
-   git clone  git://libvirt.org/libvirt-tck.git
+   git clone  https://gitlab.com/libvirt/libvirt-tck.git
 
 First there are a couple of Perl modules to provide assistance when
 dealing with libvirt / writing tests

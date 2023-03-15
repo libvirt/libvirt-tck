@@ -108,7 +108,7 @@ my $b = $class->new(
         resources => {
             license => "https://www.gnu.org/licenses/gpl.html",
             homepage =>  "https://libvirt.org/",
-            repository => "https://libvirt.org/git/?p=libvirt-tck.git;a=summary",
+            repository => "https://gitlab.com/libvirt/libvirt-tck.git",
             MailingList => "https://www.redhat.com/mailman/listinfo/libvir-list",
         },
     },

@@ -141,6 +141,9 @@ checkExpectedOutput() {
            sed -i -e 's/ *$//' -e 's/   */  /g' $file
         done
 
+        # convert to lowercase to remain consistent with other benchmark files
+        sed -i "s/[A-Z]/\L&/g" "${tmpfile}"
+
         diff "${tmpfile}" "${tmpfile2}" >/dev/null
 
         if [ $? -ne 0 ]; then

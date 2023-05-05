@@ -1,6 +1,6 @@
-#iptables -t nat -L -n | grep ' 10\.1\.2\.'
-#iptables -n -L FORWARD | grep ' 10\.1\.2\.'
-#ip6tables -n -L FORWARD | grep ' 2001:db8:ac10'
+#iptables -t nat -S | grep 10\.1\.2\.
+#iptables -S FORWARD | grep 10\.1\.2\.
+#ip6tables -S FORWARD | grep 2001:db8:ac10
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 10\.1\.2\.1\).*|\1|p'
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 192\.168\.97\.1\).*|\1|p'
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 172\.28\.255\.241\).*|\1|p'

@@ -1,22 +1,18 @@
-#iptables -L FI-vnet0 -n
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-return     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 ctstate established ctdir reply
-return     icmp --  0.0.0.0/0            0.0.0.0/0           ctstate established ctdir reply
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate established ctdir reply
-drop       all  --  0.0.0.0/0            0.0.0.0/0
-#iptables -L FO-vnet0 -n
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:22 ctstate new,established ctdir original
-accept     icmp --  0.0.0.0/0            0.0.0.0/0           ctstate new,established ctdir original
-accept     all  --  0.0.0.0/0            0.0.0.0/0           ctstate new,established ctdir original
-drop       all  --  0.0.0.0/0            0.0.0.0/0
-#iptables -L HI-vnet0 -n
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-return     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp spt:22 ctstate established ctdir reply
-return     icmp --  0.0.0.0/0            0.0.0.0/0           ctstate established ctdir reply
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate established ctdir reply
-drop       all  --  0.0.0.0/0            0.0.0.0/0
-
+#iptables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -p tcp -m tcp --sport 22 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a fi-vnet0 -p icmp -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a fi-vnet0 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a fi-vnet0 -j drop
+#iptables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -p tcp -m tcp --dport 22 -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
+-a fo-vnet0 -p icmp -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
+-a fo-vnet0 -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
+-a fo-vnet0 -j drop
+#iptables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -p tcp -m tcp --sport 22 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a hi-vnet0 -p icmp -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a hi-vnet0 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
+-a hi-vnet0 -j drop

@@ -1,5 +1,5 @@
-#iptables -t nat -L -n | grep ' 10\.1\.2'
-#iptables -n -L FORWARD | grep ' 10\.1\.2'
+#iptables -t nat -S | grep 10\.1\.2
+#iptables -S FORWARD | grep 10\.1\.2
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(listen-address 10\.1\.2\.1\).*|\1|p'
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(dhcp-range 10\.1\.2\.2,10\.1\.2\.254\).*|\1|p'
 #route -n | grep '10\.1\.2\.'

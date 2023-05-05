@@ -1,13 +1,13 @@
-#iptables -t nat -L -n | grep ' 10\.1\.2\.'
-RETURN     all  --  10.1.2.0/24     224.0.0.0/24
-RETURN     all  --  10.1.2.0/24     255.255.255.255
-MASQUERADE  tcp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
-MASQUERADE  udp  --  10.1.2.0/24         !10.1.2.0/24         masq ports: 1024-65535 
-MASQUERADE  all  --  10.1.2.0/24         !10.1.2.0/24         
-#iptables -n -L LIBVIRT_FWI | grep ' 10\.1\.2\.' | sed -e 's/ctstate/state/'
-ACCEPT     all  --  0.0.0.0/0            10.1.2.0/24         state RELATED,ESTABLISHED 
-#iptables -n -L LIBVIRT_FWO | grep ' 10\.1\.2\.'
-ACCEPT     all  --  10.1.2.0/24          0.0.0.0/0           
+#iptables -t nat -S | grep '10\.1\.2\.'
+-a libvirt_prt -s 10.1.2.0/24 -d 224.0.0.0/24 -j return
+-a libvirt_prt -s 10.1.2.0/24 -d 255.255.255.255/32 -j return
+-a libvirt_prt -s 10.1.2.0/24 ! -d 10.1.2.0/24 -p tcp -j masquerade --to-ports 1024-65535
+-a libvirt_prt -s 10.1.2.0/24 ! -d 10.1.2.0/24 -p udp -j masquerade --to-ports 1024-65535
+-a libvirt_prt -s 10.1.2.0/24 ! -d 10.1.2.0/24 -j masquerade
+#iptables -S LIBVIRT_FWI | grep '10\.1\.2\.'
+-a libvirt_fwi -d 10.1.2.0/24 -o tck-testbr -m conntrack --ctstate related,established -j accept
+#iptables -S LIBVIRT_FWO | grep ' 10\.1\.2\.'
+-a libvirt_fwo -s 10.1.2.0/24 -i tck-testbr -j accept
 #ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
 10.1.2.0/24 10.1.2.1
 #ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p' | head -1

@@ -1,20 +1,16 @@
-#iptables -L FI-vnet0 -n
-chain fi-vnet0 (1 references)
-target     prot opt source               destination
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate related,established /* out: existing and related (ftp) connections */
-return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 ctstate new /* out: dns lookups */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
-#iptables -L FO-vnet0 -n
-chain fo-vnet0 (1 references)
-target     prot opt source               destination
-accept     all  --  0.0.0.0/0            0.0.0.0/0           ctstate established /* in: existing connections */
-accept     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpts:21:22 ctstate new /* in: ftp and ssh */
-accept     icmp --  0.0.0.0/0            0.0.0.0/0           ctstate new /* in: icmp */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
-#iptables -L HI-vnet0 -n
-chain hi-vnet0 (1 references)
-target     prot opt source               destination
-return     all  --  0.0.0.0/0            0.0.0.0/0           ctstate related,established /* out: existing and related (ftp) connections */
-return     udp  --  0.0.0.0/0            0.0.0.0/0           udp dpt:53 ctstate new /* out: dns lookups */
-drop       all  --  0.0.0.0/0            0.0.0.0/0           /* inout: drop all non-accepted traffic */
-
+#iptables -S FI-vnet0
+-n fi-vnet0
+-a fi-vnet0 -m conntrack --ctstate related,established -m comment --comment "out: existing and related (ftp) connections" -j return
+-a fi-vnet0 -p udp -m udp --dport 53 -m conntrack --ctstate new -m comment --comment "out: dns lookups" -j return
+-a fi-vnet0 -m comment --comment "inout: drop all non-accepted traffic" -j drop
+#iptables -S FO-vnet0
+-n fo-vnet0
+-a fo-vnet0 -m conntrack --ctstate established -m comment --comment "in: existing connections" -j accept
+-a fo-vnet0 -p tcp -m tcp --dport 21:22 -m conntrack --ctstate new -m comment --comment "in: ftp and ssh" -j accept
+-a fo-vnet0 -p icmp -m conntrack --ctstate new -m comment --comment "in: icmp" -j accept
+-a fo-vnet0 -m comment --comment "inout: drop all non-accepted traffic" -j drop
+#iptables -S HI-vnet0
+-n hi-vnet0
+-a hi-vnet0 -m conntrack --ctstate related,established -m comment --comment "out: existing and related (ftp) connections" -j return
+-a hi-vnet0 -p udp -m udp --dport 53 -m conntrack --ctstate new -m comment --comment "out: dns lookups" -j return
+-a hi-vnet0 -m comment --comment "inout: drop all non-accepted traffic" -j drop

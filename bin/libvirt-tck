@@ -168,7 +168,6 @@ if ($debug) {
     $ENV{LIBVIRT_TCK_DEBUG} = 1;
 }
 
-my $conffile;
 unless (-e $config) {
     print STDERR "$0: config file $config does not exist\n";
     exit 2;

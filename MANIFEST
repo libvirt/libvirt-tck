@@ -51,6 +51,8 @@ scripts/domain/240-usb-host-hotplug.t
 scripts/domain/250-pci-host-hotplug.t
 scripts/domain/300-migration.t
 scripts/domain/301-migration-max-speed.t
+scripts/domain/401-ovmf-nvram.t
+scripts/domain/405-ovmf-nvram-efi.t
 scripts/hooks/051-daemon-hook.t
 scripts/hooks/052-domain-hook.t
 scripts/networks/050-transient-lifecycle.t

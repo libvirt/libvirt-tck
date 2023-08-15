@@ -457,7 +457,7 @@ sub create_virt_builder_disk {
     my $ssh_key_path = $self->create_host_ssh_keys;
 
     print "# running virt-builder $osname\n";
-    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--ssh-inject", "root:file:$ssh_key_path.pub", "--output", $target, "--memsize", "1024", $osname;
+    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--ssh-inject", "root:file:$ssh_key_path.pub", "--output", $target, "--memsize", "2048", $osname;
 
     die "cannot run virt-builder: $?" if $? != 0;
 

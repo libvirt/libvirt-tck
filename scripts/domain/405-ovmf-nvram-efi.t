@@ -37,11 +37,10 @@ https://gitlab.com/libvirt/libvirt/-/commit/b5308a12054255c80232f0c79c0b439994be
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 14;
 use Test::Exception;
 
 use Sys::Virt::TCK;
-use File::stat;
 
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
@@ -50,18 +49,6 @@ END { $tck->cleanup if $tck; }
 
 sub setup_nvram {
 
-    my $loader_path = shift;
-    my $nvram_template = shift;
-
-    # Check that below two files exist:
-    #  - /usr/share/OVMF/OVMF_CODE.secboot.fd
-    #  - /usr/share/OVMF/OVMF_VARS.secboot.fd
-    if (!stat($loader_path) or !stat($nvram_template)) {
-        return undef;
-    }
-
-    # Use 'q35' machine type and 'efi' firmware
-    # Add loader element with attribute secure set to yes
     #  <os firmware='efi'>
     #     <loader secure='yes' />
 
@@ -103,14 +90,9 @@ sub setup_nvram {
 }
 
 diag "Defining an inactive domain config with nvram";
-my $loader_file_path = '/usr/share/OVMF/OVMF_CODE.secboot.fd';
-my $nvram_file_template = '/usr/share/OVMF/OVMF_VARS.secboot.fd';
-my $nvram_file_path = '/var/lib/libvirt/qemu/nvram/tck_VARS.fd';
-
-my $xml = setup_nvram($loader_file_path, $nvram_file_template);
+my $xml = setup_nvram();
 
 SKIP: {
-    diag "Require files ($loader_file_path, $nvram_file_template) for testing";
     skip "Please install OVMF and ensure necessary files exist", 5 if !defined($xml);
 
     # ------------------------------------------------------------------------------
@@ -118,12 +100,13 @@ SKIP: {
     diag "Test Sys::Virt::Domain::UNDEFINE_KEEP_NVRAM";
     ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined domain with nvram configure");
 
-    diag "Checking nvram file doesn't already exist";
-    my $st = stat($nvram_file_path);
-    ok(!$st, "File '$nvram_file_path' doesn't already exist as expected");
-
     diag "Creating a new persistent domain";
     lives_ok(sub { $dom->create() }, "created domain");
+
+    my $livexml = $dom->get_xml_description();
+    my $xp = XML::XPath->new($livexml);
+    my $nvram_path = $xp->getNodeText("/domain/os/nvram");
+    diag "nvram_path=($nvram_path)";
 
     diag "Destroying the persistent domain";
     lives_ok(sub { $dom->destroy() }, "destroyed domain");
@@ -136,22 +119,23 @@ SKIP: {
     $dom->undefine(Sys::Virt::Domain::UNDEFINE_KEEP_NVRAM);
 
     diag "Checking that nvram file still exists";
-    $st = stat($nvram_file_path);
-    ok($st, "File '$nvram_file_path' still exists as expected");
+    my $st = stat($nvram_path);
+    ok($st, "File '$nvram_path' still exists as expected");
 
     diag "Cleaning nvram file for further test(s)";
-    unlink($nvram_file_path) or die "Failed to remove $nvram_file_path: $!";
+    unlink($nvram_path) or die "Failed to remove $nvram_path: $!";
 
     # ------------------------------------------------------------------------------
     diag "Test Sys::Virt::Domain::UNDEFINE_NVRAM";
     ok_domain(sub { $dom = $conn->define_domain($xml) }, "defined domain with nvram configure");
 
-    diag "Checking nvram file doesn't already exist";
-    $st = stat($nvram_file_path);
-    ok(!$st, "File '$nvram_file_path' doesn't already exist as expected");
-
     diag "Creating a new persistent domain";
     lives_ok(sub { $dom->create() }, "created domain");
+
+    $livexml = $dom->get_xml_description();
+    $xp = XML::XPath->new($livexml);
+    $nvram_path = $xp->getNodeText("/domain/os/nvram");
+    diag "nvram_path=($nvram_path)";
 
     diag "Destroying the persistent domain";
     lives_ok(sub { $dom->destroy() }, "destroyed domain");
@@ -161,14 +145,14 @@ SKIP: {
     is($dom->get_id(), -1 , "inactive domain has an ID == -1");
 
     diag "Checking that nvram file still exists";
-    $st = stat($nvram_file_path);
-    ok($st, "File '$nvram_file_path' still exists as expected");
+    $st = stat($nvram_path);
+    ok($st, "File '$nvram_path' still exists as expected");
 
     diag "Undefining the domain";
     $dom->undefine(Sys::Virt::Domain::UNDEFINE_NVRAM);
 
     diag "Checking that nvram file is removed";
-    $st = stat($nvram_file_path);
-    ok(!$st, "File '$nvram_file_path' is removed");
+    $st = stat($nvram_path);
+    ok(!$st, "File '$nvram_path' is removed");
 }
 ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", Sys::Virt::Error::ERR_NO_DOMAIN);

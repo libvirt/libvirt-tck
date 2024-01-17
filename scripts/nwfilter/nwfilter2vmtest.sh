@@ -158,6 +158,7 @@ checkExpectedOutput() {
         fi
 
         sed -i "s/-p 0x600/-p Length/" "${tmpfile}"
+        sed -i "s|--icmp-type 255/255|--icmp-type any|" "${tmpfile}"
 
         # there was a problem in some version of ebtables that MAC addresses
         # formatted in uppercase breaking some of the tests; prevent these

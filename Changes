@@ -1,8 +1,28 @@
 Revision history for perl module Sys::Virt
 
-2.0.0 2019-??-??
+2.0.0 2024-02-09
 
- - XXX
+ - Switch config file to YAML format
+ - Auto-skip qcow1 tests if unsupported
+ - Remove obsolete brctl ommand
+ - Use cache=none with KVM guests
+ - Add test for network bandwidth
+ - Many many portability fixes for firewall/network test matching
+ - Only dep on libvirt-client, not libvirt
+ - Add an RNG device to VMs to give real guests entropy
+ - Update to newer OS versions
+ - Relax disk size checks to take account of non-exact file overheads
+ - Drop UserModeLinux support
+ - Add systemd detection
+ - Add tests for NVRAM
+ - Enable disk encryption tests
+ - Use pub key for SSH instead of passwords
+ - Fix disk media change tests
+ - Expand virt-builder VM memory
+ - Fix skipped test count for SELinux relabel test
+ - Skip some tests if /etc/sysconfig/network-scripts doesn't exist
+ - Add support for executing via avocado harness
+ - Point to QEMU system daemon by default
 
 1.1.0 2018-12-24
 

@@ -1,5 +1,9 @@
 Revision history for perl module Sys::Virt
 
+2.1.0 2024-XX-XX
+
+ - XX
+
 2.0.0 2024-02-09
 
  - Switch config file to YAML format

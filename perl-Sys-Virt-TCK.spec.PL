@@ -35,10 +35,8 @@ Source: http://libvirt.org/sources/tck/%{appname}-v%{version}.tar.gz
 Url: http://libvirt.org/
 Requires: perl(:MODULE_COMPAT_%(eval "`%{__perl} -V:version`"; echo $version))
 Requires: libvirt-client
-%if 0%{?fedora} || 0%{?rhel} > 7
 BuildRequires: perl-interpreter
 BuildRequires: perl-generators
-%endif
 BuildRequires: perl(accessors)
 BuildRequires: perl(App::Prove)
 BuildRequires: perl(Cwd)

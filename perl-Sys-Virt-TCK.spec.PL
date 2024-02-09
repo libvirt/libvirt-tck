@@ -72,7 +72,7 @@ Requires: perl(TAP::Formatter::JUnit)
 Requires: perl(TAP::Harness::Archive)
 Requires: perl(Net::OpenSSH)
 Requires: perl(IO::Pty)
-Requires: libguestfs-tools
+Requires: guestfs-tools
 Requires: /usr/bin/mkisofs
 # Want to force this minimal version, so don't rely on RPM autoprov
 Requires: perl(Sys::Virt) >= 0.2.1

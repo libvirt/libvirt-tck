@@ -74,7 +74,6 @@ Requires: perl(TAP::Formatter::JUnit)
 # which is not mandatory, so we must ask for it
 Requires: perl(IO::Pty)
 Requires: guestfs-tools
-Requires: /usr/bin/mkisofs
 BuildArchitectures: noarch
 
 %description

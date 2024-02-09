@@ -58,24 +58,23 @@ BuildRequires: perl(TAP::Harness::Archive)
 BuildRequires: perl(Test::Builder)
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Sub::Uplevel)
-BuildRequires: perl(Sys::Virt) >= 0.2.1
+BuildRequires: perl(Sys::Virt)
 BuildRequires: perl(XML::Twig)
 BuildRequires: perl(XML::Writer)
 BuildRequires: perl(XML::XPath)
 BuildRequires: perl(Test::Pod)
 BuildRequires: perl(Test::Pod::Coverage)
 BuildRequires: perl(YAML)
-# RPM autoprovides misses these 3
-Requires: perl(Test::Exception)
+# RPM autoprovides misses these as they are just
+# referenced as strings passed to App::Prove
+# not directly imported
 Requires: perl(TAP::Formatter::HTML)
 Requires: perl(TAP::Formatter::JUnit)
-Requires: perl(TAP::Harness::Archive)
-Requires: perl(Net::OpenSSH)
+# The way we use Net::OpenSSH requires this add-on
+# which is not mandatory, so we must ask for it
 Requires: perl(IO::Pty)
 Requires: guestfs-tools
 Requires: /usr/bin/mkisofs
-# Want to force this minimal version, so don't rely on RPM autoprov
-Requires: perl(Sys::Virt) >= 0.2.1
 BuildArchitectures: noarch
 
 %description

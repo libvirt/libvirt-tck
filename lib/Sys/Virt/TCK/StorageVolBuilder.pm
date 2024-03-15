@@ -108,6 +108,9 @@ sub as_xml {
         if ($self->{format}) {
             $w->emptyTag("format", type => $self->{format});
         }
+        if ($self->{format} eq "qcow2") {
+            $w->dataElement("compat", "0.10");
+        }
         if ($self->{encformat}) {
             $w->startTag("encryption", format => $self->{encformat});
             $w->emptyTag("secret", type => "passphrase", uuid => $self->{secret});

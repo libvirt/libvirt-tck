@@ -26,6 +26,7 @@ my $xml = <<EOF;
   <allocation>1000000</allocation>
   <target>
     <format type="qcow2" />
+    <compat>0.10</compat>
     <encryption format="qcow">
       <secret type="passphrase" uuid="0a81f5b2-8403-7b23-c8d6-21ccc2f80d6f" />
     </encryption>

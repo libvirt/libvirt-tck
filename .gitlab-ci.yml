@@ -5,6 +5,8 @@ stages:
   - sanity_checks
 
 .native_build_job:
+  extends:
+    - .gitlab_native_build_job
   script:
     - export MAKEFLAGS="-j$(getconf _NPROCESSORS_ONLN)"
     - export SCRATCH_DIR="/tmp/scratch"
@@ -35,15 +37,5 @@ stages:
     - perl Build install
     - perl Build dist
     - if test -x /usr/bin/rpmbuild && test "$RPM" != "skip" ; then rpmbuild --nodeps -ta Sys-Virt-TCK*.tar.gz ; fi
-
-.native_build_job_prebuilt_env:
-  extends:
-    - .native_build_job
-    - .gitlab_native_build_job_prebuilt_env
-
-.native_build_job_local_env:
-  extends:
-    - .native_build_job
-    - .gitlab_native_build_job_local_env
 
 include: '/ci/gitlab.yml'

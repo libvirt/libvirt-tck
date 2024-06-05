@@ -4,12 +4,11 @@
 #
 # https://gitlab.com/libvirt/libvirt-ci
 
-FROM docker.io/library/almalinux:8
+FROM docker.io/library/almalinux:9
 
 RUN dnf update -y && \
     dnf install 'dnf-command(config-manager)' -y && \
-    dnf config-manager --set-enabled -y powertools && \
-    dnf install -y centos-release-advanced-virtualization && \
+    dnf config-manager --set-enabled -y crb && \
     dnf install -y epel-release && \
     dnf install -y \
         ca-certificates \
@@ -30,7 +29,6 @@ RUN dnf update -y && \
         make \
         meson \
         ninja-build \
-        perl \
         perl-App-cpanminus \
         perl-Archive-Tar \
         perl-CPAN-Changes \
@@ -43,6 +41,7 @@ RUN dnf update -y && \
         perl-Module-Build \
         perl-NetAddr-IP \
         perl-Sub-Uplevel \
+        perl-Sys-Hostname \
         perl-Test-Exception \
         perl-Test-Pod \
         perl-Test-Pod-Coverage \
@@ -51,14 +50,15 @@ RUN dnf update -y && \
         perl-XML-Writer \
         perl-XML-XPath \
         perl-YAML \
+        perl-base \
         perl-generators \
         pkgconfig \
         python3 \
         python3-docutils \
-        rpcgen \
         rpm-build && \
     dnf autoremove -y && \
     dnf clean all -y && \
+    rm -f /usr/lib*/python3*/EXTERNALLY-MANAGED && \
     rpm -qa | sort > /packages.txt && \
     mkdir -p /usr/libexec/ccache-wrappers && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \

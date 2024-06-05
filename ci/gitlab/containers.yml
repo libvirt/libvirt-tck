@@ -7,22 +7,22 @@
 
 # Native container jobs
 
-x86_64-almalinux-8-container:
+x86_64-almalinux-9-container:
   extends: .container_job
   allow_failure: false
   variables:
-    NAME: almalinux-8
+    NAME: almalinux-9
 
 
 x86_64-fedora-rawhide-container:
   extends: .container_job
-  allow_failure: false
+  allow_failure: true
   variables:
     NAME: fedora-rawhide
 
 
-x86_64-ubuntu-2004-container:
+x86_64-ubuntu-2404-container:
   extends: .container_job
   allow_failure: false
   variables:
-    NAME: ubuntu-2004
+    NAME: ubuntu-2404

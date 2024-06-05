@@ -67,10 +67,10 @@ exec "$@"\n' > /usr/bin/nosync && \
                pkgconfig \
                python3 \
                python3-docutils \
-               rpcgen \
                rpm-build && \
     nosync dnf autoremove -y && \
     nosync dnf clean all -y && \
+    rm -f /usr/lib*/python3*/EXTERNALLY-MANAGED && \
     rpm -qa | sort > /packages.txt && \
     mkdir -p /usr/libexec/ccache-wrappers && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \

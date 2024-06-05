@@ -7,57 +7,35 @@
 
 # Native build jobs
 
-x86_64-almalinux-8-prebuilt-env:
-  extends: .native_build_job_prebuilt_env
+x86_64-almalinux-9:
+  extends: .native_build_job
   needs:
-    - job: x86_64-almalinux-8-container
+    - job: x86_64-almalinux-9-container
       optional: true
   allow_failure: false
   variables:
-    NAME: almalinux-8
+    NAME: almalinux-9
     RPM: skip
-
-x86_64-almalinux-8-local-env:
-  extends: .native_build_job_local_env
-  needs: []
-  allow_failure: false
-  variables:
-    IMAGE: docker.io/library/almalinux:8
-    NAME: almalinux-8
-    RPM: skip
+    TARGET_BASE_IMAGE: docker.io/library/almalinux:9
 
 
-x86_64-fedora-rawhide-prebuilt-env:
-  extends: .native_build_job_prebuilt_env
+x86_64-fedora-rawhide:
+  extends: .native_build_job
   needs:
     - job: x86_64-fedora-rawhide-container
       optional: true
-  allow_failure: false
+  allow_failure: true
   variables:
     NAME: fedora-rawhide
-
-x86_64-fedora-rawhide-local-env:
-  extends: .native_build_job_local_env
-  needs: []
-  allow_failure: false
-  variables:
-    IMAGE: registry.fedoraproject.org/fedora:rawhide
-    NAME: fedora-rawhide
+    TARGET_BASE_IMAGE: registry.fedoraproject.org/fedora:rawhide
 
 
-x86_64-ubuntu-2004-prebuilt-env:
-  extends: .native_build_job_prebuilt_env
+x86_64-ubuntu-2404:
+  extends: .native_build_job
   needs:
-    - job: x86_64-ubuntu-2004-container
+    - job: x86_64-ubuntu-2404-container
       optional: true
   allow_failure: false
   variables:
-    NAME: ubuntu-2004
-
-x86_64-ubuntu-2004-local-env:
-  extends: .native_build_job_local_env
-  needs: []
-  allow_failure: false
-  variables:
-    IMAGE: docker.io/library/ubuntu:20.04
-    NAME: ubuntu-2004
+    NAME: ubuntu-2404
+    TARGET_BASE_IMAGE: docker.io/library/ubuntu:24.04

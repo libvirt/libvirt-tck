@@ -1,7 +1,7 @@
 projects:
   - libvirt-tck
-  - libvirt-perl
-  - libvirt+minimal
+  - https://gitlab.com/libvirt/libvirt-perl/-/raw/master/ci/lcitool/projects/libvirt-perl.yml
+  - https://gitlab.com/libvirt/libvirt/-/raw/master/ci/lcitool/projects/libvirt+minimal.yml
 
 gitlab:
   namespace: libvirt

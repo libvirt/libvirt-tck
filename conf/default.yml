@@ -48,7 +48,7 @@ images:
     ostype:
       - hvm
       - xen
-    osname: fedora-38
+    osname: fedora-40
 
 #
 # Where the kernel/initrd files needed by tests are to be
@@ -72,13 +72,13 @@ images:
 # empty sparse root FS will be created
 #
 kernels:
-  # Fedora 38 x86_64 has pv_ops, so one kernel can do both Xen and KVM guests here
+  # Fedora x86_64 has pv_ops, so one kernel can do both Xen and KVM guests here
   - arch: x86_64
     ostype:
       - hvm
       - xen
-    kernel: http://dl.fedoraproject.org/pub/fedora/linux/releases/38/Everything/x86_64/os/images/pxeboot/vmlinuz
-    initrd: http://dl.fedoraproject.org/pub/fedora/linux/releases/38/Everything/x86_64/os/images/pxeboot/initrd.img
+    kernel: http://dl.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/images/pxeboot/vmlinuz
+    initrd: http://dl.fedoraproject.org/pub/fedora/linux/releases/40/Everything/x86_64/os/images/pxeboot/initrd.img
 
 # LXC containers need a virtual container filesystem somewhere
 #

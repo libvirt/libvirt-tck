@@ -100,16 +100,12 @@ my $cmdfile = <<EOF;
 echo "DEV=\\\$(ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://')
 MASK=\\\$(ip addr show \\\$DEV | grep 'inet ' | awk '{print \\\$2}' | sed -e 's/.*\\///;q')
 ip addr show \\\$DEV
-kill \\\$(pidof dhclient)
-ip addr flush dev \\\$DEV
-ip addr add ${spoofipaddr}/\\\$MASK dev \\\$DEV
+nmcli device modify \\\$DEV ipv4.method manual ipv4.addr ${spoofipaddr}/\\\$MASK
+sleep 1
 ip addr show \\\$DEV
 sleep 1
 ping -c 1 ${networkipaddr}
-ip link set \\\$DEV down
-ip addr flush dev \\\$DEV
-ip addr add ${guestip}/\\\$MASK dev \\\$DEV
-ip link set \\\$DEV up
+nmcli device modify \\\$DEV ipv4.method auto
 ip addr show \\\$DEV" > /test.sh
 EOF
 diag $cmdfile;

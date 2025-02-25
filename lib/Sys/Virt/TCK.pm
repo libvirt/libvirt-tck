@@ -36,6 +36,7 @@ use XML::XPath;
 use Carp qw(cluck carp);
 use Fcntl qw(O_RDONLY SEEK_END);
 use NetAddr::IP qw(:lower);
+use Net::OpenSSH;
 
 use Test::More;
 use Sub::Uplevel qw(uplevel);
@@ -1369,6 +1370,39 @@ sub find_free_ipv4_subnet {
 	dhcpstart => "192.168.$index.100",
 	dhcpend => "192.168.$index.200"
 	);
+}
+
+sub wait_for_vm_to_boot {
+    my $self = shift;
+    my $dom = shift;
+    my $mac = get_first_macaddress($dom);
+    my $ip;
+    my $ssh;
+
+    local $SIG{ALRM} = sub { die "timeout while waiting for domain to bootup" };
+
+    diag "Waiting 60 seconds for guest to finish booting";
+    alarm(60);
+
+    do {
+        sleep(5);
+        $ip = get_ip_from_leases($self->conn, "default", $mac);
+    } while(not $ip);
+
+    do {
+        sleep(5);
+        $ssh = Net::OpenSSH->new($ip,
+                                 user => "root",
+                                 key_path => $self->ssh_key_path($self->scratch_dir()),
+                                 master_opts => [-o => "UserKnownHostsFile=/dev/null",
+                                                 -o => "StrictHostKeyChecking=no"]);
+    } while ($ssh->error);
+
+    alarm(0);
+
+    $ssh->disconnect();
+
+    return $ip;
 }
 
 sub shutdown_vm_gracefully {

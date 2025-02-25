@@ -49,7 +49,7 @@ my $live_mem = 824288;
 my $current_mem = 724288;
 
 # Install a guest with default memory size
-my $xml = $tck->generic_domain(name => "tck", fullos => 1)->as_xml;
+my $xml = $tck->generic_domain(name => "tck", fullos => 1, netmode => "network")->as_xml;
 my $dom;
 ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
@@ -64,8 +64,7 @@ diag "Start domain";
 $dom->create;
 ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-diag "Waiting 30 seconds for guest to finish booting";
-sleep(30);
+$tck->wait_for_vm_to_boot($dom);
 
 diag "Get max memory for domain when domain is active";
 is($dom->get_max_memory(), $max_mem1, "Get max memory is $max_mem1");

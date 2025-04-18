@@ -754,7 +754,8 @@ sub get_disk_dev {
     } elsif ($ostype eq "hvm") {
         if ($domain eq "kvm" ||
             $domain eq "qemu" ||
-            $domain eq "kqemu") {
+            $domain eq "kqemu" ||
+            $domain eq "bhyve") {
             $dev = "vda";
         } else {
             $dev = "hda";

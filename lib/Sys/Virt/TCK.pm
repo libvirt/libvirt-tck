@@ -135,10 +135,26 @@ sub sanity_check {
         die "there is/are " . int(@nets) . " pre-existing inactive network(s) in this driver";
     }
 
-    my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
-    if (@nwfilters) {
-        die "there is/are " . int(@nwfilters) . " pre-existing nwfilter(s) in this driver";
-    }
+    my $nwfilters;
+    eval {
+        my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
+        if (@nwfilters) {
+            die "there is/are " . int(@nwfilters) . " pre-existing nwfilter(s) in this driver";
+        }
+    };
+
+    if ($@) {
+        my $err = $@;
+
+        if (
+            ref($err)
+            && eval { $err->isa('Sys::Virt::Error') }
+            && $err->code == &Sys::Virt::Error::ERR_NO_SUPPORT) {
+            return;
+        }
+
+        die $err;
+    };
 
     my @pools = grep { $_->get_name =~ /^tck/ } $conn->list_storage_pools;
     if (@pools) {
@@ -202,7 +218,28 @@ sub reset_nwfilters {
     my $self = shift;
     my $conn = shift;
 
-    my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
+    my @nwfilters;
+
+    eval {
+        my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
+        if (@nwfilters) {
+            die "there is/are " . int(@nwfilters) . " pre-existing nwfilter(s) in this driver";
+        }
+    };
+
+    if ($@) {
+        my $err = $@;
+
+        if (
+            ref($err)
+            && eval { $err->isa('Sys::Virt::Error') }
+            && $err->code == &Sys::Virt::Error::ERR_NO_SUPPORT) {
+            return;
+        }
+
+        die $err;
+    };
+
     foreach my $nwfilter (@nwfilters) {
         $nwfilter->undefine;
     }

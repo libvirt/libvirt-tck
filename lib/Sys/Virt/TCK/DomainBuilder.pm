@@ -334,7 +334,6 @@ sub rng {
     my %params = @_;
 
     die "backend model parameter is required" unless $params{backend_model};
-    die "backend parameter is required" unless $params{backend};
 
     $self->{rng} = \%params;
     $self->{rng}->{model} = "virtio" unless defined $self->{rng}->{model};
@@ -523,8 +522,12 @@ sub as_xml {
     if (%{$self->{rng}}) {
         $w->startTag("rng",
                      model => $self->{rng}->{model});
-        $w->dataElement("backend", $self->{rng}->{backend},
-                        model => $self->{rng}->{backend_model});
+        if ($self->{rng}->{backend}) {
+            $w->dataElement("backend", $self->{rng}->{backend},
+                            model => $self->{rng}->{backend_model});
+        } else {
+            $w->emptyTag("backend", model => $self->{rng}->{backend_model});
+        }
         $w->endTag("rng");
     }
 

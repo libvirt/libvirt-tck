@@ -125,3 +125,7 @@ host_block_devices:
 # around with for testing purposes
 host_network_devices:
 #  - eth0
+
+# NVRAM configuration
+nvram_file_template: /usr/share/OVMF/OVMF_VARS.fd
+nvram_file_path: /var/lib/libvirt/qemu/nvram/test_VARS.fd

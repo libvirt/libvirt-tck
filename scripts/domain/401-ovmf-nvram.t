@@ -46,14 +46,10 @@ END { $tck->cleanup if $tck; }
 
 sub setup_nvram {
 
-    my $loader_path = shift;
     my $nvram_template = shift;
     my $nvram_path = shift;
 
-    # Check below two files should exist
-    #  - /usr/share/OVMF/OVMF_CODE.secboot.fd
-    #  - /usr/share/OVMF/OVMF_VARS.fd
-    if (!stat($loader_path) or !stat($nvram_template)) {
+    if (!stat($nvram_template)) {
         return undef;
     }
 
@@ -72,21 +68,6 @@ sub setup_nvram {
         $xp->setNodeText("/domain/os/type/\@machine", "q35");
     }
 
-    my $loader_node = XML::XPath::Node::Element->new('loader');
-    my $loader_text   = XML::XPath::Node::Text->new($loader_path);
-    my $attr_ro     = XML::XPath::Node::Attribute->new('readonly');
-    my $attr_secure = XML::XPath::Node::Attribute->new('secure');
-    my $attr_type = XML::XPath::Node::Attribute->new('type');
-
-    $attr_ro     -> setNodeValue('yes');
-    $attr_secure -> setNodeValue('yes');
-    $attr_type   -> setNodeValue('pflash');
-
-    $loader_node->appendChild($loader_text);
-    $loader_node->appendAttribute($attr_ro);
-    $loader_node->appendAttribute($attr_secure);
-    $loader_node->appendAttribute($attr_type);
-
     my $nvram_node    = XML::XPath::Node::Element->new('nvram');
     my $nvram_text    = XML::XPath::Node::Text->new($nvram_path);
     my $attr_template = XML::XPath::Node::Attribute->new('template');
@@ -102,7 +83,7 @@ sub setup_nvram {
     $smm_node -> appendAttribute($attr_state);
 
     my ($root) = $xp->findnodes('/domain/os');
-    $root->appendChild($loader_node);
+    $root->setAttribute("firmware", "efi");
     $root->appendChild($nvram_node);
     ($root) = $xp->findnodes('/domain/features');
     $root->appendChild($smm_node);
@@ -113,14 +94,15 @@ sub setup_nvram {
 }
 
 diag "Defining an inactive domain config with nvram";
-my $loader_file_path = '/usr/share/OVMF/OVMF_CODE.secboot.fd';
-my $nvram_file_template = '/usr/share/OVMF/OVMF_VARS.fd';
-my $nvram_file_path = '/var/lib/libvirt/qemu/nvram/test_VARS.fd';
+my $nvram_file_template = $tck->config("nvram_file_template",
+                                       "/usr/share/OVMF/OVMF_VARS.fd");
+my $nvram_file_path = $tck->config("nvram_file_path",
+                                   "/var/lib/libvirt/qemu/nvram/test_VARS.fd");
 
-my $xml = setup_nvram($loader_file_path, $nvram_file_template, $nvram_file_path);
+my $xml = setup_nvram($nvram_file_template, $nvram_file_path);
 
 SKIP: {
-    diag "Require files ($loader_file_path, $nvram_file_template) for testing";
+    diag "Require file ($nvram_file_template) for testing";
     skip "Please install OVMF and ensure necessary files exist", 5 if !defined($xml);
     my $dom;
 

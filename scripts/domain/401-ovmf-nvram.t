@@ -64,7 +64,7 @@ sub setup_nvram {
     #     <loader readonly='yes' secure='yes' type='pflash'>/usr/share/OVMF/OVMF_CODE.secboot.fd</loader>
     #     <nvram template='/usr/share/OVMF/OVMF_VARS.fd'>/var/lib/libvirt/qemu/nvram/test_VARS.fd</nvram>
 
-    my $xml = $tck->generic_domain(name => "tck")->as_xml;
+    my $xml = $tck->generic_domain(name => "tck", fullos => 1)->as_xml;
     my $xp = XML::XPath->new($xml);
 
     if ($xp->getNodeText("/domain/os/type/\@machine") ne 'q35') {

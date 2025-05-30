@@ -16,6 +16,7 @@ package Sys::Virt::TCK::DomainBuilder;
 use strict;
 use warnings;
 use Sys::Virt;
+use Sys::Virt::TCK::DomainCapabilities;
 
 use IO::String;
 use XML::Writer;
@@ -50,11 +51,25 @@ sub new {
         hostdevs => [],
         seclabel => {},
         rng => {},
+        conn => $conn,
+        domcaps => undef,
     };
 
     bless $self, $class;
 
     return $self;
+}
+
+sub domcaps {
+    my $self = shift;
+
+    if ($self->{emulator} || $self->{arch}) {
+        my $dom_caps_xml = $self->{conn}->get_domain_capabilities($self->{emulator}, $self->{arch},
+                                                                  undef, undef, 0);
+        $self->{dom_caps} = Sys::Virt::TCK::DomainCapabilities->new(xml => $dom_caps_xml);
+    }
+
+    return $self->{dom_caps};
 }
 
 sub memory {
@@ -517,7 +532,20 @@ sub as_xml {
                      keymap => $graphic->{keymap});
         $w->endTag("graphics");
     }
-    $w->emptyTag("console", type => "pty");
+
+    # Try to handle driver-specific cases for console devices,
+    # such as nmdm consoles for bhyve, fall back to "pty" as a sensible default
+    my $dom_caps = $self->domcaps;
+    if ($dom_caps && $dom_caps->{console_types}) {
+        my @console_types = @{ $dom_caps->{console_types} };
+        if (grep { $_ eq 'nmdm' } @console_types ) {
+            $w->emptyTag("console", type => "nmdm");
+        } else {
+            $w->emptyTag("console", type => "pty");
+        }
+    } else {
+        $w->emptyTag("console", type => "pty");
+    }
 
     if (%{$self->{rng}}) {
         $w->startTag("rng",

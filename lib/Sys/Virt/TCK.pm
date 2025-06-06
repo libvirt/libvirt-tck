@@ -854,7 +854,9 @@ sub generic_machine_domain {
     my $name = exists $params{name} ? $params{name} : "tck";
     my $caps = exists $params{caps} ? $params{caps} : die "caps parameter is required";
     my $ostype = exists $params{ostype} ? $params{ostype} : "hvm";
-    my $fullos = exists $params{fullos} ? $params{fullos} : 0;
+    my $fullos = exists $params{fullos}
+        ? $params{fullos}
+        : @{$self->config("kernels", [])} == 0 ? 1 : 0;
     my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
     my %filterparams = exists $params{filterparams} ? %{$params{filterparams}} : ();
@@ -991,7 +993,9 @@ sub generic_domain {
 
     my $name = exists $params{name} ? $params{name} : "tck";
     my $ostype = exists $params{ostype} ? $params{ostype} : undef;
-    my $fullos = exists $params{fullos} ? $params{fullos} : 0;
+    my $fullos = exists $params{fullos}
+        ? $params{fullos}
+        : @{$self->config("kernels", [])} ? 0 : 1;
     my $netmode = exists $params{netmode} ? $params{netmode} : undef;
     my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # Copyright (C) 2009 Red Hat, Inc.
 # Copyright (C) 2009 Daniel P. Berrange

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # -*- perl -*-
 #
 # Copyright (C) 2023 Oracle and/or its affiliates

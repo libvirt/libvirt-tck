@@ -66,16 +66,20 @@ EOF
 my $initialxml = $dom->get_xml_description;
 
 diag "Attaching the new disk $path";
-lives_ok(sub { $dom->attach_device($diskxml); }, "disk has been attached");
+eval { $dom->attach_device($diskxml); };
+SKIP: {
+    skip "attach device not implemented", 4 if $@ && err_not_implemented($@);
+    ok(!$@, "disk has been attached");
 
-my $newxml = $dom->get_xml_description;
+    my $newxml = $dom->get_xml_description;
 
-ok($newxml =~ m|$path|, "new XML has extra disk present");
+    ok($newxml =~ m|$path|, "new XML has extra disk present");
 
-diag "Detaching the new disk $path";
-lives_ok(sub { $dom->detach_device($diskxml); }, "disk has been detached");
+    diag "Detaching the new disk $path";
+    lives_ok(sub { $dom->detach_device($diskxml); }, "disk has been detached");
 
 
-my $finalxml = $dom->get_xml_description;
+    my $finalxml = $dom->get_xml_description;
 
-is($initialxml, $finalxml, "final XML has removed the disk")
+    is($initialxml, $finalxml, "final XML has removed the disk")
+}

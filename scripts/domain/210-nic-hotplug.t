@@ -63,16 +63,20 @@ EOF
 my $initialxml = $dom->get_xml_description;
 
 diag "Attaching the new interface $mac";
-lives_ok(sub { $dom->attach_device($netxml); }, "interface has been attached");
+eval { $dom->attach_device($netxml); };
+SKIP: {
+    skip "attach device not implemented", 4 if $@ && err_not_implemented($@);
+    ok(!$@, "interface has been attached");
 
-my $newxml = $dom->get_xml_description;
+    my $newxml = $dom->get_xml_description;
 
-ok($newxml =~ m|$mac|, "new XML has extra NIC present");
+    ok($newxml =~ m|$mac|, "new XML has extra NIC present");
 
-diag "Detaching the new interface $mac";
-lives_ok(sub { $dom->detach_device($netxml); }, "interface has been detached");
+    diag "Detaching the new interface $mac";
+    lives_ok(sub { $dom->detach_device($netxml); }, "interface has been detached");
 
 
-my $finalxml = $dom->get_xml_description;
+    my $finalxml = $dom->get_xml_description;
 
-is($initialxml, $finalxml, "final XML has removed the disk")
+    is($initialxml, $finalxml, "final XML has removed the disk")
+}

@@ -59,51 +59,55 @@ my %params = (
 );
 
 diag "Set numa parameters, affects live and config";
-lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_LIVE | Sys::Virt::Domain::AFFECT_CONFIG)}, "set_numa_parameters");
+eval { $dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_LIVE | Sys::Virt::Domain::AFFECT_CONFIG); };
+SKIP: {
+    skip "set_numa_parameters not implemented", 11 if $@ && err_not_implemented($@);
+    ok(!$@, "set_numa_parameters");
 
-diag "Get numa parameters";
-my $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
-ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
+    diag "Get numa parameters";
+    my $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+    ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
-diag "Destroy the domain";
-$dom->destroy;
+    diag "Destroy the domain";
+    $dom->destroy;
 
-diag "Make sure the domain can be started after setting numa parameters";
-$dom->create;
-ok($dom->get_id > 0, "running domain with ID > 0");
+    diag "Make sure the domain can be started after setting numa parameters";
+    $dom->create;
+    ok($dom->get_id > 0, "running domain with ID > 0");
 
-diag "Get numa parameters";
-$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
-ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
+    diag "Get numa parameters";
+    $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+    ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
-diag "Destroy the domain";
-$dom->destroy;
+    diag "Destroy the domain";
+    $dom->destroy;
 
-$params{Sys::Virt::Domain::NUMA_MODE} = Sys::Virt::Domain::NUMATUNE_MEM_STRICT;
+    $params{Sys::Virt::Domain::NUMA_MODE} = Sys::Virt::Domain::NUMATUNE_MEM_STRICT;
 
-diag "Set numa parameters, affects next boot";
-lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_CONFIG)}, "set_numa_parameters");
+    diag "Set numa parameters, affects next boot";
+    lives_ok(sub {$dom->set_numa_parameters(\%params, Sys::Virt::Domain::AFFECT_CONFIG)}, "set_numa_parameters");
 
-diag "Get numa parameters";
-$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_CONFIG);
-ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
-ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
+    diag "Get numa parameters";
+    $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_CONFIG);
+    ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
+    ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
-diag "Make sure the domain can be started after setting numa parameters";
-$dom->create;
-ok($dom->get_id > 0, "running domain with ID > 0");
+    diag "Make sure the domain can be started after setting numa parameters";
+    $dom->create;
+    ok($dom->get_id > 0, "running domain with ID > 0");
 
-diag "Get numa parameters";
-$params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
-ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
-ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
+    diag "Get numa parameters";
+    $params = $dom->get_numa_parameters(Sys::Virt::Domain::AFFECT_LIVE);
+    ok($params->{Sys::Virt::Domain::NUMA_MODE} == Sys::Virt::Domain::NUMATUNE_MEM_STRICT, 'Check mode');
+    ok($params->{Sys::Virt::Domain::NUMA_NODESET} eq '0', 'Check nodeset');
 
-diag "Destroying the persistent domain";
-$dom->destroy;
-$dom->undefine;
+    diag "Destroying the persistent domain";
+    $dom->destroy;
+    $dom->undefine;
 
-diag "Checking that transient domain has gone away";
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
-	 Sys::Virt::Error::ERR_NO_DOMAIN);
+    diag "Checking that transient domain has gone away";
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+         Sys::Virt::Error::ERR_NO_DOMAIN);
 
-# end
+    # end
+}

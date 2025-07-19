@@ -49,16 +49,19 @@ my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "Create domain");
 
 diag "Get migrate max speed";
-my $speed = $dom->migrate_get_max_speed();
-ok($speed, "Get migrate max speed $speed");
+my $speed = eval { $dom->migrate_get_max_speed(); };
+SKIP: {
+    skip "Migration not implemented", 4 if $@ && err_not_implemented($@);
+    ok(!$@, "Get migrate max speed $speed");
 
-diag "Set migrate max speed";
-$speed = 10000;
-lives_ok(sub {$dom->migrate_set_max_speed($speed)}, "Set max speed to $speed");
-my $get_speed = $dom->migrate_get_max_speed();
-is ($speed, $get_speed, "Get speed same as set");
+    diag "Set migrate max speed";
+    $speed = 10000;
+    lives_ok(sub {$dom->migrate_set_max_speed($speed)}, "Set max speed to $speed");
+    my $get_speed = $dom->migrate_get_max_speed();
+    is ($speed, $get_speed, "Get speed same as set");
 
-diag "Destroy domain";
-$dom->destroy;
+    diag "Destroy domain";
+    $dom->destroy;
 
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
+}

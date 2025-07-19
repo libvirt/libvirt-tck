@@ -61,26 +61,31 @@ my %params = (Sys::Virt::Domain::BANDWIDTH_IN_AVERAGE=>1000, Sys::Virt::Domain::
               Sys::Virt::Domain::BANDWIDTH_IN_BURST=>1002, Sys::Virt::Domain::BANDWIDTH_OUT_AVERAGE=>1003,
               Sys::Virt::Domain::BANDWIDTH_OUT_PEAK=>1004, Sys::Virt::Domain::BANDWIDTH_OUT_BURST=>1005);
 my $iface = get_first_interface_target_dev($dom);
-lives_ok(sub {$dom->set_interface_parameters($iface, \%params)}, "Set $iface parameters");
-for my $key (sort keys %params) {
-     diag "Set $key => $params{$key} ";
+eval { $dom->set_interface_parameters($iface, \%params); };
+SKIP: {
+    skip "Setting interface parameters not implemented", 8 if $@ && err_not_implemented($@);
+    ok(!$@, "Set $iface parameters");
+
+    for my $key (sort keys %params) {
+         diag "Set $key => $params{$key} ";
+    }
+
+    my $param = $dom->get_interface_parameters($iface, 0);
+    my $in_average = $param->{Sys::Virt::Domain::BANDWIDTH_IN_AVERAGE};
+    my $in_burst = $param->{Sys::Virt::Domain::BANDWIDTH_IN_BURST};
+    my $in_peak = $param->{Sys::Virt::Domain::BANDWIDTH_IN_PEAK};
+    my $out_average = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_AVERAGE};
+    my $out_burst = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_BURST};
+    my $out_peak = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_PEAK};
+    is($in_average, 1000, "Get inbound average 1000");
+    is($in_burst, 1002, "Get inbound burst 1002");
+    is($in_peak, 1001, "Get inbound peak 1001");
+    is($out_average, 1003, "Get outbound average 1003");
+    is($out_burst, 1005, "Get outbound burst 1005");
+    is($out_peak, 1004, "Get outbound peak 1004");
+
+    diag "Destroy domain";
+    $dom->destroy;
+
+    ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);
 }
-
-my $param = $dom->get_interface_parameters($iface, 0);
-my $in_average = $param->{Sys::Virt::Domain::BANDWIDTH_IN_AVERAGE};
-my $in_burst = $param->{Sys::Virt::Domain::BANDWIDTH_IN_BURST};
-my $in_peak = $param->{Sys::Virt::Domain::BANDWIDTH_IN_PEAK};
-my $out_average = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_AVERAGE};
-my $out_burst = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_BURST};
-my $out_peak = $param->{Sys::Virt::Domain::BANDWIDTH_OUT_PEAK};
-is($in_average, 1000, "Get inbound average 1000");
-is($in_burst, 1002, "Get inbound burst 1002");
-is($in_peak, 1001, "Get inbound peak 1001");
-is($out_average, 1003, "Get outbound average 1003");
-is($out_burst, 1005, "Get outbound burst 1005");
-is($out_peak, 1004, "Get outbound peak 1004");
-
-diag "Destroy domain";
-$dom->destroy;
-
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain", 42);

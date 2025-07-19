@@ -55,61 +55,66 @@ ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain 
 
 
 diag "Set max memory for inactive domain";
-lives_ok(sub { $dom->set_max_memory("$max_mem1") }, "Set max memory $max_mem1");
-diag "Get max memory from inactive domain";
-is($dom->get_max_memory(), $max_mem1, "Get max memory $max_mem1");
+eval { $dom->set_max_memory("$max_mem1"); };
+SKIP: {
+    skip "Setting domain max memory not implemented", 15 if $@ && err_not_implemented($@);
+    ok(!$@, "Set max memory $max_mem1");
+
+    diag "Get max memory from inactive domain";
+    is($dom->get_max_memory(), $max_mem1, "Get max memory $max_mem1");
 
 
-diag "Start domain";
-$dom->create;
-ok($dom->get_id() > 0, "running domain has an ID > 0");
+    diag "Start domain";
+    $dom->create;
+    ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-$tck->wait_for_vm_to_boot($dom);
+    $tck->wait_for_vm_to_boot($dom);
 
-diag "Get max memory for domain when domain is active";
-is($dom->get_max_memory(), $max_mem1, "Get max memory is $max_mem1");
-
-
-diag "Set memory with flag MEM_CONFIG";
-lives_ok(sub { $dom->set_memory("$config_mem", Sys::Virt::Domain::MEM_CONFIG) },
-	"Set persistent memory value $config_mem");
-diag "Get current memory";
-is($dom->get_info()->{memory}, $default_mem, "Get current memory is $default_mem");
+    diag "Get max memory for domain when domain is active";
+    is($dom->get_max_memory(), $max_mem1, "Get max memory is $max_mem1");
 
 
-diag "Set memory with flag MEM_CURRENT";
-lives_ok(sub { $dom->set_memory("$current_mem", Sys::Virt::Domain::MEM_CURRENT) },
-	"Set current memory value $current_mem");
-sleep(3);
-diag "Get current memory";
-is($dom->get_info()->{memory}, $current_mem, "Get current memory is $current_mem");
+    diag "Set memory with flag MEM_CONFIG";
+    lives_ok(sub { $dom->set_memory("$config_mem", Sys::Virt::Domain::MEM_CONFIG) },
+        "Set persistent memory value $config_mem");
+    diag "Get current memory";
+    is($dom->get_info()->{memory}, $default_mem, "Get current memory is $default_mem");
 
 
-diag "Set memory with flag MEM_LIVE";
-lives_ok(sub { $dom->set_memory("$live_mem", Sys::Virt::Domain::MEM_LIVE) },
-	"Set live memory value $live_mem");
-sleep(3);
-diag "Get current memory";
-is($dom->get_info()->{memory}, $live_mem, "Get current memory is $live_mem");
+    diag "Set memory with flag MEM_CURRENT";
+    lives_ok(sub { $dom->set_memory("$current_mem", Sys::Virt::Domain::MEM_CURRENT) },
+        "Set current memory value $current_mem");
+    sleep(3);
+    diag "Get current memory";
+    is($dom->get_info()->{memory}, $current_mem, "Get current memory is $current_mem");
 
 
-diag "Set max memory for running domain";
-ok_error(sub { $dom->set_max_memory("$default_mem") }, "Not allowed to set max memory for running domain");
-
-diag "Destroy domain";
-$dom->destroy;
-
-diag "Get current memory";
-is($dom->get_info()->{memory}, $config_mem, "Get current memory is $config_mem");
+    diag "Set memory with flag MEM_LIVE";
+    lives_ok(sub { $dom->set_memory("$live_mem", Sys::Virt::Domain::MEM_LIVE) },
+        "Set live memory value $live_mem");
+    sleep(3);
+    diag "Get current memory";
+    is($dom->get_info()->{memory}, $live_mem, "Get current memory is $live_mem");
 
 
-diag "Set max memory with set_memory";
-lives_ok(sub { $dom->set_memory("$max_mem2", Sys::Virt::Domain::MEM_MAXIMUM) },
-	"Set max memory $max_mem2");
-diag "Get max memory";
-is($dom->get_info()->{maxMem}, $max_mem2, "Get max memory is $max_mem2");
+    diag "Set max memory for running domain";
+    ok_error(sub { $dom->set_max_memory("$default_mem") }, "Not allowed to set max memory for running domain");
+
+    diag "Destroy domain";
+    $dom->destroy;
+
+    diag "Get current memory";
+    is($dom->get_info()->{memory}, $config_mem, "Get current memory is $config_mem");
 
 
-diag "Setting memory with flag MEM_LIVE for inactive domain";
-ok_error(sub { $dom->set_memory("$live_mem", Sys::Virt::Domain::MEM_LIVE) },
-	"Not allowed to set memory with flag MEM_LIVE for inactive domain");
+    diag "Set max memory with set_memory";
+    lives_ok(sub { $dom->set_memory("$max_mem2", Sys::Virt::Domain::MEM_MAXIMUM) },
+        "Set max memory $max_mem2");
+    diag "Get max memory";
+    is($dom->get_info()->{maxMem}, $max_mem2, "Get max memory is $max_mem2");
+
+
+    diag "Setting memory with flag MEM_LIVE for inactive domain";
+    ok_error(sub { $dom->set_memory("$live_mem", Sys::Virt::Domain::MEM_LIVE) },
+        "Not allowed to set memory with flag MEM_LIVE for inactive domain");
+}

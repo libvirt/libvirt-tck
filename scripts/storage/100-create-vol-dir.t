@@ -75,7 +75,12 @@ is($st->size, 1024*1024*50, "size is 50M");
 
 # In theory 0 blocks are allocated, but most FS have a couple of blocks
 # overhead for a sparse file
-ok($st->blocks < 10, "not many blocks allocated");
+SKIP: {
+    if ($conn->get_type() eq "BHYVE") {
+        skip "FreeBSD filesystems do not garantee that zero blocks will be allocated", 1
+    }
+    ok($st->blocks < 10, "not many blocks allocated");
+}
 
 lives_ok(sub { $vol->delete(0) }, "deleted volume");
 

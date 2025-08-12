@@ -1386,12 +1386,16 @@ sub find_free_ipv4_subnet {
     my %used;
 
     foreach my $iface (IO::Interface::Simple->interfaces()) {
-        if ($iface->netmask eq "255.255.255.0" &&
-            $iface->address =~ /^192.168.(\d+).\d+/) {
+        my $netmask = $iface->netmask;
+        my $address = $iface->address;
+
+        if (defined $netmask && defined $address &&
+            $netmask eq "255.255.255.0" &&
+            $address =~ /^192.168.(\d+).\d+/) {
             $used{"$1"} = 1;
             print "Used $1\n";
         } else {
-            print "Not used ", $iface->address, "\n";
+            print "Not used ", ($address // 'undefined'), "\n";
         }
     }
 

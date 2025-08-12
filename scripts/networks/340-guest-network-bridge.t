@@ -31,15 +31,17 @@ use warnings;
 use Test::More tests => 4;
 
 use Sys::Virt::TCK;
+use Sys::Virt::TCK::HostUtils;
 
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
+my $hostutils = Sys::Virt::TCK::HostUtils->new();
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
-((system "ip link add name tck type bridge") == 0) or die "cannot create bridge 'tck'";
+($hostutils->create_bridge("tck") == 0) or die "cannot create bridge 'tck'";
 
-END { system "ip link del tck" }
+END { $hostutils->destroy_bridge("tck") if $hostutils; }
 
 my $b = Sys::Virt::TCK::NetworkBuilder->new(name => "tck");
 $b->bridge("tck");

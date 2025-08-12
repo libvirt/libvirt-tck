@@ -1019,7 +1019,7 @@ sub generic_domain {
         $b = $self->generic_machine_domain(name => $name,
                                            caps => $caps,
                                            ostype => $ostype,
-					   shareddisk => $shareddisk,
+                                           shareddisk => $shareddisk,
                                            fullos => $fullos,
                                            filterref => $filterref,
                                            filterparams => \%filterparams);
@@ -1291,25 +1291,25 @@ sub get_host_block_device {
 
     my $devs = $self->config("host_block_devices", []);
     if ($devindex >= $#{$devs}) {
-	return undef;
+        return undef;
     }
     my $device = $devs->[$devindex];
     my $size;
     if (defined $device &&
-	ref($device) == 'HASH') {
-	$device = $device->{"path"};
-	$size = $device->{"size"};
+        ref($device) == 'HASH') {
+        $device = $device->{"path"};
+        $size = $device->{"size"};
     }
     return undef unless $device;
 
     my $match = 1;
     if (defined $size) {
-	# Filter out devices that the current user can't open.
-	sysopen(BLK, $device, O_RDONLY) or return undef;
-	if (sysseek(BLK, 0, SEEK_END) != ($size * 1024)) {
-	    $match = 0;
-	}
-	close BLK;
+        # Filter out devices that the current user can't open.
+        sysopen(BLK, $device, O_RDONLY) or return undef;
+        if (sysseek(BLK, 0, SEEK_END) != ($size * 1024)) {
+            $match = 0;
+        }
+        close BLK;
     }
 
     return $match ? $device : undef;
@@ -1386,30 +1386,30 @@ sub find_free_ipv4_subnet {
     my %used;
 
     foreach my $iface (IO::Interface::Simple->interfaces()) {
-	if ($iface->netmask eq "255.255.255.0" &&
-	    $iface->address =~ /^192.168.(\d+).\d+/) {
-	    $used{"$1"} = 1;
-	    print "Used $1\n";
-	} else {
-	    print "Not used ", $iface->address, "\n";
-	}
+        if ($iface->netmask eq "255.255.255.0" &&
+            $iface->address =~ /^192.168.(\d+).\d+/) {
+            $used{"$1"} = 1;
+            print "Used $1\n";
+        } else {
+            print "Not used ", $iface->address, "\n";
+        }
     }
 
     for (my $i = 1; $i < 255; $i++) {
-	if (!exists $used{"$i"}) {
-	    $index = $i;
-	    last;
-	}
+        if (!exists $used{"$i"}) {
+            $index = $i;
+            last;
+        }
     }
 
     return () unless defined $index;
 
     return (
-	address => "192.168.$index.1",
-	netmask => "255.255.255.0",
-	dhcpstart => "192.168.$index.100",
-	dhcpend => "192.168.$index.200"
-	);
+        address => "192.168.$index.1",
+        netmask => "255.255.255.0",
+        dhcpstart => "192.168.$index.100",
+        dhcpend => "192.168.$index.200"
+    );
 }
 
 sub wait_for_vm_to_boot {

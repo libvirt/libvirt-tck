@@ -41,7 +41,8 @@ END { $tck->cleanup if $tck; }
 my %subnet = Sys::Virt::TCK->find_free_ipv4_subnet();
 
 SKIP: {
-    skip "No available IPv4 subnet", 4 unless defined $subnet{address};
+    skip "No available IPv4 subnet", 8 unless defined $subnet{address};
+    skip "Bhyve does not support bandwidth control", 8 if $conn->get_type() eq "BHYVE";
 
     my $netbuilder = Sys::Virt::TCK::NetworkBuilder->new(name => "tck");
     $netbuilder->bridge("tck");

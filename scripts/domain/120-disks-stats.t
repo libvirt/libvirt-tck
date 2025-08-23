@@ -61,17 +61,30 @@ SKIP: {
     diag "Starting inactive domain config";
     $dom->create;
     ok($dom->get_id() > 0, "running domain has an ID > 0");
+    skip "no disk stats likely when booting off kernel", 1 if $nkernel > 0;
 
+    local $SIG{ALRM} = sub { die "timeout while waiting for non-zero guest block statistics" };
+
+    diag "Waiting 60 seconds for guest I/O activity";
+    alarm(60);
 
     lives_ok(sub { $stats = $dom->block_stats($disks[0]) });
 
-    skip "no disk stats likely when booting off kernel", 1 if $nkernel > 0;
+    while (1) {
+         sleep(5);
+         eval { $stats = $dom->block_stats($disks[0]) };
 
-    ok($stats->{rd_req} > 0 ||
-       $stats->{rd_bytes} > 0 ||
-       $stats->{wr_req} > 0 ||
-       $stats->{wr_bytes} > 0 ||
-       $stats->{errs} > 0, "at least one block statistic was non-zero");
+         if ($stats->{rd_req} > 0 ||
+             $stats->{rd_bytes} > 0 ||
+             $stats->{wr_req} > 0 ||
+             $stats->{wr_bytes} > 0 ||
+             $stats->{errs} > 0) {
+             ok("at least one block statistic was non-zero");
+             last;
+         }
+    }
+
+    alarm(0);
 }
 
 

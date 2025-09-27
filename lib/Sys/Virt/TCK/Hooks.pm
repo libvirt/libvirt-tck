@@ -29,11 +29,12 @@ sub new {
     my $self = {};
 
     my $type = $params{type} ? $params{type} : die "type parameter is required";
+    my $conf_dir = $params{conf_dir} ? $params{conf_dir} : $HOOKS_CONF_DIR;
 
     $self = {
         type => $type,
-        conf_dir => $params{conf_dir} ? $params{conf_dir} : $HOOKS_CONF_DIR,
-        name => $params{conf_dir}.'/'.$params{type},
+        conf_dir => $conf_dir,
+        name => $conf_dir.'/'.$params{type},
         expect_result => $params{expect_result} ? $params{expect_result} : 0,
         log_name => $params{log_name} ? $params{log_name} : "/tmp/$params{type}.log",
         libvirtd_status => undef,

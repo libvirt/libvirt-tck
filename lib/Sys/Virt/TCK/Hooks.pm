@@ -17,10 +17,10 @@ use strict;
 use warnings;
 
 use Fcntl ':mode';
-use POSIX qw(strftime);
+use POSIX qw(strftime uname);
 use File::Slurp;
 
-my $HOOKS_CONF_DIR="/etc/libvirt/hooks";
+my $HOOKS_CONF_DIR = (uname())[0] eq "FreeBSD"  ? "/usr/local/etc/libvirt/hooks" : "/etc/libvirt/hooks";
 
 sub new {
     my $proto = shift;
@@ -83,7 +83,7 @@ sub libvirtd_status {
         $status = `service libvirtd status`;
     }
 
-    if ($status =~ /stopped|unused|inactive/) {
+    if ($status =~ /stopped|unused|inactive|not running/) {
         $self->{libvirtd_status} = 'stopped';
     } elsif ($status =~ /running|active/) {
         $self->{libvirtd_status} = 'running';
@@ -153,7 +153,7 @@ sub expect_log {
                 die "hooks testing doesn't support $action stopped libvirtd";
             }
         }
-    } elsif ($self->{type} eq 'qemu' or $self->{type} eq 'lxc') {
+    } elsif ($self->{type} eq 'qemu' or $self->{type} eq 'lxc' or $self->{type} eq 'bhyve') {
         if ($domain_state eq &Sys::Virt::Domain::STATE_RUNNING) {
             if ($action eq 'destroy') {
                 $expect_log = "$hook $domain_name stopped end -\n".
@@ -214,7 +214,7 @@ sub create_hook {
     open HOOK, "> $hook" or die "failed on opening $hook: $!";
 
     my $str = <<EOF;
-#! /bin/bash
+#! /bin/sh
 echo "\$0" "\$@" >>$self->{log_name}
 exit $self->{expect_result}
 EOF

@@ -45,15 +45,14 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 SKIP: {
-    my $uri = $conn->get_uri();
+    my $type = $conn->get_type();
 
-    skip "NOT using QEMU/LXC driver", 12 unless
-        $uri eq "qemu:///system" or $uri eq "lxc:///";
+    skip "NOT using QEMU/LXC/BHYVE driver", 12 unless
+        $type eq "QEMU" or $type eq "LXC" or $type eq "BHYVE";
 
-    my $hook_type = $uri eq "qemu:///system" ? 'qemu' : 'lxc';
+    my $hook_type = lc($type);
 
     my $hook = Sys::Virt::TCK::Hooks->new(type => $hook_type,
-                                          conf_dir => '/etc/libvirt/hooks',
                                           expect_result => 0);
     $hook->libvirtd_status();
     skip "libvirtd is not running, Exit...", 12
@@ -137,8 +136,7 @@ SKIP: {
 
     # Create a new testing hook script with exit status is 1.
     $hook = Sys::Virt::TCK::Hooks->new(type => $hook_type,
-                                          conf_dir => '/etc/libvirt/hooks',
-                                          expect_result => 1);
+                                       expect_result => 1);
     eval { $hook->prepare(); };
     BAIL_OUT "failed to setup hooks testing ENV: $@" if $@;
 

@@ -42,13 +42,12 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 SKIP: {
-    my $uri = $conn->get_uri();
+    my $type = $conn->get_type();
 
-    skip "NOT using QEMU/LXC driver", 12 unless
-        $uri eq "qemu:///system" or $uri eq "lxc:///";
+    skip "NOT using QEMU/LXC/BHYVE driver", 12 unless
+        $type eq "QEMU" or $type eq "LXC" or $type eq "BHYVE";
 
     my $hook = Sys::Virt::TCK::Hooks->new(type => 'daemon',
-                                          conf_dir => '/etc/libvirt/hooks',
                                           log_name => '/tmp/daemon.log');
 
     $hook->libvirtd_status();

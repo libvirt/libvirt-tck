@@ -1404,11 +1404,12 @@ sub wait_for_vm_to_boot {
     my $mac = get_first_macaddress($dom);
     my $ip;
     my $ssh;
+    my $timeout = $self->config("boot_timeout", 60);
 
     local $SIG{ALRM} = sub { die "timeout while waiting for domain to bootup" };
 
-    diag "Waiting 60 seconds for guest to finish booting";
-    alarm(60);
+    diag "Waiting $timeout seconds for guest to finish booting";
+    alarm($timeout);
 
     do {
         sleep(5);

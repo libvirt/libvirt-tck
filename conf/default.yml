@@ -129,3 +129,6 @@ host_network_devices:
 # NVRAM configuration
 nvram_file_template: /usr/share/OVMF/OVMF_VARS.fd
 nvram_file_path: /var/lib/libvirt/qemu/nvram/test_VARS.fd
+
+# How long to wait for a domain to boot (seconds)
+boot_timeout: 60

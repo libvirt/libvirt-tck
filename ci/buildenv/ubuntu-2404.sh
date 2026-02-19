@@ -21,13 +21,14 @@ function install_buildenv() {
             libcpan-changes-perl \
             libdigest-perl \
             libdigest-perl-md5-perl \
-            libextutils-cbuilder-perl \
             libfile-slurp-perl \
             libglib2.0-dev \
             libgnutls28-dev \
             libio-compress-perl \
+            libio-interface-perl \
             libio-string-perl \
             libmodule-build-perl \
+            libnet-openssh-perl \
             libnetaddr-ip-perl \
             libnl-3-dev \
             libnl-route-3-dev \
@@ -51,6 +52,7 @@ function install_buildenv() {
             make \
             meson \
             ninja-build \
+            perl \
             perl-base \
             pkgconf \
             python3 \

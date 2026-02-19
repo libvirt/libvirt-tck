@@ -23,13 +23,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
                       libcpan-changes-perl \
                       libdigest-perl \
                       libdigest-perl-md5-perl \
-                      libextutils-cbuilder-perl \
                       libfile-slurp-perl \
                       libglib2.0-dev \
                       libgnutls28-dev \
                       libio-compress-perl \
+                      libio-interface-perl \
                       libio-string-perl \
                       libmodule-build-perl \
+                      libnet-openssh-perl \
                       libnetaddr-ip-perl \
                       libnl-3-dev \
                       libnl-route-3-dev \
@@ -53,6 +54,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
                       make \
                       meson \
                       ninja-build \
+                      perl \
                       perl-base \
                       pkgconf \
                       python3 \
@@ -68,8 +70,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/cc && \
     ln -s /usr/bin/ccache /usr/libexec/ccache-wrappers/gcc
 
-ENV CCACHE_WRAPPERSDIR "/usr/libexec/ccache-wrappers"
-ENV LANG "en_US.UTF-8"
-ENV MAKE "/usr/bin/make"
-ENV NINJA "/usr/bin/ninja"
-ENV PYTHON "/usr/bin/python3"
+ENV CCACHE_WRAPPERSDIR="/usr/libexec/ccache-wrappers"
+ENV LANG="en_US.UTF-8"
+ENV MAKE="/usr/bin/make"
+ENV NINJA="/usr/bin/ninja"
+ENV PYTHON="/usr/bin/python3"

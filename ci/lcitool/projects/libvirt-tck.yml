@@ -6,8 +6,10 @@ packages:
   - perl-Digest-MD5
   - perl-File-Slurp
   - perl-IO-Compress-Bzip2
+  - perl-IO-Interface
   - perl-IO-String
   - perl-Module-Build
+  - perl-Net-OpenSSH
   - perl-NetAddr-IP
   - perl-Sub-Uplevel
   - perl-TAP-Formatter-HTML

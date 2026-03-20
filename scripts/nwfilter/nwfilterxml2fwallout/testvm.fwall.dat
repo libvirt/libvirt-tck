@@ -48,12 +48,15 @@
 -a libvirt-out -m physdev --physdev-out vnet0 --physdev-is-bridged -g fo-vnet0
 #iptables -S FI-vnet0
 -n fi-vnet0
+-a fi-vnet0 -p tcp -m tcp --sport 22 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
 -a fi-vnet0 -j drop
 #iptables -S FO-vnet0
 -n fo-vnet0
+-a fo-vnet0 -p tcp -m tcp --dport 22 -m conntrack --ctstate new,established -m conntrack --ctdir original -j accept
 -a fo-vnet0 -j drop
 #iptables -S HI-vnet0
 -n hi-vnet0
+-a hi-vnet0 -p tcp -m tcp --sport 22 -m conntrack --ctstate established -m conntrack --ctdir reply -j return
 -a hi-vnet0 -j drop
 #iptables -S libvirt-host-in | grep vnet0
 -a libvirt-host-in -m physdev --physdev-in vnet0 -g hi-vnet0

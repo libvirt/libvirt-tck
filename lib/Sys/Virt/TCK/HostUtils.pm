@@ -47,4 +47,36 @@ sub destroy_bridge {
     }
 }
 
+sub _has_nftables {
+    my $witness = shift;
+
+    my $ret = `which nft && nft list tables 2>/dev/null | awk '{print \$3}'`;
+
+    foreach my $line (split "\n", $ret) {
+	chomp $line;
+	return 1 if $line eq $witness;
+    }
+    return 0;
+}
+
+sub has_nwfilter {
+    my $self = shift;
+    if ($self->{os} ne 'Linux') {
+	return 0;
+    }
+
+    return 1;
+}
+
+sub has_nwfilter_ipebtables {
+    my $self = shift;
+
+    return $self->has_nwfilter() && !_has_nftables("libvirt_nwfilter_ethernet");
+}
+
+sub has_nwfilter_nftables {
+    my $self = shift;
+    return $self->has_nwfilter() && _has_nftables("libvirt_nwfilter_ethernet");
+}
+
 1;

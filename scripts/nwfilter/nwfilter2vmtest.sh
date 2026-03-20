@@ -560,6 +560,25 @@ main() {
     exit 1;
   fi
 
+  isnft=0
+  which nft > /dev/null 2>&1
+  if test $? == 0
+  then
+      for name in $(nft list tables | awk '{print $3}')
+      do
+	  if test ${name} = "libvirt_nwfilter_ethernet"
+	  then
+	      isnft=1
+	  fi
+      done
+  fi
+
+  if test $isnft = 1
+  then
+      echo "1..0 # Skipped: Only valid for iptables/ebtables driver"
+      exit 0
+  fi
+
   if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
     if [ "${LIBVIRT_URI}" != "qemu:///system" ]; then
         echo "1..0 # Skipped: Only valid for Qemu system driver"

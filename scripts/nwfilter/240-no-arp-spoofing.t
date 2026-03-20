@@ -30,10 +30,12 @@ use warnings;
 use Test::More tests => 4;
 
 use Sys::Virt::TCK;
+use Sys::Virt::TCK::HostUtils;
 use Test::Exception;
 use Net::OpenSSH;
 use File::Spec::Functions qw(catfile catdir rootdir);
 
+my $hostutils = Sys::Virt::TCK::HostUtils->new();
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
@@ -41,90 +43,95 @@ END {
     $tck->cleanup if $tck;
 }
 
-my $networkip = get_network_ip($conn, "default");
-my $networkipaddr = $networkip->addr();
-diag "network ip is $networkip, individual ip is $networkipaddr";
+SKIP: {
+    skip "NWFilter driver not available on this platform", 4 unless $hostutils->has_nwfilter();
+    skip "NWFilter driver not using ipebtables backend", 4 unless $hostutils->has_nwfilter_ipebtables();
 
-# create first domain and start it
-my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-                               netmode => "network",
-                               filterref => "clean-traffic")->as_xml();
+    my $networkip = get_network_ip($conn, "default");
+    my $networkipaddr = $networkip->addr();
+    diag "network ip is $networkip, individual ip is $networkipaddr";
 
-my $dom;
-ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
+    # create first domain and start it
+    my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+				   netmode => "network",
+				   filterref => "clean-traffic")->as_xml();
 
-diag "Start domain";
-$dom->create;
-ok($dom->get_id() > 0, "running domain has an ID > 0");
+    my $dom;
+    ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-my $guestip = $tck->wait_for_vm_to_boot($dom);
-diag "guest ip is $guestip";
+    diag "Start domain";
+    $dom->create;
+    ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-my $spoofip = $networkip + 1;
-if ($spoofip->addr() eq $guestip) {
-    $spoofip++;
-}
-my $spoofipaddr = $spoofip->addr();
-diag "spoof ip is $spoofipaddr";
+    my $guestip = $tck->wait_for_vm_to_boot($dom);
+    diag "guest ip is $guestip";
 
-# check ebtables entry
-my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
-diag $ebtable;
-# check if IP address is listed
-ok($ebtable =~ "$guestip", "check ebtables entry");
+    my $spoofip = $networkip + 1;
+    if ($spoofip->addr() eq $guestip) {
+	$spoofip++;
+    }
+    my $spoofipaddr = $spoofip->addr();
+    diag "spoof ip is $spoofipaddr";
 
-# prepare tcpdump
-diag "prepare tcpdump";
-system("/usr/sbin/tcpdump -v -i virbr0 not ip  > /tmp/tcpdump.log &");
+    # check ebtables entry
+    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
+    my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+    diag $ebtable;
+    # check if IP address is listed
+    ok($ebtable =~ "$guestip", "check ebtables entry");
 
-# log into guest
-diag "ssh'ing into $guestip";
-my $ssh = Net::OpenSSH->new($guestip,
-                            user => "root",
-                            key_path => $tck->ssh_key_path($tck->scratch_dir()),
-                            master_opts => [-o => "UserKnownHostsFile=/dev/null",
-                                            -o => "StrictHostKeyChecking=no"]);
+    # prepare tcpdump
+    diag "prepare tcpdump";
+    system("/usr/sbin/tcpdump -v -i virbr0 not ip  > /tmp/tcpdump.log &");
 
-# now generate a arp spoofing packets 
-diag "generate arpspoof script";
-my $cmdfile = <<EOF;
+    # log into guest
+    diag "ssh'ing into $guestip";
+    my $ssh = Net::OpenSSH->new($guestip,
+				user => "root",
+				key_path => $tck->ssh_key_path($tck->scratch_dir()),
+				master_opts => [-o => "UserKnownHostsFile=/dev/null",
+						-o => "StrictHostKeyChecking=no"]);
+
+    # now generate a arp spoofing packets
+    diag "generate arpspoof script";
+    my $cmdfile = <<EOF;
 echo "arpspoof ${spoofipaddr} &
 sleep 10
 kill -15 \\\$(pidof arpspoof)" > /test.sh
 EOF
 
-diag "content of cmdfile:";
-diag $cmdfile;
-diag "creating cmdfile";
-my ($stdout, $stderr) = $ssh->capture2($cmdfile);
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr) = $ssh->capture2("chmod +x /test.sh");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-diag "excuting cmdfile";
-($stdout, $stderr) = $ssh->capture2("/test.sh > /test.log");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr) = $ssh->capture2("echo test.log\ncat /test.log");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
+    diag "content of cmdfile:";
+    diag $cmdfile;
+    diag "creating cmdfile";
+    my ($stdout, $stderr) = $ssh->capture2($cmdfile);
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr) = $ssh->capture2("chmod +x /test.sh");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    diag "excuting cmdfile";
+    ($stdout, $stderr) = $ssh->capture2("/test.sh > /test.log");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr) = $ssh->capture2("echo test.log\ncat /test.log");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
 
-# now stop tcpdump and verify result
-diag "stopping tcpdump";
-system("kill -15 `pidof tcpdump`");
-diag "tcpdump.log:";
-my $tcpdumplog = `cat /tmp/tcpdump.log`;
-diag($tcpdumplog);
-ok($tcpdumplog !~ "${spoofipaddr} is-at", "tcpdump expected to capture no arp reply packets");
+    # now stop tcpdump and verify result
+    diag "stopping tcpdump";
+    system("kill -15 `pidof tcpdump`");
+    diag "tcpdump.log:";
+    my $tcpdumplog = `cat /tmp/tcpdump.log`;
+    diag($tcpdumplog);
+    ok($tcpdumplog !~ "${spoofipaddr} is-at", "tcpdump expected to capture no arp reply packets");
 
-shutdown_vm_gracefully($dom);
+    shutdown_vm_gracefully($dom);
 
-$dom->undefine;
+    $dom->undefine;
+}
 
 exit 0;

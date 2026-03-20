@@ -31,10 +31,12 @@ use warnings;
 use Test::More tests => 4;
 
 use Sys::Virt::TCK;
+use Sys::Virt::TCK::HostUtils;
 use Test::Exception;
 
 use File::Spec::Functions qw(catfile catdir rootdir);
 
+my $hostutils = Sys::Virt::TCK::HostUtils->new();
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
@@ -42,40 +44,45 @@ END {
     $tck->cleanup if $tck;
 }
 
-# create first domain and start it
-my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-                               netmode => "network",
-                               filterref => "clean-traffic")->as_xml();
+SKIP: {
+    skip "NWFilter driver not available on this platform", 4 unless $hostutils->has_nwfilter();
+    skip "NWFilter driver not using ipebtables backend", 4 unless $hostutils->has_nwfilter_ipebtables();
 
-my $dom;
-ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
+    # create first domain and start it
+    my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+				   netmode => "network",
+				   filterref => "clean-traffic")->as_xml();
 
-diag "Start domain";
-$dom->create;
-ok($dom->get_id() > 0, "running domain has an ID > 0");
+    my $dom;
+    ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-my $mac =  get_first_macaddress($dom);
-diag "mac is $mac";
+    diag "Start domain";
+    $dom->create;
+    ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-my $guestip = $tck->wait_for_vm_to_boot($dom);
-diag "ip is $guestip";
+    my $mac =  get_first_macaddress($dom);
+    diag "mac is $mac";
 
-# check ebtables entry
-my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
-diag $ebtable;
-# ebtables *might* shorten :00: to :0: so we need to allow for both when searching
-$_ = $mac;
-s/0([0-9])/0{0,1}$1/g;
-ok($ebtable =~ $_, "check ebtables entry");
+    my $guestip = $tck->wait_for_vm_to_boot($dom);
+    diag "ip is $guestip";
 
-# ping guest1
-my $ping = `ping -c 10 $guestip`;
-diag $ping;
-ok($ping =~ "10 received", "ping $guestip test");
+    # check ebtables entry
+    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
+    my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+    diag $ebtable;
+    # ebtables *might* shorten :00: to :0: so we need to allow for both when searching
+    $_ = $mac;
+    s/0([0-9])/0{0,1}$1/g;
+    ok($ebtable =~ $_, "check ebtables entry");
 
-shutdown_vm_gracefully($dom);
+    # ping guest1
+    my $ping = `ping -c 10 $guestip`;
+    diag $ping;
+    ok($ping =~ "10 received", "ping $guestip test");
 
-$dom->undefine();
+    shutdown_vm_gracefully($dom);
+
+    $dom->undefine();
+}
 
 exit 0;

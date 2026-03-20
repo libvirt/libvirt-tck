@@ -30,11 +30,13 @@ use warnings;
 use Test::More tests => 5;
 
 use Sys::Virt::TCK;
+use Sys::Virt::TCK::HostUtils;
 use Test::Exception;
 use Net::OpenSSH;
 
 use File::Spec::Functions qw(catfile catdir rootdir);
 
+my $hostutils = Sys::Virt::TCK::HostUtils->new();
 my $tck = Sys::Virt::TCK->new();
 my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
@@ -42,53 +44,57 @@ END {
     $tck->cleanup if $tck;
 }
 
-my $networkip = get_network_ip($conn, "default");
-my $networkipaddr = $networkip->addr();
-diag "network ip is $networkip, individual ip is $networkipaddr";
+SKIP: {
+    skip "NWFilter driver not available on this platform", 5 unless $hostutils->has_nwfilter();
+    skip "NWFilter driver not using ipebtables backend", 5 unless $hostutils->has_nwfilter_ipebtables();
 
-# create first domain and start it
-my $xml = $tck->generic_domain(name => "tck", fullos => 1,
-                               netmode => "network",
-                               filterref => "clean-traffic")->as_xml();
+    my $networkip = get_network_ip($conn, "default");
+    my $networkipaddr = $networkip->addr();
+    diag "network ip is $networkip, individual ip is $networkipaddr";
 
-my $dom;
-ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
+    # create first domain and start it
+    my $xml = $tck->generic_domain(name => "tck", fullos => 1,
+				   netmode => "network",
+				   filterref => "clean-traffic")->as_xml();
 
-diag "Start domain";
-$dom->create;
-ok($dom->get_id() > 0, "running domain has an ID > 0");
+    my $dom;
+    ok_domain(sub { $dom = $conn->define_domain($xml) }, "created persistent domain object");
 
-my $mac =  get_first_macaddress($dom);
-diag "mac is $mac";
+    diag "Start domain";
+    $dom->create;
+    ok($dom->get_id() > 0, "running domain has an ID > 0");
 
-my $guestip = $tck->wait_for_vm_to_boot($dom);
-diag "guest ip is $guestip";
+    my $mac =  get_first_macaddress($dom);
+    diag "mac is $mac";
 
-# check ebtables entry
-my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
-diag $ebtable;
-# ebtables *might* shorten :00: to :0: so we need to allow for both when searching
-$_ = $mac;
-s/0([0-9])/0{0,1}$1/g;
-ok($ebtable =~ $_, "check ebtables entry");
+    my $guestip = $tck->wait_for_vm_to_boot($dom);
+    diag "guest ip is $guestip";
 
-my $macfalse = "52:54:00:f9:21:22";
-my $ping = `ping -c 10 $guestip`;
-diag $ping;
-ok($ping =~ "10 received", "ping $guestip test");
+    # check ebtables entry
+    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
+    my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+    diag $ebtable;
+    # ebtables *might* shorten :00: to :0: so we need to allow for both when searching
+    $_ = $mac;
+    s/0([0-9])/0{0,1}$1/g;
+    ok($ebtable =~ $_, "check ebtables entry");
 
-# log into guest
-diag "ssh'ing into $guestip";
-my $ssh = Net::OpenSSH->new($guestip,
-                            user => "root",
-                            key_path => $tck->ssh_key_path($tck->scratch_dir()),
-                            master_opts => [-o => "UserKnownHostsFile=/dev/null",
-                                            -o => "StrictHostKeyChecking=no"]);
+    my $macfalse = "52:54:00:f9:21:22";
+    my $ping = `ping -c 10 $guestip`;
+    diag $ping;
+    ok($ping =~ "10 received", "ping $guestip test");
 
-# now bring eth0 down, change MAC and bring it up again
-diag "fiddling with mac";
-my $cmdfile = <<EOF;
+    # log into guest
+    diag "ssh'ing into $guestip";
+    my $ssh = Net::OpenSSH->new($guestip,
+				user => "root",
+				key_path => $tck->ssh_key_path($tck->scratch_dir()),
+				master_opts => [-o => "UserKnownHostsFile=/dev/null",
+						-o => "StrictHostKeyChecking=no"]);
+
+    # now bring eth0 down, change MAC and bring it up again
+    diag "fiddling with mac";
+    my $cmdfile = <<EOF;
 echo "DEV=`ip link | head -3 | tail -1 | awk '{print \\\$2}' | sed -e 's/://'`
 ip addr show dev \\\$DEV
 ip link set \\\$DEV down
@@ -101,31 +107,32 @@ ip link set \\\$DEV address ${mac}
 ip link set \\\$DEV up
 ip addr show dev \\\$DEV" > /test.sh
 EOF
-diag $cmdfile;
-my ($stdout, $stderr)  = $ssh->capture2($cmdfile);
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr)  = $ssh->capture2("chmod +x /test.sh");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr)  = $ssh->capture2("/test.sh > /test.log");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr)  = $ssh->capture2("cat /test.sh");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-($stdout, $stderr)  = $ssh->capture2("cat /test.log");
-diag $stdout;
-diag $stderr;
-diag "Exit Code: $?";
-ok($stdout =~ /100% packet loss|Network is unreachable/, "packet loss expected");
+    diag $cmdfile;
+    my ($stdout, $stderr)  = $ssh->capture2($cmdfile);
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr)  = $ssh->capture2("chmod +x /test.sh");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr)  = $ssh->capture2("/test.sh > /test.log");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr)  = $ssh->capture2("cat /test.sh");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ($stdout, $stderr)  = $ssh->capture2("cat /test.log");
+    diag $stdout;
+    diag $stderr;
+    diag "Exit Code: $?";
+    ok($stdout =~ /100% packet loss|Network is unreachable/, "packet loss expected");
 
-shutdown_vm_gracefully($dom);
+    shutdown_vm_gracefully($dom);
 
-$dom->undefine();
+    $dom->undefine();
+}
 
 exit 0;

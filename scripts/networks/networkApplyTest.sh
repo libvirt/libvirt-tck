@@ -257,7 +257,7 @@ runTests() {
 main() {
   prgname="$0"
   xmldir="networkxml2xmlin"
-  hostoutdir="networkxml2hostout"
+  hostoutdir="networkxml2hostoutiptables"
   flags=0
 
   while [ $# -ne 0 ]; do

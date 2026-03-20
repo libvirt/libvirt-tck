@@ -77,8 +77,8 @@ kernels:
     ostype:
       - hvm
       - xen
-    kernel: http://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/images/pxeboot/vmlinuz
-    initrd: http://dl.fedoraproject.org/pub/fedora/linux/releases/41/Everything/x86_64/os/images/pxeboot/initrd.img
+    kernel: http://archive.fedoraproject.org/pub/archive/fedora/linux/releases/41/Everything/x86_64/os/images/pxeboot/vmlinuz
+    initrd: http://archive.fedoraproject.org/pub/archive/fedora/linux/releases/41/Everything/x86_64/os/images/pxeboot/initrd.img
 
 # LXC containers need a virtual container filesystem somewhere
 #

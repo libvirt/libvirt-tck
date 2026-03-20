@@ -61,7 +61,7 @@ SKIP: {
     diag "Starting inactive domain config";
     $dom->create;
     ok($dom->get_id() > 0, "running domain has an ID > 0");
-    skip "no disk stats likely when booting off kernel", 1 if $nkernel > 0;
+    skip "no disk stats likely when booting off kernel", 2 if $nkernel > 0;
 
     local $SIG{ALRM} = sub { die "timeout while waiting for non-zero guest block statistics" };
 

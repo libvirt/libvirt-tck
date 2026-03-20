@@ -89,6 +89,12 @@ scripts/networks/networkxml2hostoutiptables/tck-testnet-2.dat
 scripts/networks/networkxml2hostoutiptables/tck-testnet-2.post.dat
 scripts/networks/networkxml2hostoutiptables/tck-testnet-3.dat
 scripts/networks/networkxml2hostoutiptables/tck-testnet-3.post.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-1.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-1.post.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-2.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-2.post.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-3.dat
+scripts/networks/networkxml2hostoutnftables/tck-testnet-3.post.dat
 scripts/networks/networkxml2xmlin/tck-testnet-1.xml
 scripts/networks/networkxml2xmlin/tck-testnet-2.xml
 scripts/networks/networkxml2xmlin/tck-testnet-3.xml

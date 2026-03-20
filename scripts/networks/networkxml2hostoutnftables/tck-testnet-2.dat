@@ -1,0 +1,42 @@
+#nft list table ip libvirt_network | sed -E -e 's/counter packets [0-9]+ bytes [0-9]+ //' | grep -E '(chain|table|}|10\.1\.2\.)'
+table ip libvirt_network {
+	chain forward {
+	}
+	chain guest_output {
+		ip saddr 10.1.2.0/24 iif "tck-testbr" accept
+	}
+	chain guest_input {
+		ip daddr 10.1.2.0/24 oif "tck-testbr" accept
+	}
+	chain guest_cross {
+	}
+	chain guest_nat {
+	}
+}
+#nft list table ip6 libvirt_network | grep -E '(chain|table|}|2001:db8:ac10)'
+table ip6 libvirt_network {
+	chain forward {
+	}
+	chain guest_output {
+	}
+	chain guest_input {
+	}
+	chain guest_cross {
+	}
+	chain guest_nat {
+	}
+}
+#ip -o route show dev tck-testbr | gawk '{print $1" "$7}'
+10.1.2.0/24 10.1.2.1
+#ps aux | sed -n '/dnsmasq .*tck-testnet/ s|.*\(\/dnsmasq\/tck-testnet.conf\).*|\1|p' | head -1
+/dnsmasq/tck-testnet.conf
+#grep bind-dynamic `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
+bind-dynamic
+#grep dhcp-range `ps aux | sed -n '0,/dnsmasq .*tck-testnet/ s|.*--conf-file=\(.*tck-testnet.conf\).*|\1|p'`
+dhcp-range=10.1.2.2,10.1.2.254,255.255.255.0
+#ip link show type bridge | grep tck-testbr | gawk '{print $2}'
+tck-testbr:
+#ip -o addr show dev tck-testbr | gawk '{print $4" "$6}'
+10.1.2.1/24 10.1.2.255
+#virsh net-list | grep tck-testnet
+ tck-testnet          active     no   no

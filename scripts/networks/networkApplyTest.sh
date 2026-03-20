@@ -257,7 +257,6 @@ runTests() {
 main() {
   prgname="$0"
   xmldir="networkxml2xmlin"
-  hostoutdir="networkxml2hostoutiptables"
   flags=0
 
   while [ $# -ne 0 ]; do
@@ -297,8 +296,9 @@ main() {
 
   if test $isnft = 1
   then
-      echo "1..0 # Skipped: Only valid with iptables driver"
-      exit 0
+      hostoutdir="networkxml2hostoutnftables"
+  else
+      hostoutdir="networkxml2hostoutiptables"
   fi
 
   if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then

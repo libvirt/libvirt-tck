@@ -218,26 +218,8 @@ sub reset_nwfilters {
     my $self = shift;
     my $conn = shift;
 
-    my @nwfilters;
-
-    eval {
-        my @nwfilters = grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
-        if (@nwfilters) {
-            die "there is/are " . int(@nwfilters) . " pre-existing nwfilter(s) in this driver";
-        }
-    };
-
-    if ($@) {
-        my $err = $@;
-
-        if (
-            ref($err)
-            && eval { $err->isa('Sys::Virt::Error') }
-            && $err->code == &Sys::Virt::Error::ERR_NO_SUPPORT) {
-            return;
-        }
-
-        die $err;
+    my @nwfilters = eval {
+	grep { $_->get_name =~ /^tck/ } $conn->list_nwfilters;
     };
 
     foreach my $nwfilter (@nwfilters) {

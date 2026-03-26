@@ -46,7 +46,6 @@ END {
 
 SKIP: {
     skip "NWFilter driver not available on this platform", 4 unless $hostutils->has_nwfilter();
-    skip "NWFilter driver not using ipebtables backend", 4 unless $hostutils->has_nwfilter_ipebtables();
 
     my $networkip = get_network_ip($conn, "default");
     my $networkipaddr = $networkip->addr();
@@ -93,10 +92,16 @@ EOF
     my $guestip = $tck->wait_for_vm_to_boot($dom);
     diag "ip is $guestip";
 
-    # check ebtables entry
-    my $ebtable = `ebtables -t nat -L`;
-    diag $ebtable;
-    ok($ebtable =~ "-d Broadcast -j DROP", "check ebtables entry for \"-d Broadcast -j DROP\"");
+    # check firewall entry
+    if ($hostutils->has_nwfilter_nftables()) {
+	my $rules = `nft list table bridge libvirt_nwfilter_ethernet`;
+	diag $rules;
+	ok($rules =~ "ether daddr ff:ff:ff:ff:ff:ff drop", "check firewall drop rule");
+    } else {
+	my $rules = `ebtables -t nat -L`;
+	diag $rules;
+	ok($rules =~ "-d Broadcast -j DROP", "check firewall drop rule");
+    }
 
     # prepare tcpdump
     diag "prepare tcpdump";

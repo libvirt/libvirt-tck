@@ -46,7 +46,6 @@ END {
 
 SKIP: {
     skip "NWFilter driver not available on this platform", 4 unless $hostutils->has_nwfilter();
-    skip "NWFilter driver not using ipebtables backend", 4 unless $hostutils->has_nwfilter_ipebtables();
 
     # create first domain and start it
     my $xml = $tck->generic_domain(name => "tck", fullos => 1,
@@ -66,13 +65,18 @@ SKIP: {
     my $guestip = $tck->wait_for_vm_to_boot($dom);
     diag "ip is $guestip";
 
-    # check ebtables entry
-    my $ebtable = `ebtables -t nat -L`;
-    diag $ebtable;
-    # ebtables *might* shorten :00: to :0: so we need to allow for both when searching
+    # check firewall entry
+    my $rules;
+    if ($hostutils->has_nwfilter_nftables()) {
+	$rules = `nft list table bridge libvirt_nwfilter_ethernet`;
+    } else {
+	$rules = `ebtables -t nat -L`;
+    }
+    diag $rules;
+    # rules *might* shorten :00: to :0: so we need to allow for both when searching
     $_ = $mac;
     s/0([0-9])/0{0,1}$1/g;
-    ok($ebtable =~ $_, "check ebtables entry");
+    ok($rules =~ $_, "check firewall rules for mac $_");
 
     # ping guest1
     my $ping = `ping -c 10 $guestip`;

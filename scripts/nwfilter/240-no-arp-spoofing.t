@@ -45,7 +45,6 @@ END {
 
 SKIP: {
     skip "NWFilter driver not available on this platform", 4 unless $hostutils->has_nwfilter();
-    skip "NWFilter driver not using ipebtables backend", 4 unless $hostutils->has_nwfilter_ipebtables();
 
     my $networkip = get_network_ip($conn, "default");
     my $networkipaddr = $networkip->addr();
@@ -73,11 +72,16 @@ SKIP: {
     my $spoofipaddr = $spoofip->addr();
     diag "spoof ip is $spoofipaddr";
 
-    # check ebtables entry
-    my $ebtable = `ebtables -t nat -L`;
-    diag $ebtable;
+    # check firewall entry
+    my $rules;
+    if ($hostutils->has_nwfilter_nftables()) {
+	$rules = `nft list table bridge libvirt_nwfilter_ethernet`;
+    } else {
+	$rules = `ebtables -t nat -L`;
+    }
+    diag $rules;
     # check if IP address is listed
-    ok($ebtable =~ "$guestip", "check ebtables entry");
+    ok($rules =~ $guestip, "check firewall rules for guest IP $guestip");
 
     # prepare tcpdump
     diag "prepare tcpdump";

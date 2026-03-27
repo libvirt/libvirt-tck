@@ -1,0 +1,38 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.2.3 ip dscp 0x02 ct direction reply ct state established accept comment "usercomment=accept rule -- dir out"
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.0.0/22 ip dscp 0x21 ct direction original ct state established,new accept comment "usercomment=accept rule -- dir in"
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.0.0/22 ip dscp 0x21 drop comment "usercomment=drop rule   -- dir in"
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.0.0/22 ip dscp 0x21 drop comment "usercomment=reject rule -- dir in"
+		ether type ip ct direction original ct state established,new accept comment "usercomment=accept rule -- dir inout"
+		ether type ip drop comment "usercomment=drop   rule -- dir inout"
+		ether type ip drop comment "usercomment=reject rule -- dir inout"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ip daddr 10.1.2.3 ip dscp 0x02 ct direction original ct state established,new accept comment "usercomment=accept rule -- dir out"
+		ether saddr 01:02:03:04:05:06 ip daddr 10.1.2.3 ip dscp 0x02 drop comment "usercomment=drop rule   -- dir out"
+		ether saddr 01:02:03:04:05:06 ip daddr 10.1.2.3 ip dscp 0x02 drop comment "usercomment=reject rule -- dir out"
+		ether saddr 01:02:03:04:05:06 ip daddr 10.1.0.0/22 ip dscp 0x21 ct direction reply ct state established accept comment "usercomment=accept rule -- dir in"
+		ether type ip ct direction original ct state established,new accept comment "usercomment=accept rule -- dir inout"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether daddr aa:bb:cc:dd:ee:ff ether type ip accept
+		ether daddr aa:bb:cc:dd:ee:ff ether type ip drop
+		ether daddr aa:bb:cc:dd:ee:ff ether type ip drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ether type arp accept
+		ether saddr 01:02:03:04:05:06 ether type arp drop
+		ether saddr 01:02:03:04:05:06 ether type arp drop
+	}
+}

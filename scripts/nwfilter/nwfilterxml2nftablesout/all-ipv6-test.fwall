@@ -1,0 +1,26 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 ip6 daddr f:e:d::c:b:a/127 ip6 saddr a:b:c::d:e:f ip6 dscp 0x02 ct direction reply ct state established accept
+		ether saddr 01:02:03:04:05:06 ip6 saddr a:b:c:: ip6 dscp 0x21 ct direction original ct state established,new accept
+		ether saddr 01:02:03:04:05:06 ip6 saddr ::10.1.2.3 ip6 dscp 0x21 ct direction original ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ip6 saddr f:e:d::c:b:a/127 ip6 daddr a:b:c::d:e:f ip6 dscp 0x02 ct direction original ct state established,new accept
+		ether saddr 01:02:03:04:05:06 ip6 daddr a:b:c:: ip6 dscp 0x21 ct direction reply ct state established accept
+		ether saddr 01:02:03:04:05:06 ip6 daddr ::10.1.2.3 ip6 dscp 0x21 ct direction reply ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

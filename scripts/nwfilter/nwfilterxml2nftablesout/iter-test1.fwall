@@ -1,0 +1,26 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ip daddr 1.1.1.1 ip dscp 0x02 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x02 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x02 tcp dport 80 ct direction reply ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ip saddr 1.1.1.1 ip dscp 0x02 tcp sport 80 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x02 tcp sport 90 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x02 tcp sport 80 ct direction original ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

@@ -1,0 +1,22 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether daddr 01:80:c2:00:00:00 jump vnet0-stp-xyz-in
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether daddr 01:80:c2:00:00:00 jump vnet0-stp-xyz-out
+	}
+}

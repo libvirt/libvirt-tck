@@ -1,0 +1,25 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		arp saddr ip & 255.0.0.0 . arp daddr ip & 255.0.0.0 @same-ip-set arp saddr ip & 0.255.0.0 . arp daddr ip & 0.255.0.0 @same-ip-set arp saddr ip & 0.0.255.0 . arp daddr ip & 0.0.255.0 @same-ip-set arp saddr ip & 0.0.0.255 . arp daddr ip & 0.0.0.255 @same-ip-set accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff arp htype 12 arp ptype 0x0022 arp operation request arp saddr ether 01:02:03:04:05:06 arp daddr ether 0a:0b:0c:0d:0e:0f accept
+		ether saddr 01:02:03:04:05:06 arp htype 255 arp ptype 0x00ff arp operation request accept
+		ether saddr 01:02:03:04:05:06 arp htype 256 arp ptype 0x0100 arp operation 11 accept
+		ether saddr 01:02:03:04:05:06 arp htype 65535 arp ptype 0xffff arp operation 65535 accept
+	}
+}

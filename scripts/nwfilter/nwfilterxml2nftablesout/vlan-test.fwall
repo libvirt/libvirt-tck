@@ -1,0 +1,27 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff vlan id 291 continue
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff vlan id 1234 return
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff vlan id 291 drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether daddr 01:02:03:04:05:06 ether saddr aa:bb:cc:dd:ee:ff vlan id 291 continue
+		ether daddr 01:02:03:04:05:06 ether saddr aa:bb:cc:dd:ee:ff vlan id 1234 return
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff ether type 8021q vlan type arp drop
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff ether type 8021q vlan type 0x1234 accept
+	}
+}

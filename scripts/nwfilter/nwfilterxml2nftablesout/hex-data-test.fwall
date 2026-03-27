@@ -1,0 +1,28 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.2.3 ip dscp af41 udp sport 564-1092 udp dport 291-400 ct direction reply ct state established accept
+		ether saddr 01:02:03:04:05:06 ip6 saddr a:b:c:: ip6 dscp 0x39 tcp dport 256-4369 tcp sport 32-33 ct direction original ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ip daddr 10.1.2.3 ip dscp af41 udp dport 564-1092 udp sport 291-400 ct direction original ct state established,new accept
+		ether saddr 01:02:03:04:05:06 ip6 daddr a:b:c:: ip6 dscp 0x39 tcp sport 256-4369 tcp dport 32-33 ct direction reply ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether type 0x1234 accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff ip saddr 10.1.2.3 ip daddr 10.1.2.3 ip protocol udp udp sport 291-564 udp dport 13398-17767 ip dscp 0x32 accept
+		ether saddr & ff:ff:ff:ff:ff:fe == 01:02:03:04:05:06 ether daddr & ff:ff:ff:ff:ff:80 == aa:bb:cc:dd:ee:ff ip6 saddr ::/22 ip6 daddr ::10.1.0.0/113 ip6 nexthdr tcp tcp sport 273-400 tcp dport 13107-65535 accept
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff arp htype 18 arp ptype 0x0056 arp operation request arp saddr ether 01:02:03:04:05:06 arp daddr ether 0a:0b:0c:0d:0e:0f accept
+	}
+}

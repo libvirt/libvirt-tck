@@ -1,0 +1,24 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 ip protocol icmp ip saddr 10.1.2.3 ip dscp 0x02 icmp type parameter-problem icmp code 11 ct state established accept
+		ether saddr 01:02:03:04:05:06 ip protocol icmp ip saddr 10.1.0.0/22 ip dscp 0x21 icmp type 255 icmp code 255 ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ip protocol icmp ip daddr 10.1.2.3 ip dscp 0x02 icmp type parameter-problem icmp code 11 ct state established,new accept
+		ether saddr 01:02:03:04:05:06 ip protocol icmp ip daddr 10.1.0.0/22 ip dscp 0x21 icmp type 255 icmp code 255 ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

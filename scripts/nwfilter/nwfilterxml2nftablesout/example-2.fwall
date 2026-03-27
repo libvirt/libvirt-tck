@@ -1,0 +1,32 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether type ip ct direction reply ct state established,related accept comment "usercomment=out: existing and related (ftp) connections"
+		ether type ip ct direction original ct state established accept comment "usercomment=in: existing connections"
+		ether type ip tcp dport 21-22 ct direction original ct state new accept comment "usercomment=in: ftp and ssh"
+		ip protocol icmp ct state new accept comment "usercomment=in: icmp"
+		ether type ip udp sport 53 ct direction reply ct state new accept comment "usercomment=out: dns lookups"
+		ether type ip drop comment "usercomment=inout: drop all non-accepted traffic"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether type ip ct direction original ct state established,related accept comment "usercomment=out: existing and related (ftp) connections"
+		ether type ip ct direction reply ct state established accept comment "usercomment=in: existing connections"
+		ether type ip tcp sport 21-22 ct direction reply ct state new accept comment "usercomment=in: ftp and ssh"
+		ip protocol icmp ct state new accept comment "usercomment=in: icmp"
+		ether type ip udp dport 53 ct direction original ct state new accept comment "usercomment=out: dns lookups"
+		ether type ip drop comment "usercomment=inout: drop all non-accepted traffic"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

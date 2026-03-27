@@ -1,0 +1,27 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ip6 saddr 1::2 ip6 daddr a:b:c::/65 ip6 nexthdr tcp tcp sport 20-22 tcp dport 100-101 accept
+		ip6 saddr 1::2 ip6 daddr a:b:c::/65 ip6 nexthdr tcp tcp sport 255-256 tcp dport 65535 accept
+		ip6 saddr 1::2 ip6 daddr a:b:c::/65 ip6 nexthdr udp accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr & ff:ff:ff:ff:ff:fe == 01:02:03:04:05:06 ether daddr & ff:ff:ff:ff:ff:80 == aa:bb:cc:dd:ee:ff ip6 saddr ::/22 ip6 daddr ::10.1.0.0/113 ip6 nexthdr udp udp sport 20-22 udp dport 100-101 accept
+		ip6 daddr 1::2 ip6 saddr a:b:c::/65 ip6 nexthdr tcp tcp dport 20-22 tcp sport 100-101 accept
+		ip6 daddr 1::2 ip6 saddr a:b:c::/65 ip6 nexthdr tcp tcp dport 255-256 tcp sport 65535 accept
+		ip6 daddr 1::2 ip6 saddr a:b:c::/65 ip6 nexthdr udp accept
+	}
+}

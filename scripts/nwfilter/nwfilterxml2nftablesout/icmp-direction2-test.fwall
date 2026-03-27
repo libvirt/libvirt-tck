@@ -1,0 +1,26 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ip protocol icmp icmp type echo-request ct state established,new accept
+		ip protocol icmp icmp type echo-reply ct state established accept
+		ip protocol icmp drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ip protocol icmp icmp type echo-request ct state established accept
+		ip protocol icmp icmp type echo-reply ct state established,new accept
+		ip protocol icmp drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

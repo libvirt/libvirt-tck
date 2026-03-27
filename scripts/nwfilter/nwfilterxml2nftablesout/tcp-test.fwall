@@ -1,0 +1,32 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether saddr 01:02:03:04:05:06 meta l4proto tcp ip saddr 10.1.2.3 ip dscp 0x02 ct direction reply ct state established accept
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.2.3 ip dscp 0x21 tcp dport 100-1111 tcp sport 20-21 accept
+		ether saddr 01:02:03:04:05:06 ip saddr 10.1.2.3 ip dscp 0x3f tcp dport 65535 tcp sport 255-256 accept
+		ether type ip tcp flags & syn == { * } ct direction original ct state established,new accept
+		ether type ip tcp flags & syn == { syn, ack } ct direction original ct state established,new accept
+		ether type ip tcp flags ! rst ct direction original ct state established,new accept
+		ether type ip tcp flags ! psh ct direction original ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 meta l4proto tcp ip daddr 10.1.2.3 ip dscp 0x02 ct direction original ct state established,new accept
+		ether type ip tcp flags & syn == { * } ct direction reply ct state established accept
+		ether type ip tcp flags & syn == { syn, ack } ct direction reply ct state established accept
+		ether type ip tcp flags ! rst ct direction reply ct state established accept
+		ether type ip tcp flags ! psh ct direction reply ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

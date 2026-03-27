@@ -1,0 +1,34 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether type ip ct direction reply ct state established accept
+		ether type ip ct direction original ct state established,new accept comment "usercomment=in+none"
+		ether type ip ct direction reply ct state established accept comment "usercomment=out+none"
+		ether type ip ct direction original ct state established,new accept
+		ether type ip ct direction original ct state established,new accept
+		ether type ip ct direction original ct state established,new accept
+		ether type ip ct direction original ct state established,new accept comment "usercomment=inout"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether type ip ct direction original ct state established,new accept
+		ether type ip ct direction reply ct state established accept comment "usercomment=in+none"
+		ether type ip ct direction original ct state established,new accept comment "usercomment=out+none"
+		ether type ip ct direction reply ct state established accept
+		ether type ip ct direction reply ct state established accept
+		ether type ip ct direction reply ct state established accept
+		ether type ip ct direction original ct state established,new accept comment "usercomment=inout"
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

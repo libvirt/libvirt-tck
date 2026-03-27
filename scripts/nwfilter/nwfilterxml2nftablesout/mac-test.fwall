@@ -1,0 +1,24 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether daddr aa:bb:cc:dd:ee:ff ether type ip accept
+		ether daddr aa:bb:cc:dd:ee:ff ether type 0x0600 accept
+		ether daddr aa:bb:cc:dd:ee:ff ether type 0xffff accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ether type arp accept
+	}
+}

@@ -1,0 +1,134 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ip daddr 1.1.1.1 ip dscp lephb tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp lephb tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp lephb tcp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x02 udp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x02 udp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x02 udp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x02 udp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x02 udp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x02 udp dport 90 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x03 sctp sport 1080 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x03 sctp sport 1080 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x03 sctp sport 1080 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x03 sctp sport 1090 sctp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x03 sctp sport 1090 sctp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x03 sctp sport 1090 sctp dport 90 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x03 sctp sport 1100 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x03 sctp sport 1100 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x03 sctp sport 1100 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x03 sctp sport 1110 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x03 sctp sport 1110 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x03 sctp sport 1110 sctp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1080 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1080 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1080 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1080 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1080 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1080 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1090 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1090 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1090 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1090 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1090 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1090 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1100 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1100 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1100 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1100 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1100 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1100 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1110 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1110 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1110 tcp dport 80 ct direction reply ct state established accept
+		ip daddr 1.1.1.1 ip dscp 0x04 tcp sport 1110 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 2.2.2.2 ip dscp 0x04 tcp sport 1110 tcp dport 90 ct direction reply ct state established accept
+		ip daddr 3.3.3.3 ip dscp 0x04 tcp sport 1110 tcp dport 90 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 1.1.1.1 ip saddr 1.1.1.1 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 2.2.2.2 ip saddr 1.1.1.1 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 3.3.3.3 ip saddr 1.1.1.1 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 1.1.1.1 ip saddr 2.2.2.2 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 2.2.2.2 ip saddr 2.2.2.2 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 3.3.3.3 ip saddr 2.2.2.2 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 1.1.1.1 ip saddr 3.3.3.3 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 2.2.2.2 ip saddr 3.3.3.3 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto udp ip daddr 3.3.3.3 ip saddr 3.3.3.3 ip dscp 0x05 ct direction reply ct state established accept
+		meta l4proto sctp ip daddr 1.1.1.1 ip saddr 1.1.1.1 ip dscp 0x06 ct direction reply ct state established accept
+		meta l4proto sctp ip daddr 2.2.2.2 ip saddr 2.2.2.2 ip dscp 0x06 ct direction reply ct state established accept
+		meta l4proto sctp ip daddr 3.3.3.3 ip saddr 3.3.3.3 ip dscp 0x06 ct direction reply ct state established accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ip saddr 1.1.1.1 ip dscp lephb tcp sport 80 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp lephb tcp sport 90 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp lephb tcp sport 80 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x02 udp sport 80 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x02 udp sport 80 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x02 udp sport 80 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x02 udp sport 90 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x02 udp sport 90 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x02 udp sport 90 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x03 sctp sport 80 sctp dport 1080 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x03 sctp sport 80 sctp dport 1080 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x03 sctp sport 80 sctp dport 1080 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x03 sctp sport 90 sctp dport 1090 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x03 sctp sport 90 sctp dport 1090 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x03 sctp sport 90 sctp dport 1090 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x03 sctp sport 80 sctp dport 1100 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x03 sctp sport 80 sctp dport 1100 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x03 sctp sport 80 sctp dport 1100 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x03 sctp sport 80 sctp dport 1110 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x03 sctp sport 80 sctp dport 1110 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x03 sctp sport 80 sctp dport 1110 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 80 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 80 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 80 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 90 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 90 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 90 tcp dport 1080 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 80 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 80 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 80 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 90 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 90 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 90 tcp dport 1090 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 80 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 80 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 80 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 90 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 90 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 90 tcp dport 1100 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 80 tcp dport 1110 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 80 tcp dport 1110 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 80 tcp dport 1110 ct direction original ct state established,new accept
+		ip saddr 1.1.1.1 ip dscp 0x04 tcp sport 90 tcp dport 1110 ct direction original ct state established,new accept
+		ip saddr 2.2.2.2 ip dscp 0x04 tcp sport 90 tcp dport 1110 ct direction original ct state established,new accept
+		ip saddr 3.3.3.3 ip dscp 0x04 tcp sport 90 tcp dport 1110 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 1.1.1.1 ip daddr 1.1.1.1 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 2.2.2.2 ip daddr 1.1.1.1 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 3.3.3.3 ip daddr 1.1.1.1 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 1.1.1.1 ip daddr 2.2.2.2 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 2.2.2.2 ip daddr 2.2.2.2 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 3.3.3.3 ip daddr 2.2.2.2 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 1.1.1.1 ip daddr 3.3.3.3 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 2.2.2.2 ip daddr 3.3.3.3 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto udp ip saddr 3.3.3.3 ip daddr 3.3.3.3 ip dscp 0x05 ct direction original ct state established,new accept
+		meta l4proto sctp ip saddr 1.1.1.1 ip daddr 1.1.1.1 ip dscp 0x06 ct direction original ct state established,new accept
+		meta l4proto sctp ip saddr 2.2.2.2 ip daddr 2.2.2.2 ip dscp 0x06 ct direction original ct state established,new accept
+		meta l4proto sctp ip saddr 3.3.3.3 ip daddr 3.3.3.3 ip dscp 0x06 ct direction original ct state established,new accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

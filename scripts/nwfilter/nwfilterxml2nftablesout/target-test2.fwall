@@ -1,0 +1,30 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether type ip tcp dport 22 ct direction original ct state established,new accept
+		ether type ip tcp dport 22 ct direction reply ct state established accept
+		ether type ip tcp dport 80 ct direction original ct state established,new accept
+		ether type ip meta l4proto tcp drop
+		ether type ip drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether type ip tcp sport 22 ct direction reply ct state established accept
+		ether type ip tcp sport 22 ct direction original ct state established,new accept
+		ether type ip tcp sport 80 ct direction reply ct state established accept
+		ether type ip meta l4proto tcp drop
+		ether type ip drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+	}
+}

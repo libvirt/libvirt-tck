@@ -1,0 +1,88 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+		ether type ip tcp dport 22 ct direction original ct state established,new accept
+		ether type ip drop
+		ether type ip6 drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+		ether type ip tcp sport 22 ct direction reply ct state established accept
+		ether type ip drop
+		ether type ip6 drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ether type ip jump vnet0-ipv4-in
+		ether type arp accept
+		ether type 0x8035 jump vnet0-rarp-in
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		jump vnet0-mac-out
+		ether type ip jump vnet0-ipv4-ip-out
+		ether type ip accept
+		ether type arp jump vnet0-arp-mac-out
+		ether type arp jump vnet0-arp-ip-out
+		ether type arp accept
+		ether type 0x8035 jump vnet0-rarp-out
+		ether type 0x0835 accept
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-ipv4-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-ipv4-in {
+		accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-rarp-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-rarp-in {
+		ether daddr ff:ff:ff:ff:ff:ff ether type 0x8035 @nh,48,96 0x35254109f33da00000000 @nh,144,80 0x5254109f33da00000000 accept
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-mac-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-mac-out {
+		ether saddr 52:54:10:9f:33:da return
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-ipv4-ip-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-ipv4-ip-out {
+		ip saddr 0.0.0.0 ip protocol udp return
+		ip saddr 10.1.1.1 return
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-arp-mac-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-arp-mac-out {
+		arp saddr ether 52:54:10:9f:33:da return
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-arp-ip-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-arp-ip-out {
+		arp saddr ip 10.1.1.1 return
+		drop
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-rarp-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-rarp-out {
+		ether daddr ff:ff:ff:ff:ff:ff ether saddr 52:54:10:9f:33:da ether type 0x8035 @nh,48,96 0x35254109f33da00000000 @nh,144,80 0x5254109f33da00000000 accept
+		drop
+	}
+}

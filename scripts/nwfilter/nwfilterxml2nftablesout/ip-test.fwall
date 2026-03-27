@@ -1,0 +1,23 @@
+#nft list chain bridge libvirt_nwfilter_inet vnet0-in
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-in {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_inet vnet0-out
+table bridge libvirt_nwfilter_inet {
+	chain vnet0-out {
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-in
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-in {
+		ip saddr 10.1.2.2/31 ip daddr 10.1.2.0/25 ip protocol 255 ip dscp 0x3f accept
+	}
+}
+#nft list chain bridge libvirt_nwfilter_ethernet vnet0-out
+table bridge libvirt_nwfilter_ethernet {
+	chain vnet0-out {
+		ether saddr 01:02:03:04:05:06 ether daddr aa:bb:cc:dd:ee:ff ip saddr 10.1.2.3 ip daddr 10.1.2.3 ip protocol udp udp sport 20-22 udp dport 100-101 accept
+		ip saddr 10.1.0.0/17 ip daddr 10.1.2.0/24 ip protocol udp ip dscp 0x3f accept
+	}
+}

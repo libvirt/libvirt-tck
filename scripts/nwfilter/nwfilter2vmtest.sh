@@ -3,7 +3,8 @@
 ORIG_IFNAME="vnet0"
 ATTACH_IFNAME="attach0"
 TESTFILTERNAME="nwfiltertestfilter"
-TESTVM2FWALLDATA="nwfilterxml2fwallout/testvm.fwall.dat"
+TESTVM2IPEBTABLESDATA="nwfilterxml2ipebtablesout/testvm.fwall.dat"
+TESTVM2FWALLDATA="$TESTVM2IPEBTABLESDATA"
 VIRSH=virsh
 
 PATTERN="^uri[ ]*:[ ]*"
@@ -526,7 +527,7 @@ deleteTestFilter() {
 main() {
   prgname="$0"
   xmldir="nwfilterxml2xmlin"
-  fwalldir="nwfilterxml2fwallout"
+  fwalldir="nwfilterxml2ipebtablesout"
   found=0
   filtername="tck-testcase"
   libvirtdpid=-1

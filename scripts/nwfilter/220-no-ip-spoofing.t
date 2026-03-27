@@ -79,8 +79,7 @@ SKIP: {
     diag "spoof ip is $spoofipaddr";
 
     # check ebtables entry
-    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-    my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+    my $ebtable = `ebtables -t nat -L`;
     diag $ebtable;
     # check if IP address is listed
     ok($ebtable =~ "$guestip", "check ebtables entry");

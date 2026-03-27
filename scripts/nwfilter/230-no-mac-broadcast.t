@@ -94,8 +94,7 @@ EOF
     diag "ip is $guestip";
 
     # check ebtables entry
-    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-    my $ebtable = `$ebtables -t nat -L`;
+    my $ebtable = `ebtables -t nat -L`;
     diag $ebtable;
     ok($ebtable =~ "-d Broadcast -j DROP", "check ebtables entry for \"-d Broadcast -j DROP\"");
 

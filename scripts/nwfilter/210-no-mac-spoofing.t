@@ -71,8 +71,7 @@ SKIP: {
     diag "guest ip is $guestip";
 
     # check ebtables entry
-    my $ebtables = (-e '/sbin/ebtables') ? '/sbin/ebtables' : '/usr/sbin/ebtables';
-    my $ebtable = `$ebtables -L;$ebtables -t nat -L`;
+    my $ebtable = `ebtables -t nat -L`;
     diag $ebtable;
     # ebtables *might* shorten :00: to :0: so we need to allow for both when searching
     $_ = $mac;

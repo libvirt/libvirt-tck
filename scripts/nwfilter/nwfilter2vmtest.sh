@@ -22,10 +22,6 @@ FLAG_LIBVIRT_TEST="$((1<<3))"
 FLAG_TAP_TEST="$((1<<4))"
 FLAG_FORCE_CLEAN="$((1<<5))"
 
-# --ctdir original vs. --ctdir reply's meaning was inverted in
-# netfilter at some point. We probe for it.
-IPTABLES_CTRDIR_CORRECTED=0
-
 failctr=0
 passctr=0
 attachfailctr=0

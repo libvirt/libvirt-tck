@@ -1,13 +1,18 @@
+.avocado.hint
+avocado.config
 bin/libvirt-tck
 Build.PL
 Changes
 conf/default.yml
+CONTRIBUTING.rst
 docs/intro.pod
 docs/writing-tests.pod
 lib/Sys/Virt/TCK.pm
 lib/Sys/Virt/TCK/Capabilities.pm
 lib/Sys/Virt/TCK/DomainBuilder.pm
+lib/Sys/Virt/TCK/DomainCapabilities.pm
 lib/Sys/Virt/TCK/Hooks.pm
+lib/Sys/Virt/TCK/HostUtils.pm
 lib/Sys/Virt/TCK/NetworkBuilder.pm
 lib/Sys/Virt/TCK/SELinux.pm
 lib/Sys/Virt/TCK/StoragePoolBuilder.pm
@@ -223,6 +228,7 @@ scripts/storage/420-vol-upload-all.t
 scripts/storage/425-vol-upload-nonblock.t
 t/005-pod.t
 t/010-pod-coverage.t
+t/015-changes.t
 t/050-capabilities.t
 t/070-domain-builder.t
 t/080-network-builder.t

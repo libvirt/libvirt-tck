@@ -12,7 +12,7 @@
 ^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
-\bSys-Virt-TCK-[\d\.\_]+
+\bSys-Virt-TCK-v[\d\.\_]+\.tar\.gz
 
 # Avoid CI files
 ^.gitlab-ci.yml

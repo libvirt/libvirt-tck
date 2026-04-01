@@ -123,6 +123,11 @@ checkExpectedOutput() {
         skip=$(printf %s\\n ${cmd} | grep -c -E ${skipregex})
     fi
 
+    if test "$LIBVIRT_REGENERATE_OUTPUT" = "1"
+    then
+        echo $line >> ${fwallfile}.new
+    fi
+
     eval ${cmd} 2>&1 | tee ${tmpfile} 1>/dev/null
 
     rm ${tmpfile2} 2>/dev/null
@@ -163,6 +168,10 @@ checkExpectedOutput() {
         # outputs were already treated this way)
         sed -i "s/[A-Z]/\L&/g" "${tmpfile}"
 
+        if test "$LIBVIRT_REGENERATE_OUTPUT" = "1"
+        then
+            cat ${tmpfile} >> ${fwallfile}.new
+        fi
         diff -w ${tmpfile} ${tmpfile2} >/dev/null
 
         if [ $? -ne 0 ]; then
@@ -200,6 +209,12 @@ checkExpectedOutput() {
   exec 4>&-
 
   rm -rf "${tmpdir}"
+
+  if test "$LIBVIRT_REGENERATE_OUTPUT" = "1"
+  then
+      perl -i -p -e "s/$ifname/$ORIG_IFNAME/g" ${fwallfile}.new
+      mv ${fwallfile}.new ${fwallfile}
+  fi
 
   IFS="${OIFS}"
 }

@@ -46,6 +46,7 @@ sub new {
         serials => [],
         parallels => [],
         consoles => [],
+        channels => [],
         inputs => [],
         graphics => [],
         hostdevs => [],
@@ -356,6 +357,15 @@ sub rng {
     return $self;
 }
 
+sub channel {
+    my $self = shift;
+    my %params = @_;
+
+    push @{$self->{channels}}, \%params;
+
+    return $self;
+}
+
 sub as_xml {
     my $self = shift;
 
@@ -557,6 +567,19 @@ sub as_xml {
             $w->emptyTag("backend", model => $self->{rng}->{backend_model});
         }
         $w->endTag("rng");
+    }
+
+    foreach my $channel (@{$self->{channels}}) {
+        $w->startTag("channel",
+                     type => $channel->{type});
+
+        $w->emptyTag("source",
+                     mode => $channel->{mode},
+                     path => $channel->{path});
+        $w->emptyTag("target",
+                     type => "virtio",
+                     name => $channel->{name});
+        $w->endTag("channel");
     }
 
     $w->endTag("devices");

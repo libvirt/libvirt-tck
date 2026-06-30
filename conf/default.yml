@@ -49,8 +49,11 @@ images:
       - hvm
       - xen
     osname: fedora-41
+    features:
+      - qga
     install:
       - dsniff
+      - qemu-guest-agent
 
 #
 # Where the kernel/initrd files needed by tests are to be

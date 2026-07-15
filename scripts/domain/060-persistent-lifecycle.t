@@ -30,7 +30,8 @@ configuration enabling it to be tracked when inactive.
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 12;
+use Test::Exception;
 
 use Sys::Virt::TCK;
 
@@ -70,6 +71,8 @@ my $dom1;
 ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "the running domain object");
 ok($dom1->get_id() > 0, "running domain has an ID > 0");
 
+ok_error(sub { $dom1->rename("tck-new") }, "active domain cannot be renamed",
+	Sys::Virt::Error::ERR_OPERATION_INVALID);
 
 diag "Destroying the running domain";
 $dom->destroy();
@@ -79,8 +82,12 @@ diag "Checking there is still an inactive domain config";
 ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "the inactive domain object");
 is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
 
-diag "Undefining the inactive domain config";
-$dom->undefine;
+lives_ok(sub { $dom1->rename("tck-new") }, "renaming inactive domain");
+my $dom_new;
+ok_domain(sub { $dom_new = $conn->get_domain_by_name("tck-new") }, "renamed domain object");
 
-ok_error(sub { $conn->get_domain_by_name("tck") }, "NO_DOMAIN error raised from missing domain",
+diag "Undefining the inactive domain config";
+$dom_new->undefine;
+
+ok_error(sub { $conn->get_domain_by_name("tck-new") }, "NO_DOMAIN error raised from missing domain",
 	 Sys::Virt::Error::ERR_NO_DOMAIN);

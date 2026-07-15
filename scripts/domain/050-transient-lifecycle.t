@@ -31,7 +31,7 @@ disappear.
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 use Sys::Virt::TCK;
 
@@ -46,6 +46,9 @@ my $xml = $tck->generic_domain(name => "tck")->as_xml;
 diag "Creating a new transient domain";
 my $dom;
 ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain object");
+
+ok_error(sub { $dom->rename("tck-new") }, "transient domain cannot be renamed",
+	Sys::Virt::Error::ERR_OPERATION_INVALID);
 
 diag "Destroying the transient domain";
 $dom->destroy;

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # -*- perl -*-
 #
 # Copyright (C) 2011 Red Hat, Inc.

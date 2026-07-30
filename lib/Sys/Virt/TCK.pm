@@ -275,7 +275,8 @@ sub config {
     my $key = shift;
     if (@_) {
         my $default = shift;
-	if (exists $self->{config}->{$key}) {
+	if (exists $self->{config}->{$key} &&
+	    defined $self->{config}->{$key}) {
 	    return $self->{config}->{$key};
 	} else {
 	    return $default;

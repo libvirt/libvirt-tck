@@ -34,6 +34,7 @@ use warnings;
 
 use Test::More tests => 6;
 
+use POSIX qw(uname);
 use Sys::Virt::TCK;
 use Test::Exception;
 
@@ -73,7 +74,12 @@ diag "Downloading the volume to $filename";
 download($vol, $st, $filename);
 $download_disk_size = `qemu-img info $filename |grep 'disk size:'|cut -d' ' -f3`;
 chomp($download_disk_size);
-is(int($download_disk_size), 0, "download the volume successfully to '$filename' with disk size $download_disk_size bytes");
+if ((uname())[0] eq "FreeBSD") {
+    # Sparse volume size is not 0 on UFS in FreeBSD
+    cmp_ok(int($download_disk_size), '<=', 256, "download the volume successfully to '$filename'");
+} else {
+    is(int($download_disk_size), 0, "download the volume successfully to '$filename' with disk size $download_disk_size bytes");
+}
 $download_virtual_size = `qemu-img info $filename |grep 'virtual size:'|cut -d'(' -f2|cut -d' ' -f1`;
 chomp($download_virtual_size);
 is($download_virtual_size, 1024*1024*2, "download the volume successfully to '$filename' with virtual size $download_virtual_size bytes");

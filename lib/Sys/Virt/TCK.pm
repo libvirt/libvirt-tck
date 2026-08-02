@@ -709,6 +709,7 @@ sub best_image {
     my $self = shift;
     my $caps = shift;
     my $wantostype = shift;
+    my $wantfeatures = shift || [];
 
     my $images = $self->config("images", []);
     my $hostarch = $caps->host_cpu_arch();
@@ -717,8 +718,19 @@ sub best_image {
         my $arch = $images->[$i]->{arch};
         my $ostype = $images->[$i]->{ostype};
         my @ostype = ref($ostype) ? @{$ostype} : ($ostype);
+        my $features = $images->[$i]->{features} || [];
+        my %features = map { $_ => 1 } @{$features};
 
         next unless $arch eq $hostarch;
+
+        my $missing_feature = 0;
+        foreach my $feature (@{$wantfeatures}) {
+            if (!$features{$feature}) {
+                $missing_feature = 1;
+                last;
+            }
+        }
+        next if $missing_feature;
 
         foreach $ostype (@ostype) {
             if ((defined $wantostype) &&
@@ -810,9 +822,10 @@ sub get_image {
     my $self = shift;
     my $caps = shift;
     my $wantostype = shift;
+    my $wantfeatures = shift || [];
 
     my ($cfgindex, $domain, $arch, $ostype, $emulator, $loader) =
-        $self->best_image($caps, $wantostype);
+        $self->best_image($caps, $wantostype, $wantfeatures);
 
     if (!defined $cfgindex) {
         die "cannot find any supported image configuration";
@@ -857,9 +870,10 @@ sub generic_machine_domain {
     my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
     my %filterparams = exists $params{filterparams} ? %{$params{filterparams}} : ();
+    my $image_features = exists $params{image_features} ? $params{image_features} : [];
 
     if ($fullos) {
-        my %config = $self->get_image($caps, $ostype);
+        my %config = $self->get_image($caps, $ostype, $image_features);
 
         my $b = Sys::Virt::TCK::DomainBuilder->new(conn => $self->conn,
                                                    name => $name,
@@ -997,6 +1011,7 @@ sub generic_domain {
     my $shareddisk = exists $params{shareddisk} ? $params{shareddisk} : 0;
     my $filterref = exists $params{filterref} ? $params{filterref} : undef;
     my %filterparams = exists $params{filterparams} ? %{$params{filterparams}} : ();
+    my $image_features = exists $params{image_features} ? $params{image_features} : [];
 
     my $caps = Sys::Virt::TCK::Capabilities->new(xml => $self->conn->get_capabilities);
 
@@ -1019,7 +1034,8 @@ sub generic_domain {
                                            shareddisk => $shareddisk,
                                            fullos => $fullos,
                                            filterref => $filterref,
-                                           filterparams => \%filterparams);
+                                           filterparams => \%filterparams,
+                                           image_features => $image_features);
     }
     if ($netmode) {
         if ($netmode eq "vepa") {

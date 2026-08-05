@@ -464,6 +464,7 @@ sub create_virt_builder_disk {
     my $bucket = shift;
     my $name = shift;
     my $osname = shift;
+    my $install = shift;
 
     my $dir = $self->bucket_dir($bucket);
 
@@ -478,7 +479,18 @@ sub create_virt_builder_disk {
     my $ssh_key_path = $self->create_host_ssh_keys;
 
     print "# running virt-builder $osname\n";
-    system "virt-builder", "--install", "dsniff", "--selinux-relabel", "--root-password", "password:$password", "--ssh-inject", "root:file:$ssh_key_path.pub", "--output", $target, "--memsize", "2048", $osname;
+    my @cmd = ("virt-builder");
+
+    if (ref($install) eq "ARRAY") {
+        push @cmd, "--install", join(",", @{$install}) if @{$install};
+    } elsif (defined($install)) {
+        die "install configuration for image '$osname' must be an array\n";
+    }
+
+    push @cmd, "--selinux-relabel", "--root-password", "password:$password",
+        "--ssh-inject", "root:file:$ssh_key_path.pub", "--output", $target,
+        "--memsize", "2048", $osname;
+    system @cmd;
 
     die "cannot run virt-builder: $?" if $? != 0;
 
@@ -806,14 +818,16 @@ sub get_image {
         die "cannot find any supported image configuration";
     }
 
-    my $kernels = $self->config("images", []);
+    my $images = $self->config("images", []);
 
-    my $osname = $kernels->[$cfgindex]->{osname};
+    my $osname = $images->[$cfgindex]->{osname};
+    my $install = $images->[$cfgindex]->{install};
 
     my $bucket = "os-$arch-$ostype";
 
     my $needs_firstboot = ! $self->has_disk_image($bucket, "disk-$osname.img", $osname);
-    my $dfile = $self->create_virt_builder_disk($bucket, "disk-$osname.img", $osname);
+    my $dfile = $self->create_virt_builder_disk(
+        $bucket, "disk-$osname.img", $osname, $install);
 
     my $dev = $self->get_disk_dev($ostype, $domain);
 

@@ -29,7 +29,8 @@ config can be updated without needing it to be first undefined.
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 12;
+use XML::XPath;
 
 use Sys::Virt::TCK;
 
@@ -38,6 +39,12 @@ my $conn = eval { $tck->setup(); };
 BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
+sub get_on_reboot {
+	my ($dom, $flags) = @_;
+	my $xml = $dom->get_xml_description($flags);
+	my $xp = XML::XPath->new(xml => $xml);
+	return $xp->getNodeText("/domain/on_reboot");
+}
 
 my $cfg = $tck->generic_domain(name => "tck")->uuid("11111111-1111-1111-1111-111111111111");
 $cfg->on_reboot("restart");
@@ -75,6 +82,11 @@ ok($dom->get_id() > 0, "running domain has an ID > 0");
 diag "Updating inactive domain config";
 ok_domain(sub { $dom = $conn->define_domain($xml2) }, "re-defined persistent domain config");
 
+is(get_on_reboot($dom, 0), "restart",
+	"live domain keeps the original lifecycle action");
+is(get_on_reboot($dom, Sys::Virt::Domain::XML_INACTIVE), "destroy",
+	"persisted domain contains updated lifecycle action");
+
 diag "Destroying the running domain";
 $dom->destroy();
 
@@ -83,6 +95,9 @@ my $dom1;
 diag "Checking there is still an inactive domain config";
 ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "the inactive domain object");
 is($dom1->get_id(), -1 , "inactive domain has an ID == -1");
+
+is(get_on_reboot($dom1, 0), "destroy",
+	"updated lifecycle action survives domain destroy");
 
 diag "Undefining the inactive domain config";
 $dom->undefine;

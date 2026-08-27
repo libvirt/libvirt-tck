@@ -1222,8 +1222,11 @@ sub err_not_implemented {
 sub xpath {
     my $object = shift;
     my $path = shift;
+    my $flags = shift;
 
-    my $xml = $object->get_xml_description;
+    my $xml = defined $flags
+        ? $object->get_xml_description($flags)
+        : $object->get_xml_description;
 
     my $xp = XML::XPath->new(xml => $xml);
 

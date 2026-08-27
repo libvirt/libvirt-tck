@@ -30,7 +30,7 @@ file while the transient domain is running.
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 9;
 
 use Sys::Virt::TCK;
 
@@ -40,23 +40,35 @@ BAIL_OUT "failed to setup test harness: $@" if $@;
 END { $tck->cleanup if $tck; }
 
 
-my $xml = $tck->generic_domain(name => "tck")->as_xml;
+my $cfg = $tck->generic_domain(name => "tck");
+$cfg->on_reboot("restart");
 
 diag "Creating a new transient domain";
 my $dom;
-ok_domain(sub { $dom = $conn->create_domain($xml) }, "created transient domain");
+ok_domain(sub { $dom = $conn->create_domain($cfg->as_xml) }, "created transient domain");
+ok(!$dom->is_persistent(), "active domain is transient");
 
-my $livexml = $dom->get_xml_description();
+$cfg->uuid($dom->get_uuid_string);
+$cfg->on_reboot("destroy");
 
 diag "Defining config for transient guest";
 my $dom1;
-ok_domain(sub { $dom1 = $conn->define_domain($livexml) }, "defined transient domain");
+ok_domain(sub { $dom1 = $conn->define_domain($cfg->as_xml) }, "defined persistent domain config");
+ok($dom->is_persistent(), "active domain is now persistent");
+
+is(xpath($dom, "string(/domain/on_reboot)"), "restart",
+	"live domain keeps the transient lifecycle action");
+is(xpath($dom, "string(/domain/on_reboot)",
+	 Sys::Virt::Domain::XML_INACTIVE), "destroy",
+	"persistent domain contains the newly defined lifecycle action");
 
 diag "Destroying active domain";
 $dom->destroy;
 
 diag "Checking that an inactive domain config still exists";
-ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "transient domain config");
+ok_domain(sub { $dom1 = $conn->get_domain_by_name("tck") }, "persistent domain config");
+is(xpath($dom1, "string(/domain/on_reboot)"), "destroy",
+	"persistent lifecycle action survives domain destroy");
 
 diag "Removing inactive domain config";
 $dom->undefine;

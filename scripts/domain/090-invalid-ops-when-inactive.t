@@ -31,7 +31,7 @@ etc on an inactive domain.
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use Sys::Virt::TCK;
 
@@ -58,6 +58,7 @@ ok_error(sub { $dom->reboot(0) }, "reboot of inactive domain not allowed");
 ok_error(sub { $dom->save("save.img") }, "save of inactive domain not allowed");
 ok_error(sub { $dom->shutdown }, "shutdown of inactive domain not allowed");
 ok_error(sub { $dom->suspend }, "suspend of inactive domain not allowed");
+ok_error(sub { $dom->resume }, "resume of inactive domain not allowed");
 
 
 # end

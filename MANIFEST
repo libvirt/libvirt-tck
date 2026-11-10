@@ -41,6 +41,7 @@ scripts/domain/100-transient-save-restore.t
 scripts/domain/101-persistent-save-restore.t
 scripts/domain/102-broken-save-restore.t
 scripts/domain/103-blockdev-save-restore.t
+scripts/domain/105-suspend-resume.t
 scripts/domain/110-memory-balloon.t
 scripts/domain/120-disks-stats.t
 scripts/domain/121-block-info.t

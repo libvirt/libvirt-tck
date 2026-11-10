@@ -44,7 +44,7 @@ use base qw(Exporter);
 
 our @EXPORT = qw(ok_error ok_domain ok_domain_snapshot ok_pool
                  ok_volume ok_network ok_interface ok_node_device
-                 xpath err_not_implemented get_first_macaddress
+                 xpath err_not_implemented err_unsupported get_first_macaddress
                  get_first_interface_target_dev get_network_ip
                  get_ip_from_leases shutdown_vm_gracefully);
 
@@ -1244,6 +1244,18 @@ sub err_not_implemented {
         ref($exception) &&
         $exception->isa("Sys::Virt::Error") &&
         $exception->code() == 3) {
+        return 1;
+    }
+    return 0;
+}
+
+sub err_unsupported {
+    my $exception = shift;
+
+    if ($exception &&
+        ref($exception) &&
+        $exception->isa("Sys::Virt::Error") &&
+        $exception->code() == Sys::Virt::Error::ERR_OPERATION_UNSUPPORTED) {
         return 1;
     }
     return 0;

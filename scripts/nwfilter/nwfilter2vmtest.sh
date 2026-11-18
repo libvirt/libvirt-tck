@@ -538,6 +538,30 @@ deleteTestFilter() {
   return 0
 }
 
+detectBackend() {
+  isnft=0
+
+  which nft > /dev/null 2>&1
+  if test $? == 0
+  then
+      for name in $(nft list tables | awk '{print $3}')
+      do
+	  if test ${name} = "libvirt_nwfilter_ethernet"
+	  then
+	      isnft=1
+	  fi
+      done
+  fi
+
+  if test $isnft = 1
+  then
+      TESTVM2FWALLDATA=$TESTVM2NFTABLESDATA
+      fwalldir="nwfilterxml2nftablesout"
+  else
+      TESTVM2FWALLDATA=$TESTVM2IPEBTABLESDATA
+      fwalldir="nwfilterxml2ipebtablesout"
+  fi
+}
 
 main() {
   prgname="$0"
@@ -569,28 +593,6 @@ main() {
       echo "This script will only run on Linux."
     fi
     exit 1;
-  fi
-
-  isnft=0
-  which nft > /dev/null 2>&1
-  if test $? == 0
-  then
-      for name in $(nft list tables | awk '{print $3}')
-      do
-	  if test ${name} = "libvirt_nwfilter_ethernet"
-	  then
-	      isnft=1
-	  fi
-      done
-  fi
-
-  if test $isnft = 1
-  then
-      TESTVM2FWALLDATA=$TESTVM2NFTABLESDATA
-      fwalldir="nwfilterxml2nftablesout"
-  else
-      TESTVM2FWALLDATA=$TESTVM2IPEBTABLESDATA
-      fwalldir="nwfilterxml2ipebtablesout"
   fi
 
   if [ $(($flags & $FLAG_TAP_TEST)) -ne 0 ]; then
@@ -672,6 +674,13 @@ main() {
       deleteTestFilter "${flags}"
       exit 1
   fi
+
+  # wait until after a guest with a filterref has been started to
+  # check which nwfilter backend is being used - if the check is done
+  # earlier it will give a false negative for nft if there has never
+  # been a filterref added since the last host system boot (or "nft
+  # flush ruleset")
+  detectBackend
 
   runTests "${vm1}" "${vm2}" "${xmldir}" "${fwalldir}" "${flags}"
 

@@ -105,8 +105,8 @@ checkExpectedOutput() {
   regex="s/${ORIG_IFNAME}/${ifname}/g"
 
   tmpdir=$(mktmpdir)
-  tmpfile=$tmpdir/file
-  tmpfile2=$tmpdir/file2
+  actualFile=$tmpdir/file
+  expectedFile=$tmpdir/file2
   OIFS="${IFS}"
 
   exec 4<${fwallfile}
@@ -128,10 +128,10 @@ checkExpectedOutput() {
         echo $line >> ${fwallfile}.new
     fi
 
-    eval ${cmd} 2>&1 | tee ${tmpfile} 1>/dev/null
+    eval ${cmd} 2>&1 | tee ${actualFile} 1>/dev/null
 
-    rm ${tmpfile2} 2>/dev/null
-    touch ${tmpfile2}
+    rm ${expectedFile} 2>/dev/null
+    touch ${expectedFile}
 
     while [ 1 ]; do
       read -r line <&4
@@ -159,29 +159,30 @@ checkExpectedOutput() {
           break
         fi
 
-        sed -i "s/-p 0x600/-p Length/" "${tmpfile}"
-        sed -i "s|--icmp-type 255/255|--icmp-type any|" "${tmpfile}"
+        sed -i "s/-p 0x600/-p Length/" "${actualFile}"
+        sed -i "s|--icmp-type 255/255|--icmp-type any|" "${actualFile}"
 
         # there was a problem in some version of ebtables that MAC addresses
         # formatted in uppercase breaking some of the tests; prevent these
         # breakages by converting the ebtables output to lowercase (test
         # outputs were already treated this way)
-        sed -i "s/[A-Z]/\L&/g" "${tmpfile}"
+        sed -i "s/[A-Z]/\L&/g" "${actualFile}"
 
         if test "$LIBVIRT_REGENERATE_OUTPUT" = "1"
         then
-            cat ${tmpfile} >> ${fwallfile}.new
+            cat ${actualFile} >> ${fwallfile}.new
         fi
-        diff -w ${tmpfile} ${tmpfile2} >/dev/null
+        diff -w ${expectedFile} ${actualFile} >/dev/null
 
         if [ $? -ne 0 ]; then
           if [ $(($flags & $FLAG_VERBOSE)) -ne 0 ]; then
-            echo "FAIL ${xmlfile} : ${cmd}"
-            diff -w ${tmpfile} ${tmpfile2}
+            echo "FAIL==== filter xml: ${xmlfile}"
+            echo "expected results at: $expectedFile"
+            echo "  actual results at: $actualFile (generated with [$cmd])"
+            diff -w ${actualFile} ${expectedFile}
           fi
           failctr=$(($failctr + 1))
           if [ $(($flags & $FLAG_WAIT)) -ne 0 ]; then
-                echo "tmp files: $tmpfile, $tmpfile2"
                 echo "Press enter"
                 read enter
           fi
@@ -202,7 +203,7 @@ checkExpectedOutput() {
         break
 
       fi
-      printf %s\\n "${line}" | sed ${regex} >> ${tmpfile2}
+      printf %s\\n "${line}" | sed ${regex} >> ${expectedFile}
     done
   done
 
